@@ -1,0 +1,8 @@
+(defsystem :story
+  :serial t
+  :depends-on ("alexandria" "cl-who" "parenscript" "hunchentoot" "split-sequence" "zpng" "cl-json" "cl-ppcre" "iterate" "local-time")
+  :components ((:static-file "story.asd")
+               (:file "package")
+               (:file "utility")
+               (:file "git")
+               (:file "initialize")))

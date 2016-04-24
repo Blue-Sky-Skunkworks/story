@@ -1,0 +1,6 @@
+#+TITLE: General notes for Story static website geneator.
+#+CATEGORY: notes,tasks
+#+FILETAGS: story
+
+* story tasks
+

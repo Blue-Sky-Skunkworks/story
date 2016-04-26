@@ -25,7 +25,9 @@
   (unless *inhibit-note*
     (let ((*print-pretty* nil))
       (sb-thread:with-mutex (*note-lock*)
-        (apply #'format t (format nil "~~&;; ~A ~A~~%" (princ-to-string (- (get-universal-time) *note-start-clock*)) control) arguments)
+        (apply #'format t (format nil "~~&;; ~A ~A~~%"
+                                  (blue (princ-to-string (- (get-universal-time) *note-start-clock*)) :effect :bright)
+                                  control) arguments)
         (finish-output t)))))
 
 (defun ensure-trailing-slash (string &optional (slash-character #\/))

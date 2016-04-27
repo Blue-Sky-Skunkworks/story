@@ -27,6 +27,7 @@ matches NAME."
   (when *web-acceptor*
     (warn "Server already started. Restarting")
     (hunchentoot:stop *web-acceptor*))
+  (note "starting story server")
   (setf *web-acceptor*
         (make-instance 'web-acceptor
                        :port 3300

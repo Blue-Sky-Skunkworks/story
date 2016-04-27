@@ -22,7 +22,7 @@
         (for index from 1)
         (format t "~A.~A ~S~%" index (if (eq story *story*) "*" " ") story)
         (iter (for child in (children story))
-              (format t "     ~S~%" child))))
+              (format t "      ~S~%" child))))
 
 (defclass element ()
   ((parent :reader parent :initform nil :initarg :parent)
@@ -58,7 +58,7 @@
     (format stream "~A" (path page))))
 
 (defmethod render-complete-page ((page page) stream)
-  (html
+  (with-html-output (stream stream)
     (:html
       (:head
        (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
@@ -76,18 +76,16 @@
   (do-stories (name story)
     (build story)))
 
-(defmethod build :before ((element element))
-  (note "building ~S" element))
-
-(defmethod build ((element element))
-  (iter (for child in (children element))
-        (build child)))
-
-(defmethod build ((page page))
-  (with-output-to-file (stream (format nil "~A~A" *build-location* (path page)) :if-exists :overwrite)
-    (funcall (renderer page) page stream))
-  (call-next-method))
+(defgeneric render (element stream)
+  (:method :before ((element element) stream)
+           (note "rendering ~S" element))
+  (:method ((element element) stream)
+    (iter (for child in (children element))
+          (render child stream)))
+  (:method ((page page) stream)
+    (funcall (renderer page) page stream)
+    (call-next-method)))
 
 (defun render-current-story ()
-  (cl-ansi-text:with-color (:red) (princ "red"))
-  )
+  (with-output-to-string (stream)
+    (render *story* stream)))

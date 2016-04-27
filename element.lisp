@@ -40,7 +40,7 @@
 
 (defclass story (element)
   ((name :reader name :initarg :name)
-   (title :reader title :initarg :title)
+   (title :reader title :initarg :title :initform "Unititled Story")
    (home :reader home :initarg :home)))
 
 (defmethod print-object ((story story) stream)
@@ -58,16 +58,20 @@
     (format stream "~A" (path page))))
 
 (defmethod render-complete-page ((page page) stream)
-  (with-html-output (stream stream)
-    (:html
-      (:head
-       (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
-       (when (title page) (htm (:title (esc (title page))))))
-      (:body (funcall (body page) stream page)))))
+  (let* ((story (parent page))
+         (title (or (title page) (title story))))
+    (with-html-output (stream stream)
+      (:html
+        (:head
+         (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
+         (when title (htm (:title (esc title)))))
+        (:body (funcall (body page) stream page))))))
 
 (defmacro define-story (name (&key title) &body body)
   `(let* ((page (make-instance 'page :path "index.html" :renderer 'render-complete-page
-                               :body (lambda (stream page) ,@body)))
+                               :body (lambda (stream page)
+                                       (declare (ignorable page))
+                                       (html ,@body))))
           (story (make-instance 'story :name ,(string-downcase name) :title ,title :home page)))
      (add-child story page)
      (add-story story)))

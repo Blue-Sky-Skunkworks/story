@@ -1,0 +1,13 @@
+(defsystem "story-module-FOO"
+  :defsystem-depends-on ("story-module-system")
+  :class :story-module-system
+  :category "CATEGORY"
+  :icon ICON
+  :description "DESCRIPTION"
+  :version "VERSION"
+  :author "AUTHOR"
+  :license "LICENSE"
+  :serial t
+  :depends-on ("story-modules"DEPENDENCIES)
+  :components ((:static-file "story-module-FOO.asd")
+               (:file "FOO")))

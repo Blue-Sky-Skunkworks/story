@@ -1,0 +1,13 @@
+(in-package :story)
+
+(define-module FOO
+  (:templates)
+  (:has-js)
+  (:dispatches)
+  (:headers)
+  (:commands)
+  (:pages)
+  (:demo-page))
+
+;; (define-javascript-file FOO)
+

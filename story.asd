@@ -8,8 +8,8 @@
                (:file "git")
                (:file "story")
                (:file "server")
-               (:moddule "examples"
-                         :serial t
-                         :components
-                         ((:file "demo")))
+               (:module "examples"
+                        :serial t
+                        :components
+                        ((:file "demo")))
                (:file "initialize")))

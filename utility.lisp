@@ -21,13 +21,44 @@
                                    (format t "~&;;  Note logging started at: ~A.~%" now)
                                    now))
 
+(defun current-clock-face ()
+  (multiple-value-bind (s m h) (get-decoded-time)
+    (aref
+     #(#\CLOCK_FACE_ONE_OCLOCK
+       #\CLOCK_FACE_TWO_OCLOCK
+       #\CLOCK_FACE_THREE_OCLOCK
+       #\CLOCK_FACE_FOUR_OCLOCK
+       #\CLOCK_FACE_FIVE_OCLOCK
+       #\CLOCK_FACE_SIX_OCLOCK
+       #\CLOCK_FACE_SEVEN_OCLOCK
+       #\CLOCK_FACE_EIGHT_OCLOCK
+       #\CLOCK_FACE_NINE_OCLOCK
+       #\CLOCK_FACE_TEN_OCLOCK
+       #\CLOCK_FACE_ELEVEN_OCLOCK
+       #\CLOCK_FACE_TWELVE_OCLOCK
+       #\CLOCK_FACE_ONE-THIRTY
+       #\CLOCK_FACE_TWO-THIRTY
+       #\CLOCK_FACE_THREE-THIRTY
+       #\CLOCK_FACE_FOUR-THIRTY
+       #\CLOCK_FACE_FIVE-THIRTY
+       #\CLOCK_FACE_SIX-THIRTY
+       #\CLOCK_FACE_SEVEN-THIRTY
+       #\CLOCK_FACE_EIGHT-THIRTY
+       #\CLOCK_FACE_NINE-THIRTY
+       #\CLOCK_FACE_TEN-THIRTY
+       #\CLOCK_FACE_ELEVEN-THIRTY
+       #\CLOCK_FACE_TWELVE-THIRTY)
+     (1- (+ (if (< m 30) 0 12) (if (> h 12) (- h 12) h))))))
+
 (defun note (control &rest arguments)
   (unless *inhibit-note*
     (let ((*print-pretty* nil))
       (sb-thread:with-mutex (*note-lock*)
-        (apply #'format t (format nil "~~&;; ~A ~A~~%"
-                                  (blue (princ-to-string (- (get-universal-time) *note-start-clock*)) :effect :bright)
-                                  control) arguments)
+        (apply #'format t
+               (format nil "~~&;; ~A  ~A ~A~~%"
+                       (blue (princ-to-string (current-clock-face)) :effect :bright)
+                       (blue (princ-to-string (- (get-universal-time) *note-start-clock*)) :effect :bright)
+                       control) arguments)
         (finish-output t)))))
 
 (defun ensure-trailing-slash (string &optional (slash-character #\/))

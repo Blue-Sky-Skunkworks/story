@@ -16,6 +16,12 @@
   (iter (for module in modules)
         (appending (module-value module key))))
 
+(defun collect-module-stylesheets (modules)
+  (iter (for module in modules)
+        (when-let (els (module-value module :stylesheets))
+          (appending
+           (iter (for css in els) (collect (format nil "~(~A~)/~A" module css)))))))
+
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 

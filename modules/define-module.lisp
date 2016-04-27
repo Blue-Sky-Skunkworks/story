@@ -1,22 +1,31 @@
 (in-package :story)
 
+(defvar *story-modules* (make-hash-table))
+
 (defvar *loaded-story-modules* nil)
+
+(defun story-modules ()
+  "Print a table of the story modules."
+  (iter (for (k v) in-hashtable *story-modules*)
+        (format t "~A ~A~20T ~S~%" (if (member k *loaded-story-modules*) "*" " ") k v)))
 
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
 (defmacro define-story-module (name &rest args)
-  (with-assoc-values (args (:init))
-    `(progn
-       (defun ,(symb 'load-story-module- name) (&key force)
-         (when (member ,(ksymb (string-upcase name)) *loaded-story-modules*)
-           (if force
-               (warn ,(format nil  "Reinitializing story module ~S." name))
-               (error ,(format nil "Story module ~S already loaded." name))))
-         ,@init
-         (prog1
-            nil
-           (pushnew ,(ksymb (string-upcase name)) *loaded-story-modules*))))))
+  (let ((kname (ksymb (string-upcase name))))
+   (with-assoc-values (args (:init :stylesheets))
+     `(progn
+        (setf (gethash ,kname *story-modules*) (list ,stylesheets))
+        (defun ,(symb 'load-story-module- name) (&key force)
+          (when (member ,kname *loaded-story-modules*)
+            (if force
+                (warn ,(format nil  "Reinitializing story module ~S." name))
+                (error ,(format nil "Story module ~S already loaded." name))))
+          ,@init
+          (prog1
+              nil
+            (pushnew ,kname *loaded-story-modules*)))))))
 
 (defun story-module-depends-on-modules (module-name)
   (iter (for name in (asdf:system-depends-on (asdf:find-system module-name)))

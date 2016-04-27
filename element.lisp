@@ -41,7 +41,8 @@
 (defclass story (element)
   ((name :reader name :initarg :name)
    (title :reader title :initarg :title :initform "Unititled Story")
-   (home :reader home :initarg :home)))
+   (home :reader home :initarg :home)
+   (modules :reader modules :initarg :modules)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)
@@ -67,12 +68,13 @@
          (when title (htm (:title (esc title)))))
         (:body (funcall (body page) stream page))))))
 
-(defmacro define-story (name (&key title) &body body)
+(defmacro define-story (name (&key title modules) &body body)
   `(let* ((page (make-instance 'page :path "index.html" :renderer 'render-complete-page
                                :body (lambda (stream page)
                                        (declare (ignorable page))
                                        (html ,@body))))
-          (story (make-instance 'story :name ,(string-downcase name) :title ,title :home page)))
+          (story (make-instance 'story :name ,(string-downcase name) :title ,title
+                                :home page :modules ',modules)))
      (add-child story page)
      (add-story story)))
 

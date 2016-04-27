@@ -8,6 +8,5 @@
   :components ((:static-file "story-modules.asd")
                (:file "utility")
                (:file "define-module")
-               (:file "loader")
                (:file "create-module")))
 

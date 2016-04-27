@@ -9,23 +9,30 @@
   (iter (for (k v) in-hashtable *story-modules*)
         (format t "~A ~A~20T ~S~%" (if (member k *loaded-story-modules*) "*" " ") k v)))
 
+(defun module-value (name key)
+  (assoc-value (gethash name *story-modules*) key))
+
+(defun collect-module-value (key &rest modules)
+  (iter (for module in modules)
+        (appending (module-value module key))))
+
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
-(defmacro define-story-module (name &rest args)
+(defmacro define-story-module (name &key init stylesheets)
   (let ((kname (ksymb (string-upcase name))))
-   (with-assoc-values (args (:init :stylesheets))
-     `(progn
-        (setf (gethash ,kname *story-modules*) (list ,stylesheets))
-        (defun ,(symb 'load-story-module- name) (&key force)
-          (when (member ,kname *loaded-story-modules*)
-            (if force
-                (warn ,(format nil  "Reinitializing story module ~S." name))
-                (error ,(format nil "Story module ~S already loaded." name))))
-          ,@init
-          (prog1
-              nil
-            (pushnew ,kname *loaded-story-modules*)))))))
+    `(progn
+       (setf (gethash ,kname *story-modules*)
+             (list ,@(when stylesheets `((list :stylesheets ,@stylesheets)))))
+       (defun ,(symb 'load-story-module- name) (&key force)
+         (when (member ,kname *loaded-story-modules*)
+           (if force
+               (warn ,(format nil  "Reinitializing story module ~S." name))
+               (error ,(format nil "Story module ~S already loaded." name))))
+         ,@init
+         (prog1
+             nil
+           (pushnew ,kname *loaded-story-modules*))))))
 
 (defun story-module-depends-on-modules (module-name)
   (iter (for name in (asdf:system-depends-on (asdf:find-system module-name)))
@@ -48,3 +55,6 @@
   (unless (member (ksymb (string-upcase name)) *loaded-story-modules*)
     (require (symb 'story-module- (string-upcase name)))
     (funcall (symb 'load-story-module- (string-upcase name)))))
+
+(defun ensure-story-modules (names)
+  (mapc #'ensure-story-module names))

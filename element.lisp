@@ -16,11 +16,12 @@
   `(iter (for (,name ,story) in-hashtable *stories*)
          (progn ,@body)))
 
-(defun stories ()
-  "Show all the stories and their contents."
+(defun story (&optional (all nil))
+  "Describe the story or stories."
   (iter (for (name story) in-hashtable *stories*)
         (for index from 1)
         (format t "~A.~A ~S~%" index (if (eq story *story*) "*" " ") story)
+        (when (stylesheets story) (format t "    css: ~S~%" (stylesheets story)))
         (iter (for child in (children story))
               (format t "      ~S~%" child))))
 
@@ -42,11 +43,17 @@
   ((name :reader name :initarg :name)
    (title :reader title :initarg :title :initform "Unititled Story")
    (home :reader home :initarg :home)
-   (modules :reader modules :initarg :modules)))
+   (modules :reader modules :initarg :modules)
+   (stylesheets :reader stylesheets)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)
     (format stream "~A" (name story))))
+
+(defmethod initialize-instance :after ((story story) &key)
+  (when (modules story)
+    (ensure-story-modules (modules story))
+    (setf (slot-value story 'stylesheets) (apply #'collect-module-value :stylesheets (modules story)))))
 
 (defclass page (element)
   ((path :reader path :initarg :path)

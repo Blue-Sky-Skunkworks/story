@@ -8,7 +8,7 @@
                                    (author "unknown")
                                    (license "unknown")
                                    dependencies)
-  "Create a new Story module from templates."
+  "Create a new Story module."
   (assert (and icon category description version author license))
   (ensure-directories-exist (format nil "~A~(~A~)/" base name))
   (let ((asd-filename-template (format nil "~Abasis/story-module-foo.asd.template" base))

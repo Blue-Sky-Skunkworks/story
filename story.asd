@@ -6,7 +6,9 @@
                (:file "package")
                (:file "utility")
                (:file "git")
-               (:file "story")
+               (:file "element")
+               (:file "define-story")
+               (:file "render")
                (:file "server")
                (:module "examples"
                         :serial t

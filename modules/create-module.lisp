@@ -10,10 +10,11 @@
                                    dependencies)
   "Create a new Story module from templates."
   (assert (and icon category description version author license))
+  (ensure-directories-exist (format nil "~A~(~A~)/" base name))
   (let ((asd-filename-template (format nil "~Abasis/story-module-foo.asd.template" base))
-        (asd-filename (format nil "~Astory-module-~(~A~).asd" base name))
+        (asd-filename (format nil "~A~(~A~)/story-module-~(~A~).asd" base name name))
         (lisp-filename-template (format nil "~Abasis/foo.lisp.template" base))
-        (lisp-filename (format nil "~A~(~A~).lisp" base name)))
+        (lisp-filename (format nil "~A~(~A~)/~(~A~).lisp" base name name)))
     (cond
       ((probe-file asd-filename) (warn "Module ~S already exists at ~S." name asd-filename))
       ((probe-file lisp-filename) (warn "Module ~S lisp file already exists at ~S." name lisp-filename))

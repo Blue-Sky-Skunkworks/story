@@ -50,13 +50,15 @@
        #\CLOCK_FACE_TWELVE-THIRTY)
      (1- (+ (if (< m 30) 0 12) (if (> h 12) (- h 12) h))))))
 
+(defparameter *show-note-clock* nil)
+
 (defun note (control &rest arguments)
   (unless *inhibit-note*
     (let ((*print-pretty* nil))
       (sb-thread:with-mutex (*note-lock*)
         (apply #'format t
-               (format nil "~~&;; ~A  ~A ~A~~%"
-                       (blue (princ-to-string (current-clock-face)) :effect :bright)
+               (format nil "~~&;; ~@[ ~A ~]~A ~A~~%"
+                       (and *show-note-clock* (blue (princ-to-string (current-clock-face)) :effect :bright))
                        (blue (princ-to-string (- (get-universal-time) *note-start-clock*)) :effect :bright)
                        control) arguments)
         (finish-output t)))))

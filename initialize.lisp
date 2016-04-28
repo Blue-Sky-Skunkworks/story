@@ -8,8 +8,8 @@
                                                              |__/
 ")
 
-
 (defun initialize ()
   (format t "Welcome to Story!~%")
   (format t "~A~%" (blue *welcome-text* :effect :bright))
   (start-server))
+

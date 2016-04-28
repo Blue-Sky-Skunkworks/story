@@ -35,6 +35,7 @@ matches NAME."
                        :message-log-destination (story-file (format nil "log/message-~A.log" (now)))
                        :dispatch-table (mapcar 'format-dispatch
                                                `((:exact "/" render-current-story)
+                                                 (:prefix "/css/" serve-css)
                                                  (:folder "/" ,(story-file "build/"))))))
   (hunchentoot:start *web-acceptor*))
 
@@ -43,4 +44,28 @@ matches NAME."
         (when-let (action (funcall dispatcher request))
           (return (funcall action)))
         (finally (call-next-method))))
+
+(defparameter *css* (make-hash-table :test 'equal))
+
+(defun load-stylesheets (&rest args)
+  (iter (for (file path) on args by 'cddr)
+        (setf (gethash (format nil "/~A" path) *css*)
+              (run-program-to-string *scss-script* (list file)))))
+
+(defparameter *scss-script* (cond
+                              ((probe-file "/usr/bin/scss") "/usr/bin/scss")
+                              (t (error "Missing scss."))))
+
+(defun serve-scss-file (path)
+  (let ((path (namestring path)))
+    (or (and *cache-scss* (gethash path *css-files*))
+        (setf (gethash path *css-files*)
+              (run-program-to-string *scss-script* (list path))))))
+
+(defun serve-css ()
+  (setf (hunchentoot:content-type*) "text/css")
+  (let ((url (request-uri*)))
+    (or (gethash url *css*)
+        (warn "CSS miss ~S." url))))
+
 

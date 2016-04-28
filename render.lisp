@@ -10,7 +10,10 @@
     (funcall (renderer page) page stream)
     (call-next-method)))
 
-(defun render-stylesheets (story stream))
+(defun render-stylesheets (story stream)
+  (html
+    (iter (for css in (stylesheets story))
+          (htm (:link :rel "stylesheet" :type "text/css" :href (format nil "css/~A" css))))))
 
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))

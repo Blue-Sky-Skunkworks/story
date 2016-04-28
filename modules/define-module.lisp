@@ -20,7 +20,7 @@
   (iter (for module in modules)
         (when-let (els (module-value module :stylesheets))
           (appending
-           (iter (for css in els) (collect (format nil "~(~A~)/~A" module css)))))))
+           (iter (for css in els) (collect (format nil "~(~A~)/~A.css" module (pathname-name css))))))))
 
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
@@ -35,6 +35,12 @@
            (if force
                (warn ,(format nil  "Reinitializing story module ~S." name))
                (error ,(format nil "Story module ~S already loaded." name))))
+         ,@(when stylesheets `((load-stylesheets
+                                ,@(iter (for css in stylesheets)
+                                        (appending
+                                            (list
+                                             (format nil "~A~(~A~)/~A" (story-modules-file) name css)
+                                             (format nil "css/~(~A~)/~A.css" name (pathname-name css))))))))
          ,@init
          (prog1
              nil

@@ -11,3 +11,4 @@
   (:use common-lisp parenscript)
   (:export js-file))
 
+(require 'story-modules)

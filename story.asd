@@ -13,5 +13,5 @@
                (:module "examples"
                         :serial t
                         :components
-                        ((:file "demo")))
+                        ((:file "demos")))
                (:file "initialize")))

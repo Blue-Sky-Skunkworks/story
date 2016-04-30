@@ -5,5 +5,4 @@
 * story tasks
 ** TODO favicon
 ** TODO stylesheets
-   CLOCK: [2016-04-27 Wed 12:10]
 

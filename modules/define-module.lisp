@@ -4,32 +4,34 @@
 
 (defvar *loaded-story-modules* nil)
 
+(defclass module ()
+  ((name :reader name :initarg :name)
+   (stylesheets :reader stylesheets :initarg :stylesheets)
+   (directories :reader directories :initarg :directories)))
+
+(defmethod print-object ((module module) stream)
+  (print-unreadable-object (module stream :type t)
+    (format stream "~A" (name module))))
+
 (defun story-modules ()
   "Print a table of the story modules."
   (iter (for (k v) in-hashtable *story-modules*)
-        (format t "~A ~A~20T ~S~%" (if (member k *loaded-story-modules*) "*" " ") k v)))
-
-(defun module-value (name key)
-  (assoc-value (gethash name *story-modules*) key))
-
-(defun collect-module-value (key &rest modules)
-  (iter (for module in modules)
-        (appending (module-value module key))))
+        (format t "~A ~A~%" (if (member k *loaded-story-modules*) "*" " ") v)))
 
 (defun collect-module-stylesheets (modules)
   (iter (for module in modules)
-        (when-let (els (module-value module :stylesheets))
+        (when-let (els (stylesheets (gethash module *story-modules*)))
           (appending
            (iter (for css in els) (collect (format nil "~(~A~)/~A.css" module (pathname-name css))))))))
 
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
-(defmacro define-story-module (name &key init stylesheets)
+(defmacro define-story-module (name &key init stylesheets directories)
   (let ((kname (ksymb (string-upcase name))))
     `(progn
        (setf (gethash ,kname *story-modules*)
-             (list ,@(when stylesheets `((list :stylesheets ,@stylesheets)))))
+             (make-instance 'module :name ,kname :stylesheets ',stylesheets :directories ',directories))
        (defun ,(symb 'load-story-module- name) (&key force)
          (when (member ,kname *loaded-story-modules*)
            (if force
@@ -40,7 +42,12 @@
                                         (appending
                                             (list
                                              (format nil "~A~(~A~)/~A" (story-modules-file) name css)
-                                             (format nil "css/~(~A~)/~A.css" name (pathname-name css))))))))
+                                             (format nil "/css/~(~A~)/~A.css" name (pathname-name css))))))))
+         ,@(when directories `((load-directories ,@(iter (for (from to) in directories)
+                                                         (appending
+                                                          (list
+                                                           (format nil "~A~(~A~)/~A/" (story-modules-file) name from)
+                                                           (format nil "/~A/" to)))))))
          ,@init
          (prog1
              nil
@@ -51,7 +58,6 @@
         (when (string-starts-with name "story-module-")
           (appending (story-module-depends-on-modules name))
           (collect (ksymb (string-upcase (subseq name (length "story-module-"))))))))
-
 
 (defun list-story-modules (&key with-version)
   (iter (for system in (ql:list-local-systems))

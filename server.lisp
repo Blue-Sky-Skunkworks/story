@@ -1,5 +1,6 @@
 (in-package :story)
 
+(defparameter *web-port* 3300)
 (defvar *web-acceptor* nil)
 
 (defclass web-acceptor (hunchentoot:acceptor)
@@ -27,12 +28,14 @@ matches NAME."
   (when *web-acceptor*
     (warn "Server already started. Restarting")
     (hunchentoot:stop *web-acceptor*))
-  (note "starting story server")
+  (note "starting story server on port ~S" *web-port*)
   (setf *web-acceptor*
         (make-instance 'web-acceptor
-                       :port 3300
-                       :access-log-destination (story-file (format nil "log/access-~A.log" (now)))
-                       :message-log-destination (story-file (format nil "log/message-~A.log" (now)))
+                       :port *web-port*
+                       :access-log-destination sb-sys:*stdout*
+                       ;;(story-file (format nil "log/access-~A.log" (now)))
+                       :message-log-destination sb-sys:*stdout*
+                       ;;(story-file (format nil "log/message-~A.log" (now)))
                        :dispatch-table (mapcar 'format-dispatch
                                                `((:exact "/" render-current-story)
                                                  (:prefix "/css/" serve-css)

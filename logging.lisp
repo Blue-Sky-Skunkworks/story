@@ -42,5 +42,17 @@
                     (unless (member (server-protocol*) *known-server-protocols* :test 'string=)
                       (red (server-protocol*) :effect :bright)))))))
 
-
-
+(defmethod acceptor-log-message ((acceptor web-acceptor) log-level format-string &rest format-arguments)
+  (handler-case
+      (note "~@[~A~] ~?~%"
+            (and log-level
+                 (with-output-to-string (stream)
+                   (with-color ((case log-level
+                                  (:error :red)
+                                  (:warning :yellow)
+                                  (:info :white)) :stream stream :effect :bright)
+                     (format stream "~A" log-level))))
+            format-string format-arguments)
+    (error (e)
+      (ignore-errors
+        (format *trace-output* "error ~A while writing to error log, error not logged~%" e)))))

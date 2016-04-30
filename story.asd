@@ -10,8 +10,9 @@
                (:file "define-story")
                (:file "render")
                (:file "server")
+               (:file "logging")
                (:module "examples"
                         :serial t
                         :components
                         ((:file "demos")))
-               (:file "initialize")))
+               (:file "initialize"))))

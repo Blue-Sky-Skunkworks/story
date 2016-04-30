@@ -44,7 +44,7 @@
 
 (defmethod acceptor-log-message ((acceptor web-acceptor) log-level format-string &rest format-arguments)
   (handler-case
-      (note "~@[~A~] ~?~%"
+      (note "~@[~A~] ~A~%"
             (and log-level
                  (with-output-to-string (stream)
                    (with-color ((case log-level
@@ -52,7 +52,18 @@
                                   (:warning :yellow)
                                   (:info :white)) :stream stream :effect :bright)
                      (format stream "~A" log-level))))
-            format-string format-arguments)
+            (colorize-message format-string format-arguments))
     (error (e)
       (ignore-errors
         (format *trace-output* "error ~A while writing to error log, error not logged~%" e)))))
+
+(defun colorize-message (fmt args)
+  (with-output-to-string (stream)
+    (let ((raw (apply #'format nil fmt args))
+          (start 0))
+      (do-scans (ms me rs re "(?<!\\\\)\"(.*)(?<!\\\\)\"" raw)
+        (format stream "~A" (subseq raw start ms))
+        (setf start me)
+        (with-color (:green :stream stream)
+          (format stream "~A" (subseq raw ms me))))
+      (format stream "~A" (subseq raw start)))))

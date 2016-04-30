@@ -15,4 +15,4 @@
                         :serial t
                         :components
                         ((:file "demos")))
-               (:file "initialize"))))
+               (:file "initialize")))

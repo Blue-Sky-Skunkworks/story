@@ -5,4 +5,3 @@
 * story tasks
 ** TODO favicon
 ** TODO stylesheets
-

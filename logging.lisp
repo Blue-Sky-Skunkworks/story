@@ -22,7 +22,7 @@
         (authorization)
         (with-output-to-string (stream)
           (with-color ((if (eql return-code 200) :blue :red) :stream stream :effect :bright)
-            (format stream "~D" return-code)))
+            (format stream "~3D" return-code)))
         (short-user-agent)
         (or (and (content-length*) (format nil "~4D" (content-length*)))
             (red "none" :effect :bright))

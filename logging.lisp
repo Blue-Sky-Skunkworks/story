@@ -35,8 +35,8 @@
                     (t referer))))
         (with-output-to-string (stream)
           (with-color ((if (eql return-code 200) :white :red) :stream stream :effect :bright)
-            (format stream "~A ~A~@[?~A~]~@[ ~A~]"
-                    (request-method*)
+            (format stream "~@[~A ~]~A~@[?~A~]~@[ ~A~]"
+                    (unless (equal (request-method*) :get) (request-method*))
                     (script-name*)
                     (query-string*)
                     (unless (member (server-protocol*) *known-server-protocols* :test 'string=)

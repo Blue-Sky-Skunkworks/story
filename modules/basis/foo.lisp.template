@@ -1,6 +1,6 @@
 (in-package :story)
 
-(define-story-module FOO
-  (:init))
+(define-story-module FOO)
+
 
 

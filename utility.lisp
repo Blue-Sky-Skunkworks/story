@@ -63,6 +63,18 @@
                        control) arguments)
         (finish-output t)))))
 
+(defmacro bugout (&rest vars)
+  "Print VARS, for debugging."
+  (when-let ((len (iter (for var in vars)
+                        (maximizing (length (prin1-to-string var))))))
+    `(note ,(with-output-to-string (s)
+                                   (write-string "BUGOUT  " s)
+                                   (iter (for var in vars)
+                                         (format s (format nil "~~~AS" (+ len 2)) var)
+                                         (unless (keywordp var) (write-string " ==>  ~S" s))
+                                         (format s "~%;;               ")))
+           ,@(remove-if #'keywordp vars))))
+
 (defun ensure-trailing-slash (string &optional (slash-character #\/))
   (if (char= (aref string (1- (length string))) slash-character)
     string

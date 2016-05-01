@@ -30,7 +30,7 @@
         (short-user-agent)
         (or (and (content-length*) (format nil "~6D" (content-length*)))
             (if (eql return-code +http-not-modified+)
-                "    "
+                "      "
                 (red "none" :effect :bright)))
         (format nil "~30A"
                 (let ((referer (referer))

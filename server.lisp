@@ -75,14 +75,18 @@ matches NAME."
           (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
           (warn "CSS miss ~S." url)))))
 
-(defparameter *directories* (make-hash-table :test 'equal))
+(defvar *directories* (make-hash-table :test 'equal))
 
 (defun load-directories (&rest args)
-
-
-
-    )
+  (iter (for (dir prefix) on args by 'cddr)
+        (when-let (current (gethash prefix *directories*))
+          (unless (equal current dir)
+            (warn "Resetting directory ~S from ~S to ~S" prefix current dir)))
+        (setf (gethash prefix *directories*) dir)))
 
 (defun possibly-serve-directories ()
-
-  )
+  (let ((request-path (script-name*)))
+    (iter (for (prefix dir) in-hashtable *directories*)
+          (let ((mismatch (mismatch request-path prefix :test #'char=)))
+            (and (or (null mismatch) (>= mismatch (length prefix)))
+                 (handle-static-file (merge-pathnames dir request-path)))))))

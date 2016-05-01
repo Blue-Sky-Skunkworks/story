@@ -23,8 +23,8 @@
   ((name :reader name :initarg :name)
    (title :reader title :initarg :title :initform "Unititled Story")
    (home :reader home :initarg :home)
-   (modules :reader modules :initarg :modules)
-   (stylesheets :reader stylesheets)))
+   (modules :reader modules :initarg :modules :initform nil)
+   (stylesheets :reader stylesheets :initform nil)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)

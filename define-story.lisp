@@ -21,6 +21,7 @@
           (format t "~A.~A ~S~%" index (if (eq story *story*) "*" " ") story)
           (when (modules story) (format t "    modules: ~{~A~^, ~}~%" (modules story)))
           (when (stylesheets story) (format t "    css: ~{~S~^, ~}~%" (stylesheets story)))
+          (when (scripts story) (format t "    scrips: ~{~S~^, ~}~%" (scripts story)))
           (iter (for child in (children story))
                 (format t "      ~S~%" child)))))
 
@@ -29,11 +30,13 @@
     (render *story* stream)))
 
 (defmacro define-story (name (&key title modules) &body body)
-  `(let* ((page (make-instance 'page :path "index.html" :renderer 'render-complete-page
-                               :body (lambda (stream page)
-                                       (declare (ignorable page))
-                                       (html ,@body))))
-          (story (make-instance 'story :name ,(string-downcase name) :title ,title
-                                :home page :modules ',modules)))
-     (add-child story page)
-     (add-story story)))
+  `(progn
+     (reset-server)
+     (let* ((page (make-instance 'page :path "index.html" :renderer 'render-complete-page
+                                :body (lambda (stream page)
+                                        (declare (ignorable page))
+                                        (html ,@body))))
+           (story (make-instance 'story :name ,(string-downcase name) :title ,title
+                                 :home page :modules ',modules)))
+      (add-child story page)
+      (add-story story))))

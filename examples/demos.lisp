@@ -1,8 +1,15 @@
 (in-package :story)
 
+(defmacro define-demo (name modules &body body)
+  (let ((title (format nil "Story Demo ~A" (string-capitalize name))))
+    `(define-story ,(symb 'demo- name) (:title ,title :modules ,modules)
+       (:h1 ,title)
+       ,@body)))
 
-(define-story demo-trivial (:title "Story Demo Trivial")
-  (:h1 "Story Demo Trivial"))
+(define-demo trivial ())
 
-(define-story demo-roboto (:title "Story Demo Roboto" :modules (:roboto))
-  (:h1 "Story Demo Roboto"))
+(define-demo roboto (:roboto))
+
+(define-demo packery (:packery)
+
+  )

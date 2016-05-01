@@ -34,6 +34,7 @@ matches NAME."
     (warn "Server already started. Restarting")
     (hunchentoot:stop *web-acceptor*))
   (note "starting story server on port ~S" *web-port*)
+  (reset-server)
   (setf *web-acceptor*
         (make-instance 'web-acceptor
                        :port *web-port*
@@ -55,7 +56,7 @@ matches NAME."
             (return rtn)))
         (finally (call-next-method))))
 
-(defparameter *css* (make-hash-table :test 'equal))
+(defparameter *css*)
 
 (defun load-stylesheets (&rest args)
   (iter (for (file path) on args by 'cddr)
@@ -80,7 +81,7 @@ matches NAME."
           (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
           (warn "CSS miss ~S." url)))))
 
-(defvar *directories* (make-hash-table :test 'equal))
+(defvar *directories*)
 
 (defun load-directories (&rest args)
   (iter (for (dir prefix) on args by 'cddr)
@@ -95,3 +96,37 @@ matches NAME."
           (let ((mismatch (mismatch request-path prefix :test #'char=)))
             (and (or (null mismatch) (>= mismatch (length prefix)))
                  (handle-static-file (merge-pathnames dir request-path)))))))
+
+(defvar *scripts*)
+
+(defun load-scripts (&rest args)
+  (iter (for (file path) on args by 'cddr)
+        (setf (gethash path *scripts*) file)))
+
+(defun possibly-serve-scripts ()
+  (let ((request-path (script-name*)))
+    (iter (for (path file) in-hashtable *scripts*)
+          (let ((mismatch (mismatch request-path path :test #'char=)))
+            (bugout mismatch request-path path)
+            ;; (and (or (null mismatch) (>= mismatch (length prefix)))
+            ;;      (handle-static-file (merge-pathnames dir request-path)))
+            ))))
+
+(defun server ()
+  "Describe the server."
+  (let ((server *web-acceptor*))
+    (print-heading "story sever")
+    (format t "port ~S~@[ address ~A~]~%~%" (acceptor-port server) (acceptor-address server))
+    (iter (for dispatch in (dispatches server))
+          (format t "  ~6A  ~10A  ~A~%" (first dispatch) (second dispatch) (third dispatch)))
+    (format t "~%css:~%")
+    (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))
+    (format t "~%scripts:~%")
+    (iter (for (k v) in-hashtable *scripts*) (format t "  ~20A  ~A~%" k v))
+    (format t "~%directories:~%")
+    (iter (for (k v) in-hashtable *directories*) (format t "  ~20A  ~A~%" k v))))
+
+(defun reset-server ()
+  (setf *css* (make-hash-table :test 'equal)
+        *directories* (make-hash-table :test 'equal)
+        *scripts* (make-hash-table :test 'equal)))

@@ -23,6 +23,7 @@
         (:head
          (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
          (when title (htm (:title (esc title))))
+         (when (stylesheets story) (render-stylesheets story stream))
          (when (stylesheets story) (render-stylesheets story stream)))
         (:body (funcall (body page) stream page))))))
 

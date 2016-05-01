@@ -122,3 +122,11 @@
             ,@(iter (for name in (ensure-list names))
                     (collect `(,(symb (string-upcase name)) (assoc-value ,data ,name :test ',test)))))
        ,@body)))
+
+(defun print-heading (text &key (underline "-"))
+  (write-string text)
+  (fresh-line)
+  (dotimes (i (length text)) (write-string underline))
+  (fresh-line)
+  (terpri))
+

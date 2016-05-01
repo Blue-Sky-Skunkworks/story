@@ -46,7 +46,8 @@ matches NAME."
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)
   (iter (for dispatcher in (dispatch-table acceptor))
         (when-let (action (funcall dispatcher request))
-          (return (funcall action)))
+          (when-let (rtn (funcall action))
+            (return rtn)))
         (finally (call-next-method))))
 
 (defparameter *css* (make-hash-table :test 'equal))

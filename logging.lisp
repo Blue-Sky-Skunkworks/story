@@ -15,17 +15,23 @@
       (t  addr))))
 
 (defmethod hunchentoot:acceptor-log-access ((acceptor web-acceptor) &key return-code)
-  (note "~A ~:[-~@[ (~A)~]~;~:*~A~@[ (~A)~]~] ~:[-~;~:*~A~] ~A ~A ~A  ~A  ~A"
+  (note "~A ~:[ ~@[ (~A)~]~;~:*~A~@[ (~A)~]~]~:[~;~: *~A~] ~A ~A ~A  ~A  ~A"
         (cyan "A" :effect :bright)
         (short-remote-addr)
         (header-in* :x-forwarded-for)
         (authorization)
         (with-output-to-string (stream)
-          (with-color ((if (eql return-code 200) :blue :red) :stream stream :effect :bright)
+          (with-color ((cond
+                         ((eql return-code +http-ok+) :blue)
+                         ((eql return-code +http-not-modified+) :cyan)
+                         (t :red))
+                       :stream stream :effect :bright)
             (format stream "~3D" return-code)))
         (short-user-agent)
-        (or (and (content-length*) (format nil "~4D" (content-length*)))
-            (red "none" :effect :bright))
+        (or (and (content-length*) (format nil "~6D" (content-length*)))
+            (if (eql return-code +http-not-modified+)
+                "    "
+                (red "none" :effect :bright)))
         (format nil "~30A"
                 (let ((referer (referer))
                       (server-prefix (format nil "http://localhost:~D" *web-port*)))
@@ -34,7 +40,7 @@
                     ((string-starts-with referer server-prefix) (subseq referer (length server-prefix)))
                     (t referer))))
         (with-output-to-string (stream)
-          (with-color ((if (eql return-code 200) :white :red) :stream stream :effect :bright)
+          (with-color ((if (member return-code '(200 304) :test 'eql) :white :red) :stream stream :effect :bright)
             (format stream "~@[~A ~]~A~@[?~A~]~@[ ~A~]"
                     (unless (equal (request-method*) :get) (request-method*))
                     (script-name*)

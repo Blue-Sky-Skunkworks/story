@@ -62,7 +62,7 @@
     (let ((raw (apply #'format nil fmt args))
           (start 0))
       (do-scans (ms me rs re "((?<!\\\\)\"(.*?)(?<!\\\\)\")|({[0-9][0-9A-F]*})| ([0-9][0-9A-F]*)|( :[-A-Z0-9]+)|\\((ERROR|LAMBDA|SIGNAL)|([0-9]+:)" raw)
-        (note "~A ~A ~A ~A" ms me rs re)
+        ;;(note "~A ~A ~A ~A" ms me rs re)
         (format stream "~A" (subseq raw start ms))
         (setf start me)
         (with-color ((cond

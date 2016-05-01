@@ -4,7 +4,8 @@
 (defvar *web-acceptor* nil)
 
 (defclass web-acceptor (hunchentoot:acceptor)
-  ((dispatch-table :reader dispatch-table :initarg :dispatch-table)))
+  ((dispatches :reader dispatches :initarg :dispatches)
+   (dispatch-table :reader dispatch-table)))
 
 (defun create-exact-dispatcher (name handler)
   "Creates a request dispatch function which will dispatch to the
@@ -24,6 +25,10 @@ matches NAME."
         (:static (hunchentoot:create-static-file-dispatcher-and-handler (second dispatch) (third dispatch))))
       dispatch))
 
+(defmethod initialize-instance :after ((acceptor web-acceptor) &key)
+  (when (dispatches acceptor)
+    (setf (slot-value acceptor 'dispatch-table) (mapcar 'format-dispatch (dispatches acceptor)))))
+
 (defun start-server ()
   (when *web-acceptor*
     (warn "Server already started. Restarting")
@@ -36,11 +41,11 @@ matches NAME."
                        ;;(story-file (format nil "log/access-~A.log" (now)))
                        :message-log-destination sb-sys:*stdout*
                        ;;(story-file (format nil "log/message-~A.log" (now)))
-                       :dispatch-table (mapcar 'format-dispatch
-                                               `((:exact "/" render-current-story)
-                                                 (:prefix "/css/" serve-css)
-                                                 (:prefix "/" possibly-serve-directories)
-                                                 (:folder "/" ,(story-file "build/"))))))
+                       :dispatches `((:exact "/" render-current-story)
+                                     (:prefix "/css/" serve-css)
+                                     (:prefix "/" possibly-serve-directories)
+                                     (:prefix "/" possibly-serve-scripts)
+                                     (:folder "/" ,(story-file "build/")))))
   (hunchentoot:start *web-acceptor*))
 
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)

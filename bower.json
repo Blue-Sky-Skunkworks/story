@@ -1,0 +1,20 @@
+{
+  "name": "hackathon",
+  "homepage": "https://github.com/Blue-Sky-Skunkworks/hackathon.git",
+  "description": "Story static website generator.",
+  "main": "",
+  "moduleType": [],
+  "authors": ["William Halliburton"],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+      "packery": null,
+  }
+}

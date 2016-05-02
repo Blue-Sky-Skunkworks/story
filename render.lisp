@@ -18,7 +18,7 @@
 (defun render-scripts (story stream)
   (html
     (iter (for script in (scripts story))
-          (htm (:script :type "text/css" :src (format nil "js/~A" script))))))
+          (htm (:script :type "text/javascript" :src (format nil "js/~A" script))))))
 
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
@@ -28,6 +28,7 @@
         (:head
          (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
          (when title (htm (:title (esc title))))
+         (:script :type "text/javascript" :src "js/js.js")
          (when (stylesheets story) (render-stylesheets story stream))
          (when (scripts story) (render-scripts story stream)))
         (:body (funcall (body page) stream page))))))

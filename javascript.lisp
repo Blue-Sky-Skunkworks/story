@@ -84,3 +84,23 @@
            (decf *trace-level*)
            (console *trace-level* ,sname "returned" rtn)
            (return rtn))))))
+
+(defparameter *js-file*
+  (concatenate
+   'string
+   (let ((ps:*js-string-delimiter* #\'))
+     (ps*
+      '(progn
+
+        (defvar *trace-level* 0)
+
+        (setf (@ *string prototype ends-with)
+         (lambda (suffix) (return (not (== ((@ this index-of) suffix (- (@ this length) (@ suffix length))) -1)))))
+
+        (defun get-by-id (id &optional (error t))
+          (let ((hit ((@ document get-element-by-id) id)))
+            (if hit
+                (return hit)
+                (if error (console "ERROR: get-by-id" id))))))))))
+
+(defun js-file () *js-file*)

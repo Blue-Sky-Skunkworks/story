@@ -132,4 +132,5 @@ matches NAME."
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)
         *directories* (make-hash-table :test 'equal)
-        *scripts* (make-hash-table :test 'equal)))
+        *scripts* (make-hash-table :test 'equal))
+  (setf (gethash "/js/js.js" *scripts*) 'story-js:js-file))

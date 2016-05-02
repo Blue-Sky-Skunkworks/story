@@ -34,7 +34,8 @@
 (defmethod initialize-instance :after ((story story) &key)
   (when (modules story)
     (ensure-story-modules (modules story))
-    (setf (slot-value story 'stylesheets) (collect-module-stylesheets (modules story)))))
+    (setf (slot-value story 'stylesheets) (collect-module-stylesheets (modules story))
+          (slot-value story 'scripts) (collect-module-scripts (modules story)))))
 
 
 ;;; page

@@ -25,6 +25,12 @@
           (appending
            (iter (for css in els) (collect (format nil "~(~A~)/~A.css" module (pathname-name css))))))))
 
+(defun collect-module-scripts (modules)
+  (iter (for module in modules)
+        (when-let (els (scripts (gethash module *story-modules*)))
+          (appending
+           (iter (for script in els) (collect (format nil "~(~A~)/~A" module (if (stringp script) script (first script)))))))))
+
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
@@ -39,14 +45,19 @@
          ,@(when stylesheets `((load-stylesheets
                                 ,@(iter (for css in stylesheets)
                                         (appending
-                                            (list
-                                             (format nil "~A~(~A~)/~A" (story-modules-file) name css)
-                                             (format nil "/css/~(~A~)/~A.css" name (pathname-name css))))))))
-         ,@(when scripts `((load-scripts ,@(iter (for script in scripts)
-                                                 (appending
-                                                  (list
-                                                   (format nil "~A~(~A~)/~A" (story-modules-file) name script)
-                                                   (format nil "/js/~(~A~)/~A.~A" name (pathname-name script) (pathname-type script))))))))
+                                         (list
+                                          (format nil "~A~(~A~)/~A" (story-modules-file) name css)
+                                          (format nil "/css/~(~A~)/~A.css" name (pathname-name css))))))))
+         ,@(when scripts `((load-scripts ',(iter (for script in scripts)
+                                                 (if (stringp script)
+                                                     (appending
+                                                      (list
+                                                       (format nil "~A~(~A~)/~A" (story-modules-file) name script)
+                                                       (format nil "/js/~(~A~)/~A.~A" name (pathname-name script) (pathname-type script))))
+                                                     (appending
+                                                      (list
+                                                       (intern (symbol-name (second script)) :story-js)
+                                                       (format nil "/js/~(~A~)/~A" name (first script)))))))))
          ,@(when directories `((load-directories ,@(iter (for (from to) in directories)
                                                          (appending
                                                           (list

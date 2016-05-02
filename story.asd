@@ -4,6 +4,7 @@
                             "cl-ansi-text")
   :components ((:static-file "story.asd")
                (:file "package")
+               (:file "javascript")
                (:file "utility")
                (:file "git")
                (:file "element")

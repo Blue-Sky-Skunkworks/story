@@ -15,6 +15,11 @@
     (iter (for css in (stylesheets story))
           (htm (:link :rel "stylesheet" :type "text/css" :href (format nil "css/~A" css))))))
 
+(defun render-scripts (story stream)
+  (html
+    (iter (for script in (scripts story))
+          (htm (:script :type "text/css" :src (format nil "js/~A" script))))))
+
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
          (title (or (title page) (title story))))
@@ -24,7 +29,7 @@
          (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
          (when title (htm (:title (esc title))))
          (when (stylesheets story) (render-stylesheets story stream))
-         (when (stylesheets story) (render-stylesheets story stream)))
+         (when (scripts story) (render-scripts story stream)))
         (:body (funcall (body page) stream page))))))
 
 

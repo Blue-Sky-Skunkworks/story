@@ -44,8 +44,8 @@ matches NAME."
                        ;;(story-file (format nil "log/message-~A.log" (now)))
                        :dispatches `((:exact "/" render-current-story)
                                      (:prefix "/css/" serve-css)
-                                     (:prefix "/" possibly-serve-directories)
                                      (:prefix "/" possibly-serve-scripts)
+                                     (:prefix "/" possibly-serve-directories)
                                      (:folder "/" ,(story-file "build/")))))
   (hunchentoot:start *web-acceptor*))
 
@@ -99,18 +99,21 @@ matches NAME."
 
 (defvar *scripts*)
 
-(defun load-scripts (&rest args)
+(defun load-scripts (args)
   (iter (for (file path) on args by 'cddr)
-        (setf (gethash path *scripts*) file)))
+        (setf (gethash path *scripts*) file))))
 
 (defun possibly-serve-scripts ()
   (let ((request-path (script-name*)))
+    (bugout request-path)
     (iter (for (path file) in-hashtable *scripts*)
           (let ((mismatch (mismatch request-path path :test #'char=)))
-            (bugout mismatch request-path path)
-            ;; (and (or (null mismatch) (>= mismatch (length prefix)))
-            ;;      (handle-static-file (merge-pathnames dir request-path)))
-            ))))
+            (when (null mismatch)
+              (cond
+                ((stringp file) (handle-static-file file))
+                (t
+                 (setf (hunchentoot:content-type*) "text/javascript")
+                 (return (funcall file)))))))))
 
 (defun server ()
   "Describe the server."
@@ -122,9 +125,9 @@ matches NAME."
     (format t "~%css:~%")
     (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))
     (format t "~%scripts:~%")
-    (iter (for (k v) in-hashtable *scripts*) (format t "  ~20A  ~A~%" k v))
+    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~S~%" k v))
     (format t "~%directories:~%")
-    (iter (for (k v) in-hashtable *directories*) (format t "  ~20A  ~A~%" k v))))
+    (iter (for (k v) in-hashtable *directories*) (format t "  ~36A  ~A~%" k v))))
 
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)

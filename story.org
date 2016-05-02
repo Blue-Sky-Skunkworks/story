@@ -5,3 +5,4 @@
 * story tasks
 ** TODO favicon
 ** TODO stylesheets
+** TODO move to quicklisp parenscript

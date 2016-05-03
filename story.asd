@@ -12,6 +12,7 @@
                (:file "render")
                (:file "server")
                (:file "logging")
+               (:file "bower")
                (:module "examples"
                         :serial t
                         :components

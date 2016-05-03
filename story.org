@@ -2,7 +2,62 @@
 #+CATEGORY: notes,tasks
 #+FILETAGS: story
 
+* misc
+** Orson Welles, "The Third Man"
+In Italy, for thirty years under the Borgias, they had warfare,
+terror, murder, and bloodshed, but they produced Michaelangelo,
+Leonardo da Vinci and the Renaissance.  In Switzerland, they had
+brotherly love, they had five hundred years of democracy and peace --
+and what did they produce?  The cuckoo-clock.
+** Lao Tse, "Tao Te Ching"
+   Mind
+
+   The Way bears sensation,
+   Sensation bears memory,
+   Sensation and memory bear abstraction,
+   And abstraction bears all the world;
+   Each thing in the world bears feeling and doing,
+   And, imbued with mind, harmony with the Way.
+   As others have taught, so do I teach,
+   "Who loses harmony opposes nature";
+   This is the root of my teaching.
+
+   Rulers
+
+   The best rulers are scarcely known by their subjects;
+   The next best are loved and praised;
+   The next are feared;
+   The next despised:
+   They have no faith in their people,
+   And their people become unfaithful to them.
+   When the best rulers achieve their purpose
+   Their subjects claim the achievement as their own.
 * story tasks
 ** TODO favicon
 ** TODO stylesheets
 ** TODO move to quicklisp parenscript
+** TODO gzip encoding?
+** TODO flotr2
+** TODO sparklines
+** TODO treemap-squared
+** TODO heatmap.js
+   Patrick Wied
+** TODO sigma
+** TODO wordcloud2
+** TODO qTip2
+** TODO raphael
+** TODO Chronoline.js
+** TODO TimelineJS
+   http://timeline.knightlab.com
+** TODO maps
+*** TODO map fonts
+    Stately
+    Continental
+*** TODO modestmaps?
+*** TODO maps.stamen.com
+*** TODO leaflet
+** TODO spotlight.js
+** TODO D3
+   http://bl.ocks.org/mbostock
+** TODO underscore.js
+

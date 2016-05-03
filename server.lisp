@@ -105,7 +105,6 @@ matches NAME."
 
 (defun possibly-serve-scripts ()
   (let ((request-path (script-name*)))
-    (bugout request-path)
     (iter (for (path file) in-hashtable *scripts*)
           (let ((mismatch (mismatch request-path path :test #'char=)))
             (when (null mismatch)

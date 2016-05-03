@@ -56,7 +56,7 @@ matches NAME."
             (return rtn)))
         (finally (call-next-method))))
 
-(defparameter *css*)
+(defvar *css*)
 
 (defun load-stylesheets (&rest args)
   (iter (for (file path) on args by 'cddr)
@@ -101,7 +101,7 @@ matches NAME."
 
 (defun load-scripts (args)
   (iter (for (file path) on args by 'cddr)
-        (setf (gethash path *scripts*) file))))
+        (setf (gethash path *scripts*) file)))
 
 (defun possibly-serve-scripts ()
   (let ((request-path (script-name*)))

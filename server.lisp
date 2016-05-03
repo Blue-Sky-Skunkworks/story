@@ -44,9 +44,7 @@ matches NAME."
                        ;;(story-file (format nil "log/message-~A.log" (now)))
                        :dispatches `((:exact "/" render-current-story)
                                      (:prefix "/css/" serve-css)
-                                     (:prefix "/" possibly-serve-scripts)
-                                     (:prefix "/" possibly-serve-directories)
-                                     (:folder "/" ,(story-file "build/")))))
+                                     (:prefix "/" serve-all))))
   (hunchentoot:start *web-acceptor*))
 
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)
@@ -90,29 +88,30 @@ matches NAME."
             (warn "Resetting directory ~S from ~S to ~S" prefix current dir)))
         (setf (gethash prefix *directories*) dir)))
 
-(defun possibly-serve-directories ()
-  (let ((request-path (script-name*)))
-    (iter (for (prefix dir) in-hashtable *directories*)
-          (let ((mismatch (mismatch request-path prefix :test #'char=)))
-            (and (or (null mismatch) (>= mismatch (length prefix)))
-                 (handle-static-file (merge-pathnames dir request-path)))))))
-
 (defvar *scripts*)
 
 (defun load-scripts (args)
   (iter (for (file path) on args by 'cddr)
         (setf (gethash path *scripts*) file)))
 
-(defun possibly-serve-scripts ()
-  (let ((request-path (script-name*)))
+(defun serve-all ()
+  (let ((request-path (script-name*)) served)
     (iter (for (path file) in-hashtable *scripts*)
           (let ((mismatch (mismatch request-path path :test #'char=)))
             (when (null mismatch)
+              (setf served t)
               (cond
                 ((stringp file) (handle-static-file file))
                 (t
                  (setf (hunchentoot:content-type*) "text/javascript")
-                 (return (funcall file)))))))))
+                 (return-from serve-all (funcall file)))))))
+    (unless served
+      (iter (for (prefix dir) in-hashtable *directories*)
+            (let ((mismatch (mismatch request-path prefix :test #'char=)))
+              (and (or (null mismatch) (>= mismatch (length prefix)))
+                   (handle-static-file (merge-pathnames dir request-path))))
+            (finally (setf (return-code *reply*) +http-not-found+)
+                     (abort-request-handler))))))
 
 (defun server ()
   "Describe the server."

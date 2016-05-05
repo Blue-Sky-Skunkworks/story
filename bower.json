@@ -4,7 +4,9 @@
   "description": "Story static website generator.",
   "main": "",
   "moduleType": [],
-  "authors": ["William Halliburton"],
+  "authors": [
+    "William Halliburton"
+  ],
   "license": "MIT",
   "private": true,
   "ignore": [
@@ -15,6 +17,7 @@
     "tests"
   ],
   "dependencies": {
-      "packery": null,
+    "packery": null,
+    "vis": null
   }
 }

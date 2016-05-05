@@ -99,15 +99,15 @@ matches NAME."
 (defun collect-stylesheets-and-scripts (story)
   (when (scripts story)
     (setf (gethash "/js/js.js" *scripts*) 'story-js:js-file)
-    (let ((all (apply #'concatenate 'string
-                 (iter (for script in (scripts story))
-                       (let ((val (gethash (format nil "/js/~A" script) *scripts*)))
-                         (collect (typecase val
-                                    (pathname (slurp-file val))
-                                    (string val)
-                                    (t (funcall val)))))))))
-      (setf (gethash "/js/js-all.js" *scripts*) all
-            (gethash "/js/js-all.min.js" *scripts*) (minimize-script all))))
+    (setf (gethash "/js/js-all.min.js" *scripts*)
+          (minimize-script
+           (apply #'concatenate 'string
+                  (iter (for script in (scripts story))
+                        (let ((val (gethash (format nil "/js/~A" script) *scripts*)))
+                          (collect (typecase val
+                                     (pathname (slurp-file val))
+                                     (string val)
+                                     (t (funcall val))))))))))
   (when (stylesheets story)
     (setf (gethash "/css/css-all.css" *css*)
           (apply #'concatenate 'string

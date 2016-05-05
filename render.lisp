@@ -32,7 +32,7 @@
          (cond
            (production
             (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css" :href "css/css-all.css")))
-            (when (scripts story) (htm (:script :type "text/javascript" :src "js/js-all.js"))))
+            (when (scripts story) (htm (:script :type "text/javascript" :src "js/js-all.min.js"))))
            (t
             (when (stylesheets story) (render-stylesheets story stream))
             (when (scripts story) (render-scripts story stream)))))

@@ -6,9 +6,18 @@
        (:h1 ,title)
        ,@body)))
 
+
+;;; nothing to see here
+
 (define-demo trivial ())
 
+
+;;; a module with only css
+
 (define-demo roboto (:roboto))
+
+
+;;; a module with only javascript
 
 (define-demo packery (:packery)
   (:div :id "pack"
@@ -16,10 +25,11 @@
               (htm (:div :class "el" :style "width:200;height:200;background:blue;"))))
   (script (setup-packing "pack" "el")))
 
+
+;;; vis
+
 (defun load-computer-calender ()
-  (iter (for line in
-             (split-sequence #\newline
-                             (slurp-file "/usr/share/calendar/calendar.computer")))
+  (iter (for line in (split-sequence #\newline (slurp-file "/usr/share/calendar/calendar.computer")))
         (multiple-value-bind (ms me rs re) (scan "^(\\d+?)/(\\d+)\\t(.+, ([0-9]{4}).*)$" line)
           (declare (ignore me))
           (when ms

@@ -35,7 +35,6 @@
             (when (scripts story) (htm (:script :type "text/javascript" :src "js/js-all.js"))))
            (t
             (when (stylesheets story) (render-stylesheets story stream))
-            (htm (:script :type "text/javascript" :src "js/js-all.js"))
             (when (scripts story) (render-scripts story stream)))))
         (:body (funcall (body page) stream page))))))
 

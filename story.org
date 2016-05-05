@@ -60,4 +60,9 @@ and what did they produce?  The cuckoo-clock.
 ** TODO D3
    http://bl.ocks.org/mbostock
 ** TODO underscore.js
-
+** TODO videos playing in a group like
+   onefastcat.com/index.php/customer-videos
+** TODO encryption before pushing
+** TODO WebRTC using https://github.com/onsip/SIP.js
+** TODO use offline to indicate offline usage
+** TODO https://github.com/cubiq/iscroll

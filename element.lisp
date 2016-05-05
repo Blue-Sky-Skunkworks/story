@@ -26,7 +26,7 @@
    (modules :reader modules :initarg :modules :initform nil)
    (stylesheets :reader stylesheets :initform nil)
    (scripts :reader scripts :initform nil)
-   (production :reader production :initform t :initarg :production)))
+   (production :reader production :initform *production* :initarg :production)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)

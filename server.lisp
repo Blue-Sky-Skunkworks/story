@@ -56,20 +56,14 @@ matches NAME."
 
 (defvar *css*)
 
-(defun load-stylesheets (&rest args)
-  (iter (for (file path) on args by 'cddr)
-        (setf (gethash path *css*)
-              (run-program-to-string *scss-script* (list file)))))
-
 (defparameter *scss-script* (cond
                               ((probe-file "/usr/bin/scss") "/usr/bin/scss")
                               (t (error "Missing scss."))))
 
-(defun serve-scss-file (path)
-  (let ((path (namestring path)))
-    (or (and *cache-scss* (gethash path *css-files*))
-        (setf (gethash path *css-files*)
-              (run-program-to-string *scss-script* (list path))))))
+(defun load-stylesheets (&rest args)
+  (iter (for (file path) on args by 'cddr)
+        (let ((text (run-program-to-string *scss-script* (list file))))
+          (setf (gethash path *css*) text))))
 
 (defun serve-css ()
   (setf (hunchentoot:content-type*) "text/css")
@@ -78,6 +72,33 @@ matches NAME."
         (progn
           (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
           (warn "CSS miss ~S." url)))))
+
+(defvar *scripts*)
+
+(defun load-scripts (args)
+  (iter (for (file path) on args by 'cddr)
+        (setf (gethash path *scripts*)
+              (typecase file
+                (string (pathname file))
+                (t file)))))
+
+(defun collect-stylesheets-and-scripts (story)
+  (when (scripts story)
+    (setf (gethash "/js/js.js" *scripts*) 'story-js:js-file)
+    (setf (gethash "/js/js-all.js" *scripts*)
+          (apply #'concatenate 'string
+                 (iter (for script in (scripts story))
+                       (let ((val (gethash (format nil "/js/~A" script) *scripts*)))
+                         (collect (typecase val
+                                    (pathname (slurp-file val))
+                                    (string val)
+                                    (t (funcall val)))))))))
+  (when (stylesheets story)
+    (setf (gethash "/css/css-all.css" *css*)
+          (apply #'concatenate 'string
+                 (iter (for stylesheet in (stylesheets story))
+                       (collect (gethash (format nil "/css/~A" stylesheet) *css*)))))))
+
 
 (defvar *directories*)
 
@@ -88,12 +109,6 @@ matches NAME."
             (warn "Resetting directory ~S from ~S to ~S" prefix current dir)))
         (setf (gethash prefix *directories*) dir)))
 
-(defvar *scripts*)
-
-(defun load-scripts (args)
-  (iter (for (file path) on args by 'cddr)
-        (setf (gethash path *scripts*) file)))
-
 (defun serve-all ()
   (let ((request-path (script-name*)) served)
     (iter (for (path file) in-hashtable *scripts*)
@@ -101,7 +116,10 @@ matches NAME."
             (when (null mismatch)
               (setf served t)
               (cond
-                ((stringp file) (handle-static-file file))
+                ((stringp file)
+                 (setf (hunchentoot:content-type*) "text/javascript")
+                 (return-from serve-all file))
+                ((pathnamep file) (handle-static-file file))
                 (t
                  (setf (hunchentoot:content-type*) "text/javascript")
                  (return-from serve-all (funcall file)))))))
@@ -123,12 +141,13 @@ matches NAME."
     (format t "~%css:~%")
     (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))
     (format t "~%scripts:~%")
-    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~S~%" k v))
+    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~S~%" k (typecase v
+                                                                          (string :all)
+                                                                          (t v))))
     (format t "~%directories:~%")
     (iter (for (k v) in-hashtable *directories*) (format t "  ~36A  ~A~%" k v))))
 
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)
         *directories* (make-hash-table :test 'equal)
-        *scripts* (make-hash-table :test 'equal))
-  (setf (gethash "/js/js.js" *scripts*) 'story-js:js-file))
+        *scripts* (make-hash-table :test 'equal)))

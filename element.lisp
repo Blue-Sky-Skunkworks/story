@@ -25,7 +25,8 @@
    (home :reader home :initarg :home)
    (modules :reader modules :initarg :modules :initform nil)
    (stylesheets :reader stylesheets :initform nil)
-   (scripts :reader scripts :initform nil)))
+   (scripts :reader scripts :initform nil)
+   (production :reader production :initform t :initarg :production)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)
@@ -33,9 +34,11 @@
 
 (defmethod initialize-instance :after ((story story) &key)
   (when (modules story)
-    (ensure-story-modules (modules story))
-    (setf (slot-value story 'stylesheets) (collect-module-stylesheets (modules story))
-          (slot-value story 'scripts) (collect-module-scripts (modules story)))))
+    (mapc #'ensure-story-module (modules story))
+    (setf (slot-value story 'stylesheets) (collect-module-stylesheets (modules story)))
+    (when-let ((scripts (collect-module-scripts (modules story))))
+      (setf (slot-value story 'scripts) (cons "js.js" scripts)))
+    (collect-stylesheets-and-scripts story)))
 
 
 ;;; page

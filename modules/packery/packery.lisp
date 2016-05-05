@@ -8,7 +8,7 @@
 
 (define-script packery
   (defun setup-packing (container-id item &optional (gutter 20))
-    (let ((container (get-by-id container-id)))
+    (let ((container (id container-id)))
       (if (@ container pack)
           ((@ container pack layout))
           (setf (@ container pack) (new (*packery container

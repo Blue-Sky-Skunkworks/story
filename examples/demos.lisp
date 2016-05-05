@@ -21,6 +21,7 @@
              (split-sequence #\newline
                              (slurp-file "/usr/share/calendar/calendar.computer")))
         (multiple-value-bind (ms me rs re) (scan "^(\\d+?)/(\\d+)\\t(.+, ([0-9]{4}).*)$" line)
+          (declare (ignore me))
           (when ms
             (collect
                 (list

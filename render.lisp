@@ -22,15 +22,21 @@
 
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
+         (production (production story))
          (title (or (title page) (title story))))
     (with-html-output (stream stream)
       (:html
         (:head
          (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
          (when title (htm (:title (esc title))))
-         (:script :type "text/javascript" :src "js/js.js")
-         (when (stylesheets story) (render-stylesheets story stream))
-         (when (scripts story) (render-scripts story stream)))
+         (cond
+           (production
+            (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css" :href "css/css-all.css")))
+            (when (scripts story) (htm (:script :type "text/javascript" :src "js/js-all.js"))))
+           (t
+            (when (stylesheets story) (render-stylesheets story stream))
+            (htm (:script :type "text/javascript" :src "js/js-all.js"))
+            (when (scripts story) (render-scripts story stream)))))
         (:body (funcall (body page) stream page))))))
 
 

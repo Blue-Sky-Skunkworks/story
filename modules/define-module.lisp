@@ -93,11 +93,7 @@
                         (parse-float (asdf:component-version (asdf:find-system system))))
                   (subseq system 13))))))
 
-
 (defun ensure-story-module (name)
   (unless (member (ksymb (string-upcase name)) *loaded-story-modules*)
     (require (symb 'story-module- (string-upcase name))))
   (funcall (symb 'load-story-module- (string-upcase name))))
-
-(defun ensure-story-modules (names)
-  (mapc #'ensure-story-module names))

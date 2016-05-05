@@ -82,17 +82,32 @@ matches NAME."
                 (string (pathname file))
                 (t file)))))
 
+(defun minimize-script (text)
+  (let* ((len (length text))
+         (rtn
+          (cl-uglify-js:ast-gen-code
+           (cl-uglify-js:ast-mangle
+            (cl-uglify-js:ast-squeeze
+             (parse-js:parse-js text)))
+           :beautify nil))
+         (lrtn (length rtn)))
+    (when (> lrtn len)
+      (warn "Minimilization failed."))
+    (note "Minimized script from ~D to ~D (~D%)." len lrtn (round (* (/ lrtn len) 100)))
+    rtn))
+
 (defun collect-stylesheets-and-scripts (story)
   (when (scripts story)
     (setf (gethash "/js/js.js" *scripts*) 'story-js:js-file)
-    (setf (gethash "/js/js-all.js" *scripts*)
-          (apply #'concatenate 'string
+    (let ((all (apply #'concatenate 'string
                  (iter (for script in (scripts story))
                        (let ((val (gethash (format nil "/js/~A" script) *scripts*)))
                          (collect (typecase val
                                     (pathname (slurp-file val))
                                     (string val)
                                     (t (funcall val)))))))))
+      (setf (gethash "/js/js-all.js" *scripts*) all
+            (gethash "/js/js-all.min.js" *scripts*) (minimize-script all))))
   (when (stylesheets story)
     (setf (gethash "/css/css-all.css" *css*)
           (apply #'concatenate 'string

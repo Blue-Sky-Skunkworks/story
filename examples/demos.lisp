@@ -33,12 +33,11 @@
 
 (define-demo timeline (:timeline)
   (:div :id "vis")
-  (:script
-    (str (ps* `(progn
-                 (new ((@ vis *timeline)
-                       (story-js:id "vis")
-                       (new ((@ vis *data-set)
-                             (make-array
-                              ,@(iter (for (y m d text) in (load-computer-calender))
-                                      (for index from 1)
-                                      (collect `(create :id ,index :content ,text :start ,(format nil "~A-~A-~A" y m d))))))))))))))
+  (script*
+    `(new ((@ vis *timeline)
+           (story-js:id "vis")
+           (new ((@ vis *data-set)
+                 (make-array
+                  ,@(iter (for (y m d text) in (load-computer-calender))
+                          (for index from 1)
+                          (collect `(create :id ,index :content ,text :start ,(format nil "~A-~A-~A" y m d)))))))))))

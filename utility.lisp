@@ -132,3 +132,6 @@
 
 (defmacro script (&body body)
   `(html (:script (str (ps (progn ,@body))))))
+
+(defmacro script* (&body body)
+  `(html (:script (str (ps* ,@body)))))

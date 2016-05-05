@@ -9,7 +9,7 @@
   (defparameter *slash-representative-character* #\UE000))
 
 (defpsmacro with-id ((var id) &body body)
-  `(let ((,var (get-by-id ,id)))
+  `(let ((,var (id ,id)))
      (if ,var
        (progn
          ,@body))))
@@ -97,10 +97,10 @@
         (setf (@ *string prototype ends-with)
          (lambda (suffix) (return (not (== ((@ this index-of) suffix (- (@ this length) (@ suffix length))) -1)))))
 
-        (defun get-by-id (id &optional (error t))
+        (defun id (id &optional (error t))
           (let ((hit ((@ document get-element-by-id) id)))
             (if hit
                 (return hit)
-                (if error (console "ERROR: get-by-id" id))))))))))
+                (if error (console "ERROR: id" id))))))))))
 
 (defun js-file () *js-file*)

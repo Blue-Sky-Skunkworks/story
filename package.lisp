@@ -10,6 +10,6 @@
 
 (defpackage story-js
   (:use common-lisp parenscript)
-  (:export js-file))
+  (:export js-file id))
 
 (require 'story-modules)

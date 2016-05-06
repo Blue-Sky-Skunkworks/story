@@ -55,22 +55,37 @@ matches NAME."
         (finally (call-next-method))))
 
 (defvar *all-imports*)
+(defvar *current-imports*)
+
+(defun wch-merge-pathnames (to base)
+  (let ((raw (namestring (merge-pathnames to base))))
+    (multiple-value-bind (ms me rs re) (scan "/[^/]+?/\.\./" raw)
+      (cond
+        (ms (format nil "~A/~A" (subseq raw 0 ms) (subseq raw me)))
+        (t raw)))))
 
 (defun collect-imports (file stream)
+  (format stream "~%~%<!-- Importing ~A -->~%~%" file)
   (let ((index 0)
         (text (slurp-file file)))
     (do-scans (ms me rs re "(<link rel=\"import\" href=\"(.+?)\">)" text)
-      (princ (subseq text index ms) stream)
-      (collect-imports (merge-pathnames (subseq text (aref rs 1) (aref re 1)) file) stream)
-      (setf index me))
+      (let ((importing (subseq text (aref rs 1) (aref re 1)))
+            (idx index))
+        (setf index me)
+        (princ (subseq text idx ms) stream)
+        (unless (gethash importing *current-imports*)
+          (setf (gethash importing *current-imports*) t)
+          (collect-imports (wch-merge-pathnames importing file) stream))))
     (princ (subseq text index) stream))
+  (format stream "~%~%<!-- Done importing ~A -->~%~%" file)
   (values))
 
 (defun load-imports (files)
-  (setf *all-imports*
-        (with-output-to-string (stream)
-          (iter (for file in files)
-                (collect-imports file stream)))))
+  (let ((*current-imports* (make-hash-table :test 'equal)))
+    (setf *all-imports*
+          (with-output-to-string (stream)
+            (iter (for file in files)
+                  (collect-imports file stream))))))
 
 (defvar *css*)
 

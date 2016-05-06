@@ -5,16 +5,28 @@
     :scripts ("/webcomponentsjs/webcomponents-lite.js")
     :imports ("polymer/polymer"))
 
-(define-demo polymer (:polymer)
-  )
+(define-story-module paper-material
+    :extends :polymer
+    :imports ("paper-material/paper-material"))
+
+(macrolet
+    ((define-polymer-macros (prefix &rest names)
+       `(progn
+          ,@(iter (for name in names)
+                  (collect
+                      `(defmacro ,name (&body body)
+                         `(html (,,(ksymb prefix '- name ) ,@body))))))))
+  (define-polymer-macros paper material)
+  (define-polymer-macros iron meta))
 
 (define-story-module paper-material
     :extends :polymer
     :imports ("paper-material/paper-material"))
 
-(defmacro material (&body body)
-  `(html (:paper-material ,@body)))
+(define-story-module iron-meta
+    :extends :polymer
+    :imports ("iron-meta/iron-meta"))
 
-(define-demo paper-material (:paper-material)
-  (material :style "width:300px;height:300px;margin:20px;"))
-
+(define-story-module iron-flex-layout
+    :extends :polymer
+    :imports ("iron-flex-layout/iron-flex-layout-classes"))

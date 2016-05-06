@@ -26,6 +26,7 @@
    (modules :reader modules :initarg :modules :initform nil)
    (stylesheets :reader stylesheets :initform nil)
    (scripts :reader scripts :initform nil)
+   (imports :reader imports :initform nil)
    (production :reader production :initform *production* :initarg :production)))
 
 (defmethod print-object ((story story) stream)
@@ -35,6 +36,7 @@
 (defmethod initialize-instance :after ((story story) &key)
   (when (modules story)
     (mapc #'ensure-story-module (modules story))
+    (setf (slot-value story 'imports) (collect-module-imports (modules story)))
     (setf (slot-value story 'stylesheets) (collect-module-stylesheets (modules story)))
     (when-let ((scripts (collect-module-scripts (modules story))))
       (setf (slot-value story 'scripts) (cons "js.js" scripts)))

@@ -20,6 +20,11 @@
     (iter (for script in (scripts story))
           (htm (:script :type "text/javascript" :src (format nil "js/~A" script))))))
 
+(defun render-imports (story stream)
+  (html
+    (iter (for import in (imports story))
+          (htm (:link :rel "import" :href import))))))
+
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
          (production (production story))
@@ -31,9 +36,11 @@
          (when title (htm (:title (esc title))))
          (cond
            (production
+            (when (imports story) (htm (:link :rel "import" :href "all.html")))
             (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css" :href "css/css-all.css")))
             (when (scripts story) (htm (:script :type "text/javascript" :src "js/js-all.min.js"))))
            (t
+            (when (imports story) (render-imports story stream))
             (when (stylesheets story) (render-stylesheets story stream))
             (when (scripts story) (render-scripts story stream)))))
         (:body (funcall (body page) stream page))))))

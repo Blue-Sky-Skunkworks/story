@@ -54,6 +54,24 @@ matches NAME."
             (return rtn)))
         (finally (call-next-method))))
 
+(defvar *all-imports*)
+
+(defun collect-imports (file stream)
+  (let ((index 0)
+        (text (slurp-file file)))
+    (do-scans (ms me rs re "(<link rel=\"import\" href=\"(.+?)\">)" text)
+      (princ (subseq text index ms) stream)
+      (collect-imports (merge-pathnames (subseq text (aref rs 1) (aref re 1)) file) stream)
+      (setf index me))
+    (princ (subseq text index) stream))
+  (values))
+
+(defun load-imports (files)
+  (setf *all-imports*
+        (with-output-to-string (stream)
+          (iter (for file in files)
+                (collect-imports file stream)))))
+
 (defvar *css*)
 
 (defparameter *scss-script* (cond
@@ -126,25 +144,30 @@ matches NAME."
 
 (defun serve-all ()
   (let ((request-path (script-name*)) served)
-    (iter (for (path file) in-hashtable *scripts*)
-          (let ((mismatch (mismatch request-path path :test #'char=)))
-            (when (null mismatch)
-              (setf served t)
-              (cond
-                ((stringp file)
-                 (setf (hunchentoot:content-type*) "text/javascript")
-                 (return-from serve-all file))
-                ((pathnamep file) (handle-static-file file))
-                (t
-                 (setf (hunchentoot:content-type*) "text/javascript")
-                 (return-from serve-all (funcall file)))))))
-    (unless served
-      (iter (for (prefix dir) in-hashtable *directories*)
-            (let ((mismatch (mismatch request-path prefix :test #'char=)))
-              (and (or (null mismatch) (>= mismatch (length prefix)))
-                   (handle-static-file (merge-pathnames dir request-path))))
-            (finally (setf (return-code *reply*) +http-not-found+)
-                     (abort-request-handler))))))
+    (cond
+      ((string= request-path "/all.html")
+       (setf (hunchentoot:content-type*) "text/html")
+       (return-from serve-all *all-imports*)))
+      (t
+       (iter (for (path file) in-hashtable *scripts*)
+             (let ((mismatch (mismatch request-path path :test #'char=)))
+               (when (null mismatch)
+                 (setf served t)
+                 (cond
+                   ((stringp file)
+                    (setf (hunchentoot:content-type*) "text/javascript")
+                    (return-from serve-all file))
+                   ((pathnamep file) (handle-static-file file))
+                   (t
+                    (setf (hunchentoot:content-type*) "text/javascript")
+                    (return-from serve-all (funcall file)))))))
+       (unless served
+         (iter (for (prefix dir) in-hashtable *directories*)
+               (let ((mismatch (mismatch request-path prefix :test #'char=)))
+                 (when (or (null mismatch) (>= mismatch (length prefix)))
+                   (handle-static-file (concatenate 'string dir (subseq request-path (length prefix))))))
+               (finally (setf (return-code *reply*) +http-not-found+)
+                        (abort-request-handler)))))))
 
 (defun server ()
   "Describe the server."
@@ -165,4 +188,5 @@ matches NAME."
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)
         *directories* (make-hash-table :test 'equal)
-        *scripts* (make-hash-table :test 'equal)))
+        *scripts* (make-hash-table :test 'equal)
+        *all-imports* ""))

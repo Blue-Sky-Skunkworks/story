@@ -8,7 +8,8 @@
   ((name :reader name :initarg :name)
    (stylesheets :reader stylesheets :initarg :stylesheets)
    (directories :reader directories :initarg :directories)
-   (scripts :reader scripts :initarg :scripts)))
+   (scripts :reader scripts :initarg :scripts)
+   (imports :reader imports :initarg :imports)))
 
 (defmethod print-object ((module module) stream)
   (print-unreadable-object (module stream :type t)
@@ -17,7 +18,15 @@
 (defun story-modules ()
   "Print a table of the story modules."
   (iter (for (k v) in-hashtable *story-modules*)
-        (format t "~A ~A~%" (if (member k *loaded-story-modules*) "*" " ") v)))
+        (format t "~A ~A~%    css: ~{~S~^, ~}~%    dir: ~{~S~^, ~}~%     js: ~{~S~^, ~}~%     in: ~{~S~^, ~}~%"
+                (if (member k *loaded-story-modules*) "*" " ")
+                (name v) (stylesheets v) (directories v) (scripts v) (imports v))))
+
+(defun collect-module-imports (modules)
+  (iter (for module in modules)
+        (when-let (els (imports (gethash module *story-modules*)))
+          (appending
+           (iter (for el in els) (collect (format nil "~(~A~)/~A.html" module el)))))))
 
 (defun collect-module-stylesheets (modules)
   (iter (for module in modules)
@@ -38,11 +47,12 @@
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
-(defmacro define-story-module (name &key init stylesheets directories scripts)
+(defmacro define-story-module (name &key init stylesheets directories scripts imports)
   (let ((kname (ksymb (string-upcase name))))
     `(progn
        (setf (gethash ,kname *story-modules*)
-             (make-instance 'module :name ,kname :stylesheets ',stylesheets :directories ',directories :scripts ',scripts))
+             (make-instance 'module :name ,kname :stylesheets ',stylesheets
+                            :directories ',directories :scripts ',scripts :imports ',imports))
        (defun ,(symb 'load-story-module- name) ()
          (when (member ,kname *loaded-story-modules*)
            (warn ,(format nil  "Reinitializing story module ~S." name)))
@@ -73,6 +83,8 @@
                                                           (list
                                                            (format nil "~A~(~A~)/~A/" (story-modules-file) name from)
                                                            (format nil "/~A/" to)))))))
+         ,@(when imports `((load-imports ',(iter (for el in imports)
+                                                 (collect (format nil "~A~(~A~)/imports/~A.html" (story-modules-file) name el))))))
          ,@init
          (pushnew ,kname *loaded-story-modules*)
          (values)))))

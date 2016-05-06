@@ -2,6 +2,10 @@
 
 (defvar *story-modules* (make-hash-table))
 
+(defun find-module (name)
+  (or (gethash name *story-modules*)
+      (error "Missing story module ~S." name)))
+
 (defvar *loaded-story-modules* nil)
 
 (defclass module ()
@@ -23,23 +27,30 @@
                 (if (member k *loaded-story-modules*) "*" " ")
                 (name v) (stylesheets v) (directories v) (scripts v) (imports v))))
 
+(defun modules-and-parents (modules)
+  (remove-duplicates
+   (iter (for module in modules)
+         (when-let (extends (extends (find-module module)))
+           (collect extends))
+         (collect module))))
+
 (defun collect-module-imports (modules)
-  (iter (for name in modules)
-        (let ((module (gethash name *story-modules*)))
+  (iter (for name in (modules-and-parents modules))
+        (let ((module (find-module name)))
           (when-let (els (imports module))
             (appending
              (iter (for el in els) (collect (format nil "~(~A~)/~A.html" (or (extends module) name) el))))))))
 
 (defun collect-module-stylesheets (modules)
-  (iter (for name in modules)
-        (let ((module (gethash name *story-modules*)))
+  (iter (for name in (modules-and-parents modules))
+        (let ((module (find-module name)))
          (when-let (els (stylesheets module))
            (appending
             (iter (for css in els) (collect (format nil "~(~A~)/~A.css" (or (extends module) name) (pathname-name css)))))))))
 
 (defun collect-module-scripts (modules)
-  (iter (for name in modules)
-        (let ((module (gethash name *story-modules*)))
+  (iter (for name in (modules-and-parents modules))
+        (let ((module (find-module name)))
           (when-let (els (scripts module))
             (appending
              (iter (for script in els)

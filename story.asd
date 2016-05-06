@@ -14,9 +14,5 @@
                (:file "server")
                (:file "logging")
                (:file "bower")
-               (:module "examples"
-                        :serial t
-                        :components
-                        (; (:file "demos")
-                         ))
+               (:file "demos")
                (:file "initialize")))

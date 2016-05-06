@@ -100,19 +100,25 @@ matches NAME."
                 (string (pathname file))
                 (t file)))))
 
+
 (defun minimize-script (text)
   (let* ((len (length text))
          (rtn
-          (cl-uglify-js:ast-gen-code
-           (cl-uglify-js:ast-mangle
-            (cl-uglify-js:ast-squeeze
-             (parse-js:parse-js text)))
-           :beautify nil))
-         (lrtn (length rtn)))
-    (when (> lrtn len)
-      (warn "Minimilization failed."))
-    (note "Minimized script from ~D to ~D (~D%)." len lrtn (round (* (/ lrtn len) 100)))
-    rtn))
+          (handler-case
+              (cl-uglify-js:ast-gen-code
+               (cl-uglify-js:ast-mangle
+                (cl-uglify-js:ast-squeeze
+                 (parse-js:parse-js text)))
+               :beautify nil)
+            (error (c) (warn "Error minimilizing ~A." c) nil)))
+         (lrtn (and rtn (length rtn))))
+    (cond
+      ((or (null rtn) (> lrtn len))
+       (warn "Minimilization failed.")
+       text)
+      (t
+       (note "Minimized script from ~D to ~D (~D%)." len lrtn (round (* (/ lrtn len) 100)))
+       rtn))))
 
 (defun collect-stylesheets-and-scripts (story)
   (when (scripts story)

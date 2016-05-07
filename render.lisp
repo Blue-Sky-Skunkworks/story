@@ -25,6 +25,11 @@
     (iter (for import in (imports story))
           (htm (:link :rel "import" :href import))))))
 
+(defun render-suffixes (story stream)
+  (html
+    (iter (for suffix in (suffixes story))
+          (princ (slurp-file (format nil "~A/~A" (story-file) suffix)) stream))))
+
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
          (production (production story))
@@ -43,6 +48,8 @@
             (when (imports story) (render-imports story stream))
             (when (stylesheets story) (render-stylesheets story stream))
             (when (scripts story) (render-scripts story stream)))))
-        (:body (funcall (body page) stream page))))))
+        (:body
+         (funcall (body page) stream page)
+         (when (suffixes story) (render-suffixes story stream)))))))
 
 

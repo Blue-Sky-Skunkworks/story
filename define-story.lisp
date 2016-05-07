@@ -21,8 +21,9 @@
           (format t "~A.~A ~S~%" index (if (eq story *story*) "*" " ") story)
           (when (modules story) (format t "    modules: ~{~A~^, ~}~%" (modules story)))
           (when (imports story) (format t "    imports: ~{~A~^, ~}~%" (imports story)))
-          (when (stylesheets story) (format t "    css: ~{~S~^, ~}~%" (stylesheets story)))
+          (when (stylesheets story) (format t "        css: ~{~S~^, ~}~%" (stylesheets story)))
           (when (scripts story) (format t "    scripts: ~{~S~^, ~}~%" (scripts story)))
+          (when (suffixes story) (format t "   suffixes: ~{~S~^, ~}~%" (suffixes story)))
           (iter (for child in (children story))
                 (format t "      ~S~%" child)))))
 

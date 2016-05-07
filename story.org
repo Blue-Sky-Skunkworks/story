@@ -111,15 +111,3 @@ and what did they produce?  The cuckoo-clock.
        in this file. All other imports should go in elements.html -->
   <link rel="import" href="elements/elements.html">
 
-** TODO research what vulcanize is doing
-   Caveats
-
-   Because HTML Imports changes the order of execution scripts can
-   have, Vulcanize has to make a few compromises to achieve that same
-   script execution order.
-
-   Contents of all HTML Import documents will be moved to <body>
-
-   Any scripts after a <link rel="import"> node in <head> will be
-   moved to <body> after the contents of the HTML Import.
-

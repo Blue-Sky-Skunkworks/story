@@ -25,3 +25,24 @@ Archived entries from file /home/conrad/quicklisp/local-projects/story/story.org
   :ARCHIVE_ITAGS: story
   :END:
 
+
+* DONE research what vulcanize is doing
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2016-05-07 Sat 14:55
+  :ARCHIVE_FILE: ~/quicklisp/local-projects/story/story.org
+  :ARCHIVE_OLPATH: story tasks
+  :ARCHIVE_CATEGORY: notes,tasks
+  :ARCHIVE_TODO: DONE
+  :ARCHIVE_ITAGS: story
+  :END:
+  Caveats
+
+  Because HTML Imports changes the order of execution scripts can
+  have, Vulcanize has to make a few compromises to achieve that same
+  script execution order.
+
+  Contents of all HTML Import documents will be moved to <body>
+
+  Any scripts after a <link rel="import"> node in <head> will be
+  moved to <body> after the contents of the HTML Import.
+

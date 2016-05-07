@@ -1,6 +1,9 @@
 (in-package :story)
 
-(define-demo polymer (:polymer))
+(define-demo polymer (:polymer)
+  (script (*polymer (create :is "proto-element"
+                            :ready (lambda () (setf (@ this text-content) "Polymer works!")))))
+  (:proto-element))
 
 (define-demo paper-material (:paper-material)
   (material :style "width:300px;height:300px;margin:20px;"))

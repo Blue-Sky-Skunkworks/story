@@ -75,7 +75,7 @@ matches NAME."
   (format stream "<!-- Importing ~A -->~%" file)
   (let ((index 0)
         (text (slurp-file file)))
-    (do-scans (ms me rs re (create-scanner "(<!--.*?-->)|(<link rel=\"import\" href=\"(.+?)\">)" :single-line-mode t) text)
+    (do-scans (ms me rs re (create-scanner "(<!--[^'].*?-->)|(<link rel=\"import\" href=\"(.+?)\">)" :single-line-mode t) text)
       (if (aref rs 0)
           (setf index me)
           (let ((importing (subseq text (aref rs 2) (aref re 2)))

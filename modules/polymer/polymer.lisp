@@ -1,32 +1,31 @@
 (in-package :story)
 
+
+(defmacro  define-polymer-macros (prefix &rest names)
+  `(progn
+     ,@(iter (for name in names)
+             (collect
+                 `(defmacro ,name (&body body)
+                    `(html (,,(ksymb prefix '- name ) ,@body)))))))
+
 (define-story-module polymer
     :directories (("imports" "polymer") ("webcomponentsjs" "js/webcomponentsjs"))
     :scripts ("/webcomponentsjs/webcomponents-lite.js")
     :imports ("polymer/polymer"))
 
-(define-story-module paper-material
-    :extends :polymer
-    :imports ("paper-material/paper-material"))
+(defmacro define-polymer-module (name &key (helpers t))
+  (let*  ((raw (symbol-name name))
+          (pos (position #\- raw))
+          (module (subseq raw 0 pos))
+          (rest (subseq raw (1+ pos))))
+    `(progn
+       (define-story-module ,name
+           :extends :polymer
+           :imports (,(format nil "~(~A/~A~)" name name)))
+       ,@(when helpers `((define-polymer-macros ,(symb module) ,(symb rest)))))))
 
-(macrolet
-    ((define-polymer-macros (prefix &rest names)
-       `(progn
-          ,@(iter (for name in names)
-                  (collect
-                      `(defmacro ,name (&body body)
-                         `(html (,,(ksymb prefix '- name ) ,@body))))))))
-  (define-polymer-macros paper material)
-  (define-polymer-macros iron meta))
-
-(define-story-module paper-material
-    :extends :polymer
-    :imports ("paper-material/paper-material"))
-
-(define-story-module iron-meta
-    :extends :polymer
-    :imports ("iron-meta/iron-meta"))
-
-(define-story-module iron-flex-layout
-    :extends :polymer
-    :imports ("iron-flex-layout/iron-flex-layout-classes"))
+(define-polymer-module paper-material)
+(define-polymer-module iron-meta)
+(define-story-module iron-flex-layout :extends :polymer :imports ("iron-flex-layout/iron-flex-layout-classes"))
+(define-polymer-module iron-icons)
+(define-polymer-module iron-icon)

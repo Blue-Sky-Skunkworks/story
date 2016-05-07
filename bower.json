@@ -19,6 +19,6 @@
     "dependencies": {
         "packery": null,
         "vis": null,
-        "page": nill
+        "page": null
     }
 }

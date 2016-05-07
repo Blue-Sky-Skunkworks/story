@@ -71,22 +71,29 @@ matches NAME."
 
 (defvar *current-imports*)
 
+(defparameter *debug-importing* nil)
+
 (defun collect-imports (file stream)
-  (format stream "<!-- Importing ~A -->~%" file)
+  "Removes comments and flattents HTML <link rel='import' ...> tags."
+  (when *debug-importing* (format stream "<!-- Importing ~A -->~%" file))
+  (setf (gethash (pathname-name file) *current-imports*) t)
   (let ((index 0)
         (text (slurp-file file)))
+    ;; Note that the following regex has only been fleshed out enough
+    ;; to work with polymer. This is not guaranteed to work with all
+    ;; html. For that a true HTML parse and re-emit may be needed.
     (do-scans (ms me rs re (create-scanner "(<!--[^'].*?-->)|(<link rel=\"import\" href=\"(.+?)\">)" :single-line-mode t) text)
       (if (aref rs 0)
           (setf index me)
-          (let ((importing (subseq text (aref rs 2) (aref re 2)))
-                (idx index))
+          (let* ((importing (subseq text (aref rs 2) (aref re 2)))
+                 (base-name (pathname-name importing))
+                 (idx index))
             (setf index me)
             (princ (subseq text idx ms) stream)
-            (unless (gethash importing *current-imports*)
-              (setf (gethash importing *current-imports*) t)
+            (unless (gethash (pathname-name importing) *current-imports*)
               (collect-imports (wch-merge-pathnames importing file) stream)))))
     (princ (subseq text index) stream))
-  (format stream "<!-- Done importing ~A -->~%" file)
+  (when *debug-importing* (format stream "<!-- Done importing ~A -->~%" file))
   (values))
 
 (defun collect-all-imports (files)
@@ -94,7 +101,8 @@ matches NAME."
     (setf *all-imports*
           (with-output-to-string (stream)
             (iter (for file in files)
-                  (collect-imports file stream))))))
+                  (collect-imports file stream)))))
+  (values))
 
 (defvar *css*)
 
@@ -162,7 +170,7 @@ matches NAME."
                  (iter (for stylesheet in (stylesheets story))
                        (collect (gethash (format nil "/css/~A" stylesheet) *css*))))))
   (when (imports story)
-    (setf *all-imports* (collect-all-imports *imports*))))
+    (collect-all-imports *imports*)))
 
 
 (defvar *directories*)

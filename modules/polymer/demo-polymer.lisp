@@ -19,3 +19,6 @@
         (:div :style "width:100px;height:100px;background:blue;")
         (:div :class "flex" :style "width:100px;height:100px;background:green;")
         (:div :style "width:100px;height:100px;background:blue;")))
+
+(define-demo iron-icon (:iron-icons :iron-icon)
+  (icon :icon "card-giftcard"))

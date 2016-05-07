@@ -61,7 +61,7 @@ matches NAME."
 
 (defvar *all-imports*)
 
-(defun wch-merge-pathnames (to base)
+(defun merge-pathnames-.. (to base)
   (let ((raw (namestring (merge-pathnames to base))))
     (multiple-value-bind (ms me rs re) (scan "/[^/]+?/\.\./" raw)
       (declare (ignore rs re))
@@ -69,29 +69,28 @@ matches NAME."
         (ms (format nil "~A/~A" (subseq raw 0 ms) (subseq raw me)))
         (t raw)))))
 
-(defvar *current-imports*)
+(defvar *current-imports* nil)
 
 (defparameter *debug-importing* nil)
 
 (defun collect-imports (file stream)
   "Removes comments and flattents HTML <link rel='import' ...> tags."
   (when *debug-importing* (format stream "<!-- Importing ~A -->~%" file))
-  (setf (gethash (pathname-name file) *current-imports*) t)
+  (when *current-imports* (setf (gethash (pathname-name file) *current-imports*) t))
   (let ((index 0)
         (text (slurp-file file)))
     ;; Note that the following regex has only been fleshed out enough
     ;; to work with polymer. This is not guaranteed to work with all
     ;; html. For that a true HTML parse and re-emit may be needed.
     (do-scans (ms me rs re (create-scanner "(<!--[^'].*?-->)|(<link rel=\"import\" href=\"(.+?)\">)" :single-line-mode t) text)
-      (if (aref rs 0)
+      (princ (subseq text index ms) stream)
+      (setf index me)
+      (unless (aref rs 0)
+        (let ((importing (subseq text (aref rs 2) (aref re 2))))
           (setf index me)
-          (let* ((importing (subseq text (aref rs 2) (aref re 2)))
-                 (base-name (pathname-name importing))
-                 (idx index))
-            (setf index me)
-            (princ (subseq text idx ms) stream)
+          (when *current-imports*
             (unless (gethash (pathname-name importing) *current-imports*)
-              (collect-imports (wch-merge-pathnames importing file) stream)))))
+              (collect-imports (merge-pathnames-.. importing file) stream))))))
     (princ (subseq text index) stream))
   (when *debug-importing* (format stream "<!-- Done importing ~A -->~%" file))
   (values))
@@ -101,7 +100,8 @@ matches NAME."
     (setf *all-imports*
           (with-output-to-string (stream)
             (iter (for file in files)
-                  (collect-imports file stream)))))
+                  (unless (gethash (pathname-name file) *current-imports*)
+                    (collect-imports file stream))))))
   (values))
 
 (defvar *css*)
@@ -170,7 +170,7 @@ matches NAME."
                  (iter (for stylesheet in (stylesheets story))
                        (collect (gethash (format nil "/css/~A" stylesheet) *css*))))))
   (when (imports story)
-    (collect-all-imports *imports*)))
+    (collect-all-imports (remove-duplicates *imports* :test 'equal :from-end t))))
 
 
 (defvar *directories*)

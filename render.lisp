@@ -26,9 +26,8 @@
           (htm (:link :rel "import" :href import))))))
 
 (defun render-suffixes (story stream)
-  (html
-    (iter (for suffix in (suffixes story))
-          (princ (slurp-file (format nil "~A/~A" (story-file) suffix)) stream))))
+  (iter (for suffix in (suffixes story))
+        (princ (slurp-file (format nil "~A/~A" (story-file) suffix)) stream)))
 
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))

@@ -32,7 +32,7 @@
             (if (eql return-code +http-not-modified+)
                 "      "
                 (red "none" :effect :bright)))
-        (format nil "~30A"
+        (format nil "~36A"
                 (let ((referer (referer))
                       (server-prefix (format nil "http://localhost:~D" *web-port*)))
                   (cond

@@ -23,7 +23,7 @@
 (defun story-modules ()
   "Print a table of the story modules."
   (iter (for (k v) in-hashtable *story-modules*)
-        (format t "~A ~A~%    css: ~{~S~^, ~}~%    dir: ~{~S~^, ~}~%     js: ~{~S~^, ~}~%     in: ~{~S~^, ~}~%"
+        (format t "~A ~A~%~@[    css: ~{~S~^, ~}~%~]~@[    dir: ~{~S~^, ~}~%~]~@[     js: ~{~S~^, ~}~%~]~@[     in: ~{~S~^, ~}~%~]"
                 (if (member k *loaded-story-modules*) "*" " ")
                 (name v) (stylesheets v) (directories v) (scripts v) (imports v))))
 

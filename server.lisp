@@ -182,7 +182,16 @@ matches NAME."
             (warn "Resetting directory ~S from ~S to ~S" prefix current dir)))
         (setf (gethash prefix *directories*) dir)))
 
+(defvar *module-dispatches*)
+
+(defun load-module-dispatches (dispatches)
+  (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatchdispatches))))
+
 (defun serve-all ()
+  (iter (for dispatcher in *module-dispatches*)
+        (when-let (action (funcall dispatcher *request*))
+          (when-let (rtn (funcall action))
+            (return-from serve-all  rtn))))
   (let ((request-path (script-name*)) served)
     (cond
       ((string= request-path "/all.html")
@@ -219,15 +228,16 @@ matches NAME."
     (format t "~%css:~%")
     (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))
     (format t "~%scripts:~%")
-    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~S~%" k (typecase v
-                                                                          (string :all)
-                                                                          (t v))))
+    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~S~%" k (typecase v (string :all) (t v))))
     (format t "~%directories:~%")
-    (iter (for (k v) in-hashtable *directories*) (format t "  ~36A  ~A~%" k v))))
+    (iter (for (k v) in-hashtable *directories*) (format t "  ~36A  ~A~%" k v))
+    (format t "~%dispatches:~%")
+    (iter (for el in *module-dispatches*) (format t "  ~A~%" el))))
 
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)
         *directories* (make-hash-table :test 'equal)
         *scripts* (make-hash-table :test 'equal)
         *imports* nil
-        *all-imports* ""))
+        *all-imports* ""
+        *module-dispatches* nil))

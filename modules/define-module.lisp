@@ -14,7 +14,8 @@
    (directories :reader directories :initarg :directories)
    (scripts :reader scripts :initarg :scripts)
    (imports :reader imports :initarg :imports)
-   (extends :reader extends :initarg :extends)))
+   (extends :reader extends :initarg :extends)
+   (dispatches :reader dispatches :initarg :dispatches)))
 
 (defmethod print-object ((module module) stream)
   (print-unreadable-object (module stream :type t)
@@ -63,13 +64,14 @@
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
-(defmacro define-story-module (name &key init stylesheets directories scripts imports extends)
+(defmacro define-story-module (name &key init stylesheets directories scripts imports extends dispatches)
   (let ((kname (ksymb (string-upcase name)))
         (mname (or extends name)))
     `(progn
        (setf (gethash ,kname *story-modules*)
              (make-instance 'module :name ,kname :stylesheets ',stylesheets
-                            :directories ',directories :scripts ',scripts :imports ',imports :extends ,extends))
+                            :directories ',directories :scripts ',scripts :imports ',imports
+                            :extends ,extends :dispatches ',dispatches))
        (defun ,(symb 'load-story-module- name) ()
          ,@(when extends `((,(symb 'load-story-module- extends))))
          (when (member ,kname *loaded-story-modules*)
@@ -103,6 +105,7 @@
                                                            (format nil "/~A/" to)))))))
          ,@(when imports `((load-imports ',(iter (for el in imports)
                                                  (collect (format nil "~A~(~A~)/imports/~A.html" (story-modules-file) mname el))))))
+         ,@(when dispatches `((load-module-dispatches ',dispatches)))
          ,@init
          (pushnew ,kname *loaded-story-modules*)
          (values)))))

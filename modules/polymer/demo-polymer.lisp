@@ -11,7 +11,7 @@
 (define-demo iron-meta (:iron-meta)
   (meta :id "id" :key "foo" :value "Iron Meta has worked.")
   (:div :id "result" "Original Value")
-  (script (set-inner-html (id "result") ((@ (id "id") by-key) "foo"))))
+  (script (set-html "result" ((@ (id "id") by-key) "foo"))))
 
 (define-demo iron-flex-layout (:iron-flex-layout)
   (:style :is "custom-style" :include "iron-flex iron-flex-alignment")

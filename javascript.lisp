@@ -23,8 +23,8 @@
 (defpsmacro create-element (node-type)
   `((@ document create-element) ,node-type))
 
-(defpsmacro set-inner-html (el html)
-  `(setf (slot-value ,el 'inner-h-t-m-l) ,html))
+(defpsmacro set-html (el html)
+  `(setf (slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) ,html))
 
 (defpsmacro remove-node (el)
   `((@ ,el parent-node remove-child) ,el))

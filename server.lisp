@@ -54,33 +54,42 @@ matches NAME."
             (return rtn)))
         (finally (call-next-method))))
 
+(defvar *imports*)
+
+(defun load-imports (files)
+  (setf *imports* (append *imports* files)))
+
 (defvar *all-imports*)
-(defvar *current-imports*)
 
 (defun wch-merge-pathnames (to base)
   (let ((raw (namestring (merge-pathnames to base))))
     (multiple-value-bind (ms me rs re) (scan "/[^/]+?/\.\./" raw)
+      (declare (ignore rs re))
       (cond
         (ms (format nil "~A/~A" (subseq raw 0 ms) (subseq raw me)))
         (t raw)))))
 
+(defvar *current-imports*)
+
 (defun collect-imports (file stream)
-  (format stream "~%~%<!-- Importing ~A -->~%~%" file)
+  (format stream "<!-- Importing ~A -->~%" file)
   (let ((index 0)
         (text (slurp-file file)))
-    (do-scans (ms me rs re "(<link rel=\"import\" href=\"(.+?)\">)" text)
-      (let ((importing (subseq text (aref rs 1) (aref re 1)))
-            (idx index))
-        (setf index me)
-        (princ (subseq text idx ms) stream)
-        (unless (gethash importing *current-imports*)
-          (setf (gethash importing *current-imports*) t)
-          (collect-imports (wch-merge-pathnames importing file) stream))))
+    (do-scans (ms me rs re (create-scanner "(<!--.*?-->)|(<link rel=\"import\" href=\"(.+?)\">)" :single-line-mode t) text)
+      (if (aref rs 0)
+          (setf index me)
+          (let ((importing (subseq text (aref rs 2) (aref re 2)))
+                (idx index))
+            (setf index me)
+            (princ (subseq text idx ms) stream)
+            (unless (gethash importing *current-imports*)
+              (setf (gethash importing *current-imports*) t)
+              (collect-imports (wch-merge-pathnames importing file) stream)))))
     (princ (subseq text index) stream))
-  (format stream "~%~%<!-- Done importing ~A -->~%~%" file)
+  (format stream "<!-- Done importing ~A -->~%" file)
   (values))
 
-(defun load-imports (files)
+(defun collect-all-imports (files)
   (let ((*current-imports* (make-hash-table :test 'equal)))
     (setf *all-imports*
           (with-output-to-string (stream)
@@ -151,7 +160,9 @@ matches NAME."
     (setf (gethash "/css/css-all.css" *css*)
           (apply #'concatenate 'string
                  (iter (for stylesheet in (stylesheets story))
-                       (collect (gethash (format nil "/css/~A" stylesheet) *css*)))))))
+                       (collect (gethash (format nil "/css/~A" stylesheet) *css*))))))
+  (when (imports story)
+    (setf *all-imports* (collect-all-imports *imports*))))
 
 
 (defvar *directories*)
@@ -168,7 +179,7 @@ matches NAME."
     (cond
       ((string= request-path "/all.html")
        (setf (hunchentoot:content-type*) "text/html")
-       (return-from serve-all *all-imports*)))
+       (return-from serve-all *all-imports*))
       (t
        (iter (for (path file) in-hashtable *scripts*)
              (let ((mismatch (mismatch request-path path :test #'char=)))
@@ -188,7 +199,7 @@ matches NAME."
                  (when (or (null mismatch) (>= mismatch (length prefix)))
                    (handle-static-file (concatenate 'string dir (subseq request-path (length prefix))))))
                (finally (setf (return-code *reply*) +http-not-found+)
-                        (abort-request-handler)))))))
+                        (abort-request-handler))))))))
 
 (defun server ()
   "Describe the server."
@@ -210,4 +221,5 @@ matches NAME."
   (setf *css* (make-hash-table :test 'equal)
         *directories* (make-hash-table :test 'equal)
         *scripts* (make-hash-table :test 'equal)
+        *imports* nil
         *all-imports* ""))

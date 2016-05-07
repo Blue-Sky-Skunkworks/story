@@ -21,4 +21,4 @@
         (:div :style "width:100px;height:100px;background:blue;")))
 
 (define-demo iron-icon (:iron-icons :iron-icon)
-  (icon :icon "card-giftcard"))
+  (icon :icon "thumb-up"))

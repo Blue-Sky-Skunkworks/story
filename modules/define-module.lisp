@@ -32,7 +32,8 @@
    (iter (for module in modules)
          (when-let (extends (extends (find-module module)))
            (collect extends))
-         (collect module))))
+         (collect module))
+   :from-end t))
 
 (defun collect-module-imports (modules)
   (iter (for name in (modules-and-parents modules))

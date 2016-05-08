@@ -24,6 +24,7 @@
           (when (stylesheets story) (format t "        css: ~{~S~^, ~}~%" (stylesheets story)))
           (when (scripts story) (format t "    scripts: ~{~S~^, ~}~%" (scripts story)))
           (when (suffixes story) (format t "   suffixes: ~{~S~^, ~}~%" (suffixes story)))
+          (when (prefixes story) (format t "   prefixes: ~{~S~^, ~}~%" (prefixes story)))
           (iter (for child in (children story))
                 (format t "      ~S~%" child)))))
 

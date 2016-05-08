@@ -29,6 +29,10 @@
   (iter (for suffix in (suffixes story))
         (princ (slurp-file (format nil "~A/~A" (story-file) suffix)) stream)))
 
+(defun render-prefixes (story stream)
+  (iter (for prefix in (prefixes story))
+        (princ (slurp-file (format nil "~A/~A" (story-file) prefix)) stream)))
+
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
          (production (production story))
@@ -48,6 +52,7 @@
             (when (stylesheets story) (render-stylesheets story stream))
             (when (scripts story) (render-scripts story stream)))))
         (:body
+         (when (prefixes story) (render-prefixes story stream))
          (funcall (body page) stream page)
          (when (suffixes story) (render-suffixes story stream)))))))
 

@@ -16,7 +16,8 @@
    (imports :reader imports :initarg :imports)
    (extends :reader extends :initarg :extends)
    (dispatches :reader dispatches :initarg :dispatches)
-   (suffixes :reader suffixes :initarg :suffixes)))
+   (suffixes :reader suffixes :initarg :suffixes)
+   (prefixes :reader prefixes :initarg :prefixes)))
 
 (defmethod print-object ((module module) stream)
   (print-unreadable-object (module stream :type t)
@@ -71,17 +72,26 @@
              (iter (for suffix in els)
                    (collect (format nil "modules/~(~A~)/~A" (or (extends module) name) suffix))))))))
 
+(defun collect-module-prefixes (modules)
+  (iter (for name in (modules-and-parents modules))
+        (let ((module (find-module name)))
+          (when-let (els (prefixes module))
+            (appending
+             (iter (for prefix in els)
+                   (collect (format nil "modules/~(~A~)/~A" (or (extends module) name) prefix))))))))
+
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
-(defmacro define-story-module (name &key init stylesheets directories scripts imports extends dispatches suffixes)
+(defmacro define-story-module (name &key init stylesheets directories scripts imports extends dispatches suffixes prefixes)
   (let ((kname (ksymb (string-upcase name)))
         (mname (or extends name)))
     `(progn
        (setf (gethash ,kname *story-modules*)
              (make-instance 'module :name ,kname :stylesheets ',stylesheets
                             :directories ',directories :scripts ',scripts :imports ',imports
-                            :extends ,extends :dispatches ',dispatches :suffixes ',suffixes))
+                            :extends ,extends :dispatches ',dispatches
+                            :suffixes ',suffixes :prefixes ',prefixes))
        (defun ,(symb 'load-story-module- name) ()
          ,@(when extends `((,(symb 'load-story-module- extends))))
          (when (member ,kname *loaded-story-modules*)

@@ -28,6 +28,7 @@
    (scripts :reader scripts :initform nil)
    (imports :reader imports :initform nil)
    (suffixes :reader suffixes :initform nil)
+   (prefixes :reader prefixes :initform nil)
    (production :reader production :initform *production* :initarg :production)))
 
 (defmethod print-object ((story story) stream)
@@ -39,7 +40,8 @@
     (mapc #'ensure-story-module (modules story))
     (setf (slot-value story 'imports) (collect-module-imports (modules story))
           (slot-value story 'stylesheets) (collect-module-stylesheets (modules story))
-          (slot-value story 'suffixes) (collect-module-suffixes (modules story)))
+          (slot-value story 'suffixes) (collect-module-suffixes (modules story))
+          (slot-value story 'prefixes) (collect-module-prefixes (modules story)))
     (when-let ((scripts (collect-module-scripts (modules story))))
       (setf (slot-value story 'scripts) (cons "js.js" scripts)))
     (collect-stylesheets-and-scripts story)))

@@ -19,6 +19,7 @@
     "dependencies": {
         "packery": null,
         "vis": null,
-        "page": null
+        "page": null,
+        "photoswipe": null
     }
 }

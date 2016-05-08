@@ -50,8 +50,7 @@
   (iter (for name in (modules-and-parents modules))
         (let ((module (find-module name)))
          (when-let (els (stylesheets module))
-           (appending
-            (iter (for css in els) (collect (format nil "~(~A~)/~A.css" (or (extends module) name) (pathname-name css)))))))))
+           (appending els))))))
 
 (defun collect-module-scripts (modules)
   (iter (for name in (modules-and-parents modules))
@@ -83,6 +82,12 @@
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
+(defun ensure-css-extension (path)
+  (cond
+    ((not (equalp (pathname-type path) "css"))
+     (format nil "~Acss" (subseq path 0 (- (length path) (length (pathname-type path))))))
+    (t path)))
+
 (defmacro define-story-module (name &key init stylesheets directories scripts imports extends dispatches suffixes prefixes)
   (let ((kname (ksymb (string-upcase name)))
         (mname (or extends name)))
@@ -100,8 +105,8 @@
                                 ,@(iter (for css in stylesheets)
                                         (appending
                                          (list
-                                          (format nil "~A~(~A~)/~A" (story-modules-file) mname css)
-                                          (format nil "/css/~(~A~)/~A.css" mname (pathname-name css))))))))
+                                          (format nil "~A~(~A~)~A" (story-modules-file) mname css)
+                                          (ensure-css-extension css)))))))
          ,@(when scripts `((load-scripts ',(iter (for script in scripts)
                                                  (cond
                                                    ((stringp script)
@@ -109,20 +114,22 @@
                                                         (appending
                                                          (list
                                                           (format nil "~A~(~A~)~A" (story-modules-file) mname script)
-                                                          (format nil "/js~A" script)))
+                                                          script))
                                                         (appending
                                                          (list
                                                           (format nil "~A~(~A~)/~A" (story-modules-file) mname script)
-                                                          (format nil "/js/~(~A~)/~A.~A" mname (pathname-name script) (pathname-type script))))))
+                                                          (format nil "/~(~A~)/~A.~A" mname (pathname-name script) (pathname-type script))))))
                                                    (t (appending
                                                        (list
                                                         (intern (symbol-name (second script)) :story-js)
-                                                        (format nil "/js/~(~A~)/~A" mname (first script))))))))))
-         ,@(when directories `((load-directories ,@(iter (for (from to) in directories)
-                                                         (appending
-                                                          (list
-                                                           (format nil "~A~(~A~)/~A/" (story-modules-file) mname from)
-                                                           (format nil "/~A/" to)))))))
+                                                        (format nil "/~(~A~)/~A" mname (first script))))))))))
+         ,@(when directories `((load-directories ,@(iter (for dir in directories)
+                                                         (let ((from (if (consp dir) (first dir) dir))
+                                                               (to (if (consp dir) (second dir) dir)))
+                                                           (appending
+                                                            (list
+                                                             (format nil "~A~(~A~)/~A/" (story-modules-file) mname from)
+                                                             (format nil "/~A/" to))))))))
          ,@(when imports `((load-imports ',(iter (for el in imports)
                                                  (collect (format nil "~A~(~A~)/imports/~A.html" (story-modules-file) mname el))))))
          ,@(when dispatches `((load-module-dispatches ',dispatches)))

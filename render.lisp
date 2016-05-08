@@ -13,12 +13,12 @@
 (defun render-stylesheets (story stream)
   (html
     (iter (for css in (stylesheets story))
-          (htm (:link :rel "stylesheet" :type "text/css" :href (format nil "css/~A" css))))))
+          (htm (:link :rel "stylesheet" :type "text/css" :href (ensure-css-extension css))))))
 
 (defun render-scripts (story stream)
   (html
     (iter (for script in (scripts story))
-          (htm (:script :type "text/javascript" :src (format nil "js/~A" script))))))
+          (htm (:script :type "text/javascript" :src script)))))
 
 (defun render-imports (story stream)
   (html
@@ -45,8 +45,8 @@
          (cond
            (production
             (when (imports story) (htm (:link :rel "import" :href "all.html")))
-            (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css" :href "css/css-all.css")))
-            (when (scripts story) (htm (:script :type "text/javascript" :src "js/js-all.min.js"))))
+            (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css" :href "css-all.css")))
+            (when (scripts story) (htm (:script :type "text/javascript" :src "js-all.min.js"))))
            (t
             (when (imports story) (render-imports story stream))
             (when (stylesheets story) (render-stylesheets story stream))

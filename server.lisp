@@ -4,8 +4,7 @@
 (defvar *web-acceptor* nil)
 
 (defclass web-acceptor (hunchentoot:acceptor)
-  ((dispatches :reader dispatches :initarg :dispatches)
-   (dispatch-table :reader dispatch-table)))
+  ())
 
 (defun create-exact-dispatcher (name handler)
   "Creates a request dispatch function which will dispatch to the
@@ -26,8 +25,7 @@ matches NAME."
       dispatch))
 
 (defmethod initialize-instance :after ((acceptor web-acceptor) &key)
-  (when (dispatches acceptor)
-    (setf (slot-value acceptor 'dispatch-table) (mapcar 'format-dispatch (dispatches acceptor)))))
+  )
 
 (defun start-server ()
   (when *web-acceptor*
@@ -39,20 +37,8 @@ matches NAME."
         (make-instance 'web-acceptor
                        :port *web-port*
                        :access-log-destination sb-sys:*stdout*
-                       ;;(story-file (format nil "log/access-~A.log" (now)))
-                       :message-log-destination sb-sys:*stdout*
-                       ;;(story-file (format nil "log/message-~A.log" (now)))
-                       :dispatches `((:exact "/" render-current-story)
-                                     (:prefix "/css/" serve-css)
-                                     (:prefix "/" serve-all))))
+                       :message-log-destination sb-sys:*stdout*))
   (hunchentoot:start *web-acceptor*))
-
-(defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)
-  (iter (for dispatcher in (dispatch-table acceptor))
-        (when-let (action (funcall dispatcher request))
-          (when-let (rtn (funcall action))
-            (return rtn)))
-        (finally (call-next-method))))
 
 (defvar *imports*)
 
@@ -115,14 +101,6 @@ matches NAME."
         (let ((text (run-program-to-string *scss-script* (list file))))
           (setf (gethash path *css*) text))))
 
-(defun serve-css ()
-  (setf (hunchentoot:content-type*) "text/css")
-  (let ((url (request-uri*)))
-    (or (gethash url *css*)
-        (progn
-          (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
-          (warn "CSS miss ~S." url)))))
-
 (defvar *scripts*)
 
 (defun load-scripts (args)
@@ -154,21 +132,22 @@ matches NAME."
 
 (defun collect-stylesheets-and-scripts (story)
   (when (scripts story)
-    (setf (gethash "/js/js.js" *scripts*) 'story-js:js-file)
-    (setf (gethash "/js/js-all.min.js" *scripts*)
+    (setf (gethash "/js.js" *scripts*) 'story-js:js-file)
+    (setf (gethash "/js-all.min.js" *scripts*)
           (minimize-script
            (apply #'concatenate 'string
                   (iter (for script in (scripts story))
-                        (let ((val (gethash (format nil "/js/~A" script) *scripts*)))
+                        (let ((val (gethash (format nil "/~A" script) *scripts*)))
                           (collect (typecase val
                                      (pathname (slurp-file val))
                                      (string val)
+                                     (null (warn "Missing script ~S." script))
                                      (t (funcall val))))))))))
   (when (stylesheets story)
-    (setf (gethash "/css/css-all.css" *css*)
+    (setf (gethash "/css-all.css" *css*)
           (apply #'concatenate 'string
                  (iter (for stylesheet in (stylesheets story))
-                       (collect (gethash (format nil "/css/~A" stylesheet) *css*))))))
+                       (collect (gethash (format nil "/~A" stylesheet) *css*))))))
   (when (imports story)
     (collect-all-imports (remove-duplicates *imports* :test 'equal :from-end t))))
 
@@ -185,46 +164,59 @@ matches NAME."
 (defvar *module-dispatches*)
 
 (defun load-module-dispatches (dispatches)
-  (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatchdispatches))))
+  (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatch dispatches))))
 
-(defun serve-all ()
+(defun serve-css ()
+  (setf (hunchentoot:content-type*) "text/css")
+  (let ((url (request-uri*)))
+    (or (gethash url *css*)
+        (progn
+          (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
+          (warn "CSS miss ~S." url)))))
+
+(defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)
   (iter (for dispatcher in *module-dispatches*)
         (when-let (action (funcall dispatcher *request*))
           (when-let (rtn (funcall action))
-            (return-from serve-all  rtn))))
+            (return-from acceptor-dispatch-request rtn))))
   (let ((request-path (script-name*)) served)
     (cond
+      ((string= request-path "/")
+       (setf (content-type*) "text/html")
+       (render-current-story))
       ((string= request-path "/all.html")
-       (setf (hunchentoot:content-type*) "text/html")
-       (return-from serve-all *all-imports*))
+       (setf (content-type*) "text/html")
+       (return-from acceptor-dispatch-request *all-imports*))
       (t
-       (iter (for (path file) in-hashtable *scripts*)
-             (let ((mismatch (mismatch request-path path :test #'char=)))
-               (when (null mismatch)
-                 (setf served t)
-                 (cond
-                   ((stringp file)
-                    (setf (hunchentoot:content-type*) "text/javascript")
-                    (return-from serve-all file))
-                   ((pathnamep file) (handle-static-file file))
-                   (t
-                    (setf (hunchentoot:content-type*) "text/javascript")
-                    (return-from serve-all (funcall file)))))))
-       (unless served
-         (iter (for (prefix dir) in-hashtable *directories*)
-               (let ((mismatch (mismatch request-path prefix :test #'char=)))
-                 (when (or (null mismatch) (>= mismatch (length prefix)))
-                   (handle-static-file (concatenate 'string dir (subseq request-path (length prefix))))))
-               (finally (setf (return-code *reply*) +http-not-found+)
-                        (abort-request-handler))))))))
+       (if-let (css (gethash request-path *css*))
+         (progn
+           (setf (content-type*) "text/javascript")
+           (return-from acceptor-dispatch-request css))
+         (iter (for (path file) in-hashtable *scripts*)
+               (let ((mismatch (mismatch request-path path :test #'char=)))
+                 (when (null mismatch)
+                   (return-from acceptor-dispatch-request
+                     (cond
+                       ((stringp file)
+                        (setf (content-type*) "text/javascript")
+                        file)
+                       ((pathnamep file)
+                        (handle-static-file file))
+                       (t
+                        (setf (content-type*) "text/javascript")
+                        (funcall file))))))))
+       (iter (for (prefix dir) in-hashtable *directories*)
+             (let ((mismatch (mismatch request-path prefix :test #'char=)))
+               (when (or (null mismatch) (>= mismatch (length prefix)))
+                 (handle-static-file (concatenate 'string dir (subseq request-path (length prefix))))))
+             (finally (setf (return-code *reply*) +http-not-found+)
+                      (abort-request-handler)))))))
 
 (defun server ()
   "Describe the server."
   (let ((server *web-acceptor*))
     (print-heading "story sever")
-    (format t "port ~S~@[ address ~A~]~%~%" (acceptor-port server) (acceptor-address server))
-    (iter (for dispatch in (dispatches server))
-          (format t "  ~6A  ~10A  ~A~%" (first dispatch) (second dispatch) (third dispatch)))
+    (format t "port ~S~@[ address ~A~]~%" (acceptor-port server) (acceptor-address server))
     (format t "~%css:~%")
     (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))
     (format t "~%scripts:~%")

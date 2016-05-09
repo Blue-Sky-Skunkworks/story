@@ -50,8 +50,11 @@
                 (format t "      ~S~%" child)))))
 
 (defun render-current-story ()
-  (with-output-to-string (stream)
-    (render *story* stream)))
+  (if *story*
+      (with-output-to-string (stream)
+        (render *story* stream))
+      (html-to-string (:html (:head (:title "No Story"))
+                             (:body "No story has been loaded.")))))
 
 (defmacro define-story (name (&key title modules) &body body)
   `(progn

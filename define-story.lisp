@@ -22,7 +22,7 @@
               (collect (cons index name))))
   (values))
 
-(defun change-story (name)
+(defun select-story (name)
   (when (integerp name)
     (setf name (or (assoc-value *story-indexes* name)
                    (error "Invalid story index ~S." name))))

@@ -2,9 +2,9 @@
 
 (defvar *story-modules* (make-hash-table))
 
-(defun find-module (name)
+(defun find-module (name &key (errorp t))
   (or (gethash name *story-modules*)
-      (error "Missing story module ~S." name)))
+      (when errorp (error "Missing story module ~S." name))))
 
 (defclass module ()
   ((name :reader name :initarg :name)
@@ -137,7 +137,7 @@
           (appending (story-module-depends-on-modules name))
           (collect (ksymb (string-upcase (subseq name (length "story-module-"))))))))
 
-(defun list-story-modules (&key with-version)
+(defun story-modules (&key with-version)
   (iter (for system in (ql:list-local-systems))
         (when (and (string-starts-with system "story-module-")
                    (not (equal system "story-module-system")))
@@ -148,7 +148,10 @@
                   (subseq system 13))))))
 
 (defun ensure-story-module (name)
-  (require (symb 'story-module- (string-upcase name))))
+  (if-let ((module (find-module (ksymb name) :errorp nil)))
+    (when-let ((extends (extends module)))
+      (ensure-story-module extends))
+    (require (symb 'story-module- (string-upcase name)))))
 
 (defun load-story-module (name &key (demo nil))
   (ensure-story-module name)

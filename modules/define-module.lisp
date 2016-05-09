@@ -6,8 +6,6 @@
   (or (gethash name *story-modules*)
       (error "Missing story module ~S." name)))
 
-(defvar *loaded-story-modules* nil)
-
 (defclass module ()
   ((name :reader name :initarg :name)
    (stylesheets :reader stylesheets :initarg :stylesheets)
@@ -27,8 +25,7 @@
   "Print a table of the story modules."
   (let ((*print-pretty* nil))
     (iter (for (k v) in-hashtable *story-modules*)
-          (format t "~A ~A~%~@[~30Tcss  ~{~S~^, ~}~%~]~@[~30Tdir  ~{~S~^, ~}~%~]~@[~30Tjs  ~{~S~^, ~}~%~]~@[~30Tin  ~{~S~^, ~}~%~]"
-                  (if (member k *loaded-story-modules*) "*" " ")
+          (format t "~A~%~@[~30Tcss  ~{~S~^, ~}~%~]~@[~30Tdir  ~{~S~^, ~}~%~]~@[~30Tjs  ~{~S~^, ~}~%~]~@[~30Tin  ~{~S~^, ~}~%~]"
                   (name v) (stylesheets v) (directories v) (scripts v) (imports v)))))
 
 (defun modules-and-parents (modules)
@@ -99,8 +96,6 @@
                             :suffixes ',suffixes :prefixes ',prefixes))
        (defun ,(symb 'load-story-module- name) ()
          ,@(when extends `((,(symb 'load-story-module- extends))))
-         (when (member ,kname *loaded-story-modules*)
-           (warn ,(format nil  "Reinitializing story module ~S." name)))
          ,@(when stylesheets `((load-stylesheets
                                 ,@(iter (for css in stylesheets)
                                         (appending
@@ -134,7 +129,6 @@
                                                  (collect (format nil "~A~(~A~)/imports/~A.html" (story-modules-file) mname el))))))
          ,@(when dispatches `((load-module-dispatches ',dispatches)))
          ,@init
-         (pushnew ,kname *loaded-story-modules*)
          (values)))))
 
 (defun story-module-depends-on-modules (module-name)
@@ -154,6 +148,7 @@
                   (subseq system 13))))))
 
 (defun ensure-story-module (name)
-  ;; (unless (member (ksymb (string-upcase name)) *loaded-story-modules*)
-  ;;   (require (symb 'story-module- (string-upcase name))))
-  (funcall (symb 'load-story-module- (string-upcase name))))
+  (require (symb 'story-module- (string-upcase name)))
+
+  ;;(funcall (symb 'load-story-module- (string-upcase name)))
+  )

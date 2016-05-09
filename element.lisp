@@ -46,10 +46,6 @@
       (setf (slot-value story 'scripts) (cons "js.js" scripts)))
     (collect-stylesheets-and-scripts story)))
 
-(defmethod initialize-instance :after ((story story) &key)
-  (setup-server story))
-
-
 ;;; page
 
 (defclass page (element)

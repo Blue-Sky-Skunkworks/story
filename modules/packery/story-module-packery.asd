@@ -10,4 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-packery.asd")
-               (:file "packery")))
+               (:file "packery")
+               (:file "demo-packery")))

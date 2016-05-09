@@ -38,6 +38,7 @@
 (defun setup-server (story)
   (when (modules story)
     (mapc #'ensure-story-module (modules story))
+    (mapc #'ensure-story-module (modules story))
     (setf (slot-value story 'imports) (collect-module-imports (modules story))
           (slot-value story 'stylesheets) (collect-module-stylesheets (modules story))
           (slot-value story 'suffixes) (collect-module-suffixes (modules story))

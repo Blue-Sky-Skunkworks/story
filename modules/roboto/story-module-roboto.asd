@@ -10,4 +10,5 @@
   :serial t
   :depends-on ("story-modules" "zpb-ttf")
   :components ((:static-file "story-module-roboto.asd")
-               (:file "roboto")))
+               (:file "roboto")
+               (:file "demo-roboto")))

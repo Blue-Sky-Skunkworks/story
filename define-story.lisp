@@ -6,8 +6,7 @@
 (defun add-story (story)
   (when (gethash (name story) *stories*)
     (warn "Redefining story ~S." (name story)))
-  (setf (gethash (name story) *stories*) story
-        *story* story))
+  (setf (gethash (name story) *stories*) story))
 
 (defvar *story-indexes* nil)
 

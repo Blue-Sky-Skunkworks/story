@@ -148,7 +148,9 @@
                   (subseq system 13))))))
 
 (defun ensure-story-module (name)
-  (require (symb 'story-module- (string-upcase name)))
+  (require (symb 'story-module- (string-upcase name))))
 
-  ;;(funcall (symb 'load-story-module- (string-upcase name)))
-  )
+(defun load-story-module (name &key (demo nil))
+  (ensure-story-module name)
+  (funcall (symb 'load-story-module- (string-upcase name)))
+  (when demo (change-story (format nil "demo-~A" name))))

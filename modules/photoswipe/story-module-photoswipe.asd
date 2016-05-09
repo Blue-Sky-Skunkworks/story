@@ -10,4 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-photoswipe.asd")
-               (:file "photoswipe")))
+               (:file "photoswipe")
+               (:file "demo-photoswipe")))

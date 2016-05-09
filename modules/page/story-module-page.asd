@@ -10,4 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-page.asd")
-               (:file "page")))
+               (:file "page")
+               (:file "demo-page")))

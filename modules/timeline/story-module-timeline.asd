@@ -10,4 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-timeline.asd")
-               (:file "timeline")))
+               (:file "timeline")
+               (:file "demo-timeline")))

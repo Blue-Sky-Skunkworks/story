@@ -10,4 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-polymer.asd")
-               (:file "polymer")))
+               (:file "polymer")
+               (:file "demo-polymer")))

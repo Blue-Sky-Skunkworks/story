@@ -9,6 +9,28 @@
   (setf (gethash (name story) *stories*) story
         *story* story))
 
+(defvar *story-indexes* nil)
+
+(defun stories ()
+  (setf *story-indexes*
+        (iter (for (name story) in-hashtable *stories*)
+              (for index from 1)
+              (princ
+               (let ((line (format nil "~A. ~A~%" index name)))
+                 (if (eq story *story*)
+                     (white line :effect :bright)
+                     line)))
+              (collect (cons index name))))
+  (values))
+
+(defun change-story (name)
+  (when (integerp name)
+    (setf name (or (assoc-value *story-indexes* name)
+                   (error "Invalid story index ~S." name))))
+  (setf *story* (gethash name *stories*))
+  (reset-server)
+  (setup-server *story*))
+
 (defmacro do-stories ((name story) &body body)
   `(iter (for (,name ,story) in-hashtable *stories*)
          (progn ,@body)))

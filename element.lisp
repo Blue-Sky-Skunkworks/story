@@ -35,7 +35,7 @@
   (print-unreadable-object (story stream :type t)
     (format stream "~A" (name story))))
 
-(defmethod initialize-instance :after ((story story) &key)
+(defun setup-server (story)
   (when (modules story)
     (mapc #'ensure-story-module (modules story))
     (setf (slot-value story 'imports) (collect-module-imports (modules story))
@@ -45,6 +45,9 @@
     (when-let ((scripts (collect-module-scripts (modules story))))
       (setf (slot-value story 'scripts) (cons "js.js" scripts)))
     (collect-stylesheets-and-scripts story)))
+
+(defmethod initialize-instance :after ((story story) &key)
+  (setup-server story))
 
 
 ;;; page

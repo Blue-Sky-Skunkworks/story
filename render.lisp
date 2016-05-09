@@ -23,7 +23,7 @@
 (defun render-imports (story stream)
   (html
     (iter (for import in (imports story))
-          (htm (:link :rel "import" :href import))))))
+          (htm (:link :rel "import" :href import)))))
 
 (defun render-suffixes (story stream)
   (iter (for suffix in (suffixes story))

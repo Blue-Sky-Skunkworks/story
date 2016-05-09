@@ -47,7 +47,7 @@
   (iter (for name in (modules-and-parents modules))
         (let ((module (find-module name)))
          (when-let (els (stylesheets module))
-           (appending els))))))
+           (appending els)))))
 
 (defun collect-module-scripts (modules)
   (iter (for name in (modules-and-parents modules))

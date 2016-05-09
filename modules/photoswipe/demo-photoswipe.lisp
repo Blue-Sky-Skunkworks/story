@@ -2,7 +2,7 @@
 
 (define-demo photoswipe (:photoswipe :sample-images)
   (:style (str ".pswp__bg {background:white;}"))
-  (:div :onclick "showPhotoswipeDemo();" "Again")
+  (:button :onclick "showPhotoswipeDemo();" "Again")
   (script*
     `(progn
        (defun show-photoswipe-demo ()

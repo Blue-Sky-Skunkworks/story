@@ -111,3 +111,4 @@ and what did they produce?  The cuckoo-clock.
        in this file. All other imports should go in elements.html -->
   <link rel="import" href="elements/elements.html">
 
+** TODO use 'tree' on the wiki and github repos to list the entire projects into text files

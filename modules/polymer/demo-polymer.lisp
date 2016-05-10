@@ -5,9 +5,6 @@
                             :ready (lambda () (setf (@ this text-content) "Polymer works!")))))
   (:proto-element))
 
-(define-demo paper-material (:paper-material)
-  (material :style "width:300px;height:300px;margin:20px;"))
-
 (define-demo iron-meta (:iron-meta)
   (meta :id "id" :key "foo" :value "Iron Meta has worked.")
   (:div :id "result" "Original Value")
@@ -27,3 +24,9 @@
   (pages :selected 1
     (:div "Iron Pages does not work!!")
     (:div "Iron Pages works!")))
+
+(define-demo paper-button (:paper-button)
+  (button :style "background:blue;color:white;" "Paper Buttons Work!"))
+
+(define-demo paper-material (:paper-material)
+  (material :style "width:300px;height:300px;margin:20px;"))

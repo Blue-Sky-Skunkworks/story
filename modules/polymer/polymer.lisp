@@ -24,9 +24,10 @@
            :imports (,(format nil "~(~A/~A~)" name name)))
        ,@(when helpers `((define-polymer-macros ,(symb module) ,(symb rest)))))))
 
-(define-polymer-module paper-material)
 (define-polymer-module iron-meta)
 (define-story-module iron-flex-layout :extends :polymer :imports ("iron-flex-layout/iron-flex-layout-classes"))
 (define-polymer-module iron-icons)
 (define-polymer-module iron-icon)
 (define-polymer-module iron-pages)
+(define-polymer-module paper-button)
+(define-polymer-module paper-material)

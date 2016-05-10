@@ -30,4 +30,5 @@
 (define-polymer-module iron-icon)
 (define-polymer-module iron-pages)
 (define-polymer-module paper-button)
+(define-polymer-module paper-icon-button)
 (define-polymer-module paper-material)

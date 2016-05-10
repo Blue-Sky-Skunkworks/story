@@ -1,6 +1,5 @@
 (in-package :story)
 
-
 (defmacro  define-polymer-macros (prefix &rest names)
   `(progn
      ,@(iter (for name in names)
@@ -36,3 +35,4 @@
 (define-polymer-module paper-ripple)
 (define-polymer-module paper-fab)
 (define-polymer-module paper-item)
+(define-polymer-module paper-header-panel)

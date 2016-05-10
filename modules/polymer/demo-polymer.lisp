@@ -45,5 +45,10 @@
 (define-demo paper-fab (:paper-fab :iron-icons)
   (fab :icon "thumb-up"))
 
-(define-demo paper-item(:paper-item)
+(define-demo paper-item (:paper-item)
   (item "Paper Item Works!"))
+
+(define-demo paper-header-panel (:paper-header-panel)
+  (header-panel
+    (:div :class "paper-header" "Paper Header works!")
+    (:div "content")))

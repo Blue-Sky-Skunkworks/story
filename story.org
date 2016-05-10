@@ -112,3 +112,4 @@ and what did they produce?  The cuckoo-clock.
   <link rel="import" href="elements/elements.html">
 
 ** TODO use 'tree' on the wiki and github repos to list the entire projects into text files
+** TODO implement HTML scrapers with https://github.com/AccelerationNet/css-selectors

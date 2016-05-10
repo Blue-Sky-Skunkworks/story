@@ -3,8 +3,7 @@
 (defparameter *web-port* 3300)
 (defvar *web-acceptor* nil)
 
-(defclass web-acceptor (hunchentoot:acceptor)
-  ())
+(defclass web-acceptor (hunchentoot:acceptor) ())
 
 (defun create-exact-dispatcher (name handler)
   "Creates a request dispatch function which will dispatch to the
@@ -23,9 +22,6 @@ matches NAME."
         (:folder (hunchentoot:create-folder-dispatcher-and-handler (second dispatch) (third dispatch)))
         (:static (hunchentoot:create-static-file-dispatcher-and-handler (second dispatch) (third dispatch))))
       dispatch))
-
-(defmethod initialize-instance :after ((acceptor web-acceptor) &key)
-  )
 
 (defun start-server ()
   (when *web-acceptor*

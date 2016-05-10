@@ -33,3 +33,8 @@
 
 (define-demo paper-material (:paper-material)
   (material :style "width:300px;height:300px;margin:20px;"))
+
+(define-demo paper-card (:paper-card)
+  (card :heading "Paper Card Works!"
+        (:div :class "card-content" "content")
+        (:div :class "card-actions" "action")))

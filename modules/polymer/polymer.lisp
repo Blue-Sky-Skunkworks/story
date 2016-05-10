@@ -32,3 +32,4 @@
 (define-polymer-module paper-button)
 (define-polymer-module paper-icon-button)
 (define-polymer-module paper-material)
+(define-polymer-module paper-card)

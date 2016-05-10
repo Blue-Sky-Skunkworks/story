@@ -22,7 +22,8 @@
               (collect (cons index name))))
   (values))
 
-(defun select-story (name)
+(defun story (name)
+  "Select a story for display."
   (when (integerp name)
     (setf name (or (assoc-value *story-indexes* name)
                    (error "Invalid story index ~S." name))))
@@ -34,7 +35,7 @@
   `(iter (for (,name ,story) in-hashtable *stories*)
          (progn ,@body)))
 
-(defun story (&optional (all nil))
+(defun describe-story (&optional (all nil))
   "Describe the story or stories."
   (iter (for (name story) in-hashtable *stories*)
         (for index from 1)

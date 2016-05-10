@@ -160,7 +160,6 @@ matches NAME."
       (do-scans (ms me rs re (create-scanner "\/\\*.*?\\*\/|url\\(['\"]?(.+?)['\"]?\\)" :single-line-mode t) text)
         (princ (subseq text index ms) stream)
         (when (aref rs 0)
-          (bugout prefix (subseq text (aref rs 0) (aref re 0)))
           (format stream "url('~A~A')" prefix (remove-leading-/ (subseq text (aref rs 0) (aref re 0)))))
         (setf index me))
       (princ (subseq text index) stream))))

@@ -2,7 +2,7 @@
 
 (define-story-module roboto
     :stylesheets ("/roboto.scss")
-    :directories (("fonts" "fonts/roboto")))
+    :directories (("fonts" "roboto")))
 
 
 

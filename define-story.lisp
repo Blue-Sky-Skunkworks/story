@@ -59,7 +59,6 @@
 
 (defmacro define-story (name (&key title modules) &body body)
   `(progn
-     (reset-server)
      (let* ((page (make-instance 'page :path "index.html" :renderer 'render-complete-page
                                 :body (lambda (stream page)
                                         (declare (ignorable page))

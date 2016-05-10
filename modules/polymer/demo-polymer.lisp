@@ -22,3 +22,8 @@
 
 (define-demo iron-icon (:iron-icons :iron-icon)
   (icon :icon "thumb-up"))
+
+(define-demo iron-pages (:iron-pages)
+  (pages :selected 1
+    (:div "Iron Pages does not work!!")
+    (:div "Iron Pages does work.")))

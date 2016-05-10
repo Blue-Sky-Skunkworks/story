@@ -29,3 +29,4 @@
 (define-story-module iron-flex-layout :extends :polymer :imports ("iron-flex-layout/iron-flex-layout-classes"))
 (define-polymer-module iron-icons)
 (define-polymer-module iron-icon)
+(define-polymer-module iron-pages)

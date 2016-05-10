@@ -28,7 +28,7 @@
                        :stream stream :effect :bright)
             (format stream "~3D" return-code)))
         (short-user-agent)
-        (or (and (content-length*) (format nil "~6D" (content-length*)))
+        (or (and (content-length*) (format nil "~7D" (content-length*)))
             (if (eql return-code +http-not-modified+)
                 "      "
                 (red "none" :effect :bright)))

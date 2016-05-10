@@ -35,3 +35,4 @@
 (define-polymer-module paper-card)
 (define-polymer-module paper-ripple)
 (define-polymer-module paper-fab)
+(define-polymer-module paper-item)

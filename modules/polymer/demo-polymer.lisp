@@ -44,3 +44,6 @@
 
 (define-demo paper-fab (:paper-fab :iron-icons)
   (fab :icon "thumb-up"))
+
+(define-demo paper-item(:paper-item)
+  (item "Paper Item Works!"))

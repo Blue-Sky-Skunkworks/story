@@ -1,0 +1,4 @@
+(in-package :story)
+
+(define-demo FOO (:FOO))
+

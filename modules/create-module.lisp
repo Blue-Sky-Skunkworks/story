@@ -14,10 +14,13 @@
   (let ((asd-filename-template (format nil "~Abasis/story-module-foo.asd.template" base))
         (asd-filename (format nil "~A~(~A~)/story-module-~(~A~).asd" base name name))
         (lisp-filename-template (format nil "~Abasis/foo.lisp.template" base))
-        (lisp-filename (format nil "~A~(~A~)/~(~A~).lisp" base name name)))
+        (lisp-filename (format nil "~A~(~A~)/~(~A~).lisp" base name name))
+        (demo-filename-template (format nil "~Abasis/demo-foo.lisp.template" base))
+        (demo-filename (format nil "~A~(~A~)/demo-~(~A~).lisp" base name name)))
     (cond
       ((probe-file asd-filename) (warn "Module ~S already exists at ~S." name asd-filename))
       ((probe-file lisp-filename) (warn "Module ~S lisp file already exists at ~S." name lisp-filename))
+      ((probe-file demo-filename) (warn "Module ~S demo file already exists at ~S." name demo-filename))
       (t
        (copy-and-replace asd-filename-template asd-filename
                          "FOO" (string-downcase name)
@@ -29,6 +32,7 @@
                          "LICENSE" license
                          "DEPENDENCIES" (format nil "~{ ~S~}" dependencies))
        (copy-and-replace lisp-filename-template lisp-filename "FOO" (string-downcase name))
+       (copy-and-replace demo-filename-template demo-filename "FOO" (string-downcase name))
        (format t "Module ~S created." name)))))
 
 (export 'create-story-module)

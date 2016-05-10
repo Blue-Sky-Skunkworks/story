@@ -148,23 +148,20 @@ matches NAME."
   (when *debug-importing* (format stream "<!-- Done importing ~A -->~%" file))
   (values))
 
-(defun prepare-css-for-production (text)
-  "Removes comments and fixes urls."
-  (with-output-to-string (stream)
-    (let ((index 0))
-      (do-scans (ms me rs re (create-scanner "\/\\*.*?\\*\/" :single-line-mode t) text)
-;        (bugout ms me rs re (subseq text ms me))
-        (princ (subseq text index ms) stream)
-        (setf index me))
-      (princ (subseq text index) stream))))
+(defun remove-leading-/ (string)
+  (if (char= (char string 0) #//)
+      (subseq string 1)
+      string))
 
 (defun prepare-css-for-production (prefix text)
   "Removes comments and fixes urls."
   (with-output-to-string (stream)
     (let ((index 0))
-      (do-scans (ms me rs re (create-scanner "\/\\*.*?\\*\/|url\\((.+?)\\)" :single-line-mode t) text)
+      (do-scans (ms me rs re (create-scanner "\/\\*.*?\\*\/|url\\(['\"]?(.+?)['\"]?\\)" :single-line-mode t) text)
         (princ (subseq text index ms) stream)
-        (when (aref rs 0) (format stream "url(~A~A)" prefix (subseq text (aref rs 0) (aref re 0))))
+        (when (aref rs 0)
+          (bugout prefix (subseq text (aref rs 0) (aref re 0)))
+          (format stream "url('~A~A')" prefix (remove-leading-/ (subseq text (aref rs 0) (aref re 0)))))
         (setf index me))
       (princ (subseq text index) stream))))
 
@@ -220,7 +217,7 @@ matches NAME."
       (t
        (if-let (css (gethash request-path *css*))
          (progn
-           (setf (content-type*) "text/javascript")
+           (setf (content-type*) "text/css")
            (return-from acceptor-dispatch-request css))
          (iter (for (path file) in-hashtable *scripts*)
                (let ((mismatch (mismatch request-path path :test #'char=)))

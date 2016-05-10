@@ -28,8 +28,7 @@
    (scripts :reader scripts :initform nil)
    (imports :reader imports :initform nil)
    (suffixes :reader suffixes :initform nil)
-   (prefixes :reader prefixes :initform nil)
-   (production :reader production :initform *production* :initarg :production)))
+   (prefixes :reader prefixes :initform nil)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)
@@ -37,7 +36,7 @@
 
 (defun setup-server (story)
   (when (modules story)
-    (mapc #'load-story-module (modules story))
+    (mapc #'stage-story-module (modules story))
     (setf (slot-value story 'imports) (collect-module-imports (modules story))
           (slot-value story 'stylesheets) (collect-module-stylesheets (modules story))
           (slot-value story 'suffixes) (collect-module-suffixes (modules story))

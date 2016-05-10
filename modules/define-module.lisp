@@ -21,13 +21,6 @@
   (print-unreadable-object (module stream :type t)
     (format stream "~A" (name module))))
 
-(defun story-modules ()
-  "Print a table of the story modules."
-  (let ((*print-pretty* nil))
-    (iter (for (k v) in-hashtable *story-modules*)
-          (format t "~A~%~@[~30Tcss  ~{~S~^, ~}~%~]~@[~30Tdir  ~{~S~^, ~}~%~]~@[~30Tjs  ~{~S~^, ~}~%~]~@[~30Tin  ~{~S~^, ~}~%~]"
-                  (name v) (stylesheets v) (directories v) (scripts v) (imports v)))))
-
 (defun modules-and-parents (modules)
   (remove-duplicates
    (iter (for module in modules)
@@ -94,8 +87,8 @@
                             :directories ',directories :scripts ',scripts :imports ',imports
                             :extends ,extends :dispatches ',dispatches
                             :suffixes ',suffixes :prefixes ',prefixes))
-       (defun ,(symb 'load-story-module- name) ()
-         ,@(when extends `((,(symb 'load-story-module- extends))))
+       (defun ,(symb 'stage-story-module- name) ()
+         ,@(when extends `((,(symb 'stage-story-module- extends))))
          ,@(when stylesheets `((load-stylesheets
                                 ,@(iter (for css in stylesheets)
                                         (appending
@@ -137,7 +130,7 @@
           (appending (story-module-depends-on-modules name))
           (collect (ksymb (string-upcase (subseq name (length "story-module-"))))))))
 
-(defun story-modules (&key with-version)
+(defun all-story-modules (&key with-version)
   (iter (for system in (ql:list-local-systems))
         (when (and (string-starts-with system "story-module-")
                    (not (equal system "story-module-system")))
@@ -147,13 +140,23 @@
                         (parse-float (asdf:component-version (asdf:find-system system))))
                   (subseq system 13))))))
 
-(defun ensure-story-module (name)
+(defun load-story-module (name)
   (if-let ((module (find-module (ksymb name) :errorp nil)))
-    (when-let ((extends (extends module)))
-      (ensure-story-module extends))
+    (when-let (extends (extends module))
+      (load-story-module extends))
     (require (symb 'story-module- (string-upcase name)))))
 
-(defun load-story-module (name &key (demo nil))
-  (ensure-story-module name)
-  (funcall (symb 'load-story-module- (string-upcase name)))
-  (when demo (change-story (format nil "demo-~A" name))))
+(defun story-modules ()
+  "Print a table of the loaded story modules."
+  (let ((*print-pretty* nil))
+    (iter (for (k v) in-hashtable *story-modules*)
+          (format t "~A~%~@[~30Tcss  ~{~S~^, ~}~%~]~@[~30Tdir  ~{~S~^, ~}~%~]~@[~30Tjs  ~{~S~^, ~}~%~]~@[~30Tin  ~{~S~^, ~}~%~]"
+                  (name v) (stylesheets v) (directories v) (scripts v) (imports v)))))
+
+(defun stage-story-module (name &key (demo nil))
+  (load-story-module name)
+  (funcall (symb 'stage-story-module- (string-upcase name)))
+  (when demo (story (format nil "demo-~A" name))))
+
+(defun load-all-story-modules ()
+  (mapc #'load-story-module (all-story-modules)))

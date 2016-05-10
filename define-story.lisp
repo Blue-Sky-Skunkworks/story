@@ -15,7 +15,7 @@
         (iter (for (name story) in-hashtable *stories*)
               (for index from 1)
               (princ
-               (let ((line (format nil "~A. ~A~%" index name)))
+               (let ((line (format nil "~A. ~A ~30T~A~%" index name (title story))))
                  (if (eq story *story*)
                      (white line :effect :bright)
                      line)))

@@ -41,3 +41,6 @@
 
 (define-demo paper-ripple (:paper-ripple)
   (:div :style "width:100%;height:100%;" (ripple)))
+
+(define-demo paper-fab (:paper-fab :iron-icons)
+  (fab :icon "thumb-up"))

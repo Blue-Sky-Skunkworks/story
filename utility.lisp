@@ -136,3 +136,6 @@
 
 (defmacro script* (&body body)
   `(html (:script (str (ps* ,@body)))))
+
+(defmacro with-words ((var sentence) &body body)
+  `(iter (for ,var in (split-sequence #\space ,sentence)) ,@body))

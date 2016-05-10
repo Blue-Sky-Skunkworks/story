@@ -1,4 +1,4 @@
-(defsystem "story-module-timeline"
+(defsystem "story-module-vis"
   :defsystem-depends-on ("story-module-system")
   :class :story-module-system
   :category "none"
@@ -9,6 +9,6 @@
   :license "unknown"
   :serial t
   :depends-on ("story-modules")
-  :components ((:static-file "story-module-timeline.asd")
-               (:file "timeline")
-               (:file "demo-timeline")))
+  :components ((:static-file "story-module-vis.asd")
+               (:file "demo-vis")))
+               (:file "vis")))

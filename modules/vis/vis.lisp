@@ -1,10 +1,8 @@
 (in-package :story)
 
-(define-story-module timeline
-    :directories (("vis" "js/vis"))
+(define-story-module vis
+    :directories ("vis")
     :stylesheets ("/vis/vis.css")
     :scripts ("/vis/vis.js"))
-
-
 
 

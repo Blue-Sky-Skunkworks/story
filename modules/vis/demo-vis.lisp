@@ -13,14 +13,17 @@
                  (concatenate 'string (subseq line (aref rs 2) (- (aref rs 3) 2))
                               (subseq line (aref re 3) (aref re 2)))))))))
 
-(define-demo timeline (:timeline)
-  (:div :id "vis")
+(define-demo timeline (:vis)
+  (:div :id "id")
   (script*
     `(new ((@ vis *timeline)
-           (story-js:id "vis")
+           (id "id")
            (new ((@ vis *data-set)
                  (make-array
                   ,@(iter (for (y m d text) in (load-computer-calender))
                           (for index from 1)
                           (collect `(create :id ,index :content ,text :start ,(format nil "~A-~A-~A" y m d)))))))))))
+
+
+
 

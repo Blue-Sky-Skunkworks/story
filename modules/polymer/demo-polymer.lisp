@@ -28,7 +28,7 @@
 (define-demo paper-button (:paper-button)
   (button :style "background:blue;color:white;" "Paper Buttons Work!"))
 
-(define-demo paper-icon-button (:paper-icon-button)
+(define-demo paper-icon-button (:paper-icon-button :iron-icons)
   (icon-button :icon "thumb-up"))
 
 (define-demo paper-material (:paper-material)

@@ -38,3 +38,6 @@
   (card :heading "Paper Card Works!"
         (:div :class "card-content" "content")
         (:div :class "card-actions" "action")))
+
+(define-demo paper-ripple (:paper-ripple)
+  (:div :style "width:100%;height:100%;" (ripple)))

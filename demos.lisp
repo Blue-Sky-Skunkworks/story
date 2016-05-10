@@ -7,7 +7,7 @@
     `(progn
        (pushnew ',name *demos*)
        (define-story ,(symb 'demo- name) (:title ,title :modules ,modules)
-        (:h1 ,title)
+        (:h1 :style "font-family:sans-serif;" ,title)
         ,@body))))
 
 (define-demo trivial ())

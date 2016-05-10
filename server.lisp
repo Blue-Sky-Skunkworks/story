@@ -140,10 +140,10 @@ matches NAME."
                                      (null (warn "Missing script ~S." script))
                                      (t (funcall val))))))))))
   (when (stylesheets story)
-    (setf (gethash "/css-all.css" *css*)
-          (apply #'concatenate 'string
-                 (iter (for stylesheet in (stylesheets story))
-                       (collect (gethash (format nil "/~A" stylesheet) *css*))))))
+    (note "~S" (setf (gethash "/css-all.css" *css*)
+                  (apply #'concatenate 'string
+                         (iter (for stylesheet in (stylesheets story))
+                               (collect (gethash (ensure-css-extension stylesheet) *css*)))))))
   (when (imports story)
     (collect-all-imports (remove-duplicates *imports* :test 'equal :from-end t))))
 

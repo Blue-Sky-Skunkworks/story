@@ -126,6 +126,48 @@ matches NAME."
        (note "Minimized script from ~D to ~D (~D%)." len lrtn (round (* (/ lrtn len) 100)))
        rtn))))
 
+(defun collect-imports (file stream)
+
+  (when *debug-importing* (format stream "<!-- Importing ~A -->~%" file))
+  (when *current-imports* (setf (gethash (pathname-name file) *current-imports*) t))
+  (let ((index 0)
+        (text (slurp-file file)))
+    ;; Note that the following regex has only been fleshed out enough
+    ;; to work with polymer. This is not guaranteed to work with all
+    ;; html. For that a true HTML parse and re-emit may be needed.
+    (do-scans (ms me rs re (create-scanner "(<!--[^'].*?-->)|(<link rel=\"import\" href=\"(.+?)\">)" :single-line-mode t) text)
+      (princ (subseq text index ms) stream)
+      (setf index me)
+      (unless (aref rs 0)
+        (let ((importing (subseq text (aref rs 2) (aref re 2))))
+          (setf index me)
+          (when *current-imports*
+            (unless (gethash (pathname-name importing) *current-imports*)
+              (collect-imports (merge-pathnames-.. importing file) stream))))))
+    (princ (subseq text index) stream))
+  (when *debug-importing* (format stream "<!-- Done importing ~A -->~%" file))
+  (values))
+
+(defun prepare-css-for-production (text)
+  "Removes comments and fixes urls."
+  (with-output-to-string (stream)
+    (let ((index 0))
+      (do-scans (ms me rs re (create-scanner "\/\\*.*?\\*\/" :single-line-mode t) text)
+;        (bugout ms me rs re (subseq text ms me))
+        (princ (subseq text index ms) stream)
+        (setf index me))
+      (princ (subseq text index) stream))))
+
+(defun prepare-css-for-production (prefix text)
+  "Removes comments and fixes urls."
+  (with-output-to-string (stream)
+    (let ((index 0))
+      (do-scans (ms me rs re (create-scanner "\/\\*.*?\\*\/|url\\((.+?)\\)" :single-line-mode t) text)
+        (princ (subseq text index ms) stream)
+        (when (aref rs 0) (format stream "url(~A~A)" prefix (subseq text (aref rs 0) (aref re 0))))
+        (setf index me))
+      (princ (subseq text index) stream))))
+
 (defun collect-stylesheets-and-scripts (story)
   (when (scripts story)
     (setf (gethash "/js.js" *scripts*) 'story-js:js-file)
@@ -143,10 +185,10 @@ matches NAME."
     (setf (gethash "/css-all.css" *css*)
           (apply #'concatenate 'string
                  (iter (for stylesheet in (stylesheets story))
-                       (collect (gethash (ensure-css-extension stylesheet) *css*))))))
+                       (collect (prepare-css-for-production
+                                 (directory-namestring stylesheet) (gethash (ensure-css-extension stylesheet) *css*)))))))
   (when (imports story)
     (collect-all-imports (remove-duplicates *imports* :test 'equal :from-end t))))
-
 
 (defvar *directories*)
 
@@ -161,14 +203,6 @@ matches NAME."
 
 (defun load-module-dispatches (dispatches)
   (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatch dispatches))))
-
-(defun serve-css ()
-  (setf (hunchentoot:content-type*) "text/css")
-  (let ((url (request-uri*)))
-    (or (gethash url *css*)
-        (progn
-          (setf (hunchentoot:return-code*) hunchentoot:+http-not-found+)
-          (warn "CSS miss ~S." url)))))
 
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)
   (iter (for dispatcher in *module-dispatches*)

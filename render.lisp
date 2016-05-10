@@ -35,7 +35,6 @@
 
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
-         (production (production story))
          (title (or (title page) (title story))))
     (with-html-output (stream stream)
       (:html
@@ -43,7 +42,7 @@
          (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
          (when title (htm (:title (esc title))))
          (cond
-           (production
+           (*production*
             (when (imports story) (htm (:link :rel "import" :href "all.html")))
             (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css" :href "css-all.css")))
             (when (scripts story) (htm (:script :type "text/javascript" :src "js-all.min.js"))))

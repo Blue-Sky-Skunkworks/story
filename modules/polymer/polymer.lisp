@@ -62,3 +62,6 @@
                         slide-from-top slide-from-bottom slide-left slide-right
                         slide-from-left slide-from-right transform hero
                         ripple reverse-ripple cascase opaque)
+
+(define-story-module google-map :extends :polymer :imports ("google-map/google-map"))
+(defmacro google-map (&body body) `(html (:google-map ,@body)))

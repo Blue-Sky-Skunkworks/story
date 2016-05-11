@@ -66,3 +66,6 @@
     `(defun toggle-page ()
        (let ((el ((@ document get-element-by-id) "id")))
          (setf (@ el selected) (ps:% (+ (@ el selected) 1) 4))))))
+
+(define-demo google-map (:google-map)
+  (:google-map :latitude "46.8787" :longitude "-113.9966"))

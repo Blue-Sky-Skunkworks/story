@@ -12,6 +12,7 @@
    (directories :reader directories :initarg :directories)
    (scripts :reader scripts :initarg :scripts)
    (imports :reader imports :initarg :imports)
+   (production-import-fix :reader production-import-fix :initarg :production-import-fix)
    (extends :reader extends :initarg :extends)
    (dispatches :reader dispatches :initarg :dispatches)
    (suffixes :reader suffixes :initarg :suffixes)
@@ -34,7 +35,9 @@
         (let ((module (find-module name)))
           (when-let (els (imports module))
             (appending
-             (iter (for el in els) (collect (format nil "~(~A~)/~A.html" (or (extends module) name) el))))))))
+             (iter (for el in els)
+                   (let ((path (format nil "~(~A~)/~A.html" (or (extends module) name) el)))
+                     (collect path))))))))
 
 (defun collect-module-stylesheets (modules)
   (iter (for name in (modules-and-parents modules))
@@ -78,13 +81,16 @@
      (format nil "~Acss" (subseq path 0 (- (length path) (length (pathname-type path))))))
     (t path)))
 
-(defmacro define-story-module (name &key init stylesheets directories scripts imports extends dispatches suffixes prefixes)
+(defmacro define-story-module (name &key init stylesheets directories scripts
+                                      imports production-import-fix
+                                      extends dispatches suffixes prefixes)
   (let ((kname (ksymb (string-upcase name)))
         (mname (or extends name)))
     `(progn
        (setf (gethash ,kname *story-modules*)
              (make-instance 'module :name ,kname :stylesheets ',stylesheets
-                            :directories ',directories :scripts ',scripts :imports ',imports
+                            :directories ',directories :scripts ',scripts
+                            :imports ',imports :production-import-fix ',production-import-fix
                             :extends ,extends :dispatches ',dispatches
                             :suffixes ',suffixes :prefixes ',prefixes))
        (defun ,(symb 'stage-story-module- name) ()
@@ -119,7 +125,11 @@
                                                              (format nil "~A~(~A~)/~A/" (story-modules-file) mname from)
                                                              (format nil "/~A/" to))))))))
          ,@(when imports `((load-imports ',(iter (for el in imports)
-                                                 (collect (format nil "~A~(~A~)/imports/~A.html" (story-modules-file) mname el))))))
+                                                 (let ((file (format nil "~A~(~A~)/imports/~A.html" (story-modules-file) mname el)))
+                                                   (collect
+                                                       (if production-import-fix
+                                                           (cons file production-import-fix)
+                                                           file)))))))
          ,@(when dispatches `((load-module-dispatches ',dispatches)))
          ,@init
          (values)))))

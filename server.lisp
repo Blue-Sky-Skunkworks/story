@@ -79,12 +79,14 @@ matches NAME."
 
 (defun collect-all-imports (files)
   (let ((*current-imports* (make-hash-table :test 'equal)))
-    (setf *all-imports*
-          (with-output-to-string (stream)
-            (iter (for file in files)
-                  (unless (gethash (pathname-name file) *current-imports*)
-                    (collect-imports file stream))))))
-  (values))
+    (with-output-to-string (stream)
+      (iter (for el in files)
+            (let ((file (if (consp el) (car el) el))
+                  (fix (and (consp el) (cdr el))))
+              (unless (gethash (pathname-name file) *current-imports*)
+                (if fix
+                    (funcall fix (with-output-to-string (fix-stream) (collect-imports file fix-stream)) stream)
+                    (collect-imports file stream))))))))
 
 (defvar *css*)
 
@@ -127,7 +129,6 @@ matches NAME."
        rtn))))
 
 (defun collect-imports (file stream)
-
   (when *debug-importing* (format stream "<!-- Importing ~A -->~%" file))
   (when *current-imports* (setf (gethash (pathname-name file) *current-imports*) t))
   (let ((index 0)
@@ -184,7 +185,9 @@ matches NAME."
                        (collect (prepare-css-for-production
                                  (directory-namestring stylesheet) (gethash (ensure-css-extension stylesheet) *css*)))))))
   (when (imports story)
-    (collect-all-imports (remove-duplicates *imports* :test 'equal :from-end t))))
+    (setf *all-imports*
+          (collect-all-imports (remove-duplicates *imports* :test 'equalp :from-end t))))
+  (values))
 
 (defvar *directories*)
 

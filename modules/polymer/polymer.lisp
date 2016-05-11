@@ -8,7 +8,7 @@
                     `(html (,,(ksymb prefix '- name ) ,@body)))))))
 
 (define-story-module polymer
-    :directories (("imports" "polymer") ("webcomponentsjs" "js/webcomponentsjs"))
+    :directories (("imports" "polymer") "webcomponentsjs")
     :scripts ("/webcomponentsjs/webcomponents-lite.js")
     :imports ("polymer/polymer"))
 
@@ -38,8 +38,17 @@
 (define-polymer-module paper-header-panel)
 (define-polymer-module paper-toolbar)
 
-(define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animatable"))
-(define-story-module neon-animatable :extends :polymer :imports ("neon-animation/neon-animated-pages"))
+(define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animated-pages"))
+
+(define-story-module neon-animatable :extends :polymer :imports ("neon-animation/neon-animatable")
+                     :production-import-fix neon-animation-import-fix)
+
+(defun neon-animation-import-fix (text stream)
+  (multiple-value-bind (ms me) (scan (create-scanner "\\.\\./web-animations-js" :single-line-mode t) text)
+    (princ (subseq text 0 ms) stream)
+    (princ "polymer/web-animations-js" stream)
+    (princ (subseq text me) stream)))
+
 (define-polymer-macros neon animatable animated-pages)
 
 (defmacro define-neon-animations (&rest names)

@@ -56,8 +56,8 @@
 (define-demo paper-toolbar (:paper-toolbar)
   (toolbar (:div "Paper Toolbars work!")))
 
-(define-demo neon-animated-pages (:neon-animatable :neon-animated-pages)
-  (animated-pages :selected 0 :id "id"
+(define-demo neon-animated-pages (:neon-animatable :neon-animated-pages :slide-from-right-animation :slide-left-animation)
+  (animated-pages :selected 0 :id "id" :entry-animation "slide-from-right-animation" :exit-animation "slide-left-animation"
                   (with-words (word "Eeny meeny miny moe.")
                     (animatable (str word))))
   (:br) (:br)

@@ -41,3 +41,15 @@
 (define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animatable"))
 (define-story-module neon-animatable :extends :polymer :imports ("neon-animation/neon-animated-pages"))
 (define-polymer-macros neon animatable animated-pages)
+
+(defmacro define-neon-animations (&rest names)
+  `(progn
+     ,@ (iter (for name in names)
+              (collect `(define-story-module ,(symb name '-animation)
+                            :extends :polymer
+                            :imports (,(format nil "neon-animation/animations/~(~A~)-animation" name)))))))
+
+(define-neon-animations fade-in fade-out scale-down scale-up slide-down slide-up
+                        slide-from-top slide-from-bottom slide-left slide-right
+                        slide-from-left slide-from-right transform hero
+                        ripple reverse-ripple cascase opaque)

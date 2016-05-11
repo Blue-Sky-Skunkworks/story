@@ -36,3 +36,8 @@
 (define-polymer-module paper-fab)
 (define-polymer-module paper-item)
 (define-polymer-module paper-header-panel)
+(define-polymer-module paper-toolbar)
+
+(define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animatable"))
+(define-story-module neon-animatable :extends :polymer :imports ("neon-animation/neon-animated-pages"))
+(define-polymer-macros neon animatable animated-pages)

@@ -26,7 +26,7 @@
     (:div "Iron Pages works!")))
 
 (define-demo paper-button (:paper-button)
-  (button :style "background:blue;color:white;" "Paper Buttons Work!"))
+  (button :style "background:blue;color:white;" "Paper Buttons work!"))
 
 (define-demo paper-icon-button (:paper-icon-button :iron-icons)
   (icon-button :icon "thumb-up"))
@@ -35,7 +35,7 @@
   (material :style "width:300px;height:300px;margin:20px;"))
 
 (define-demo paper-card (:paper-card)
-  (card :heading "Paper Card Works!"
+  (card :heading "Paper Cards works!"
         (:div :class "card-content" "content")
         (:div :class "card-actions" "action")))
 
@@ -46,9 +46,23 @@
   (fab :icon "thumb-up"))
 
 (define-demo paper-item (:paper-item)
-  (item "Paper Item Works!"))
+  (item "Paper Items work!"))
 
 (define-demo paper-header-panel (:paper-header-panel)
   (header-panel
-    (:div :class "paper-header" "Paper Header works!")
+    (:div :class "paper-header" "Paper Headers work!")
     (:div "content")))
+
+(define-demo paper-toolbar (:paper-toolbar)
+  (toolbar (:div "Paper Toolbars work!")))
+
+(define-demo neon-animated-pages (:neon-animatable :neon-animated-pages)
+  (animated-pages :selected 0 :id "id"
+                  (with-words (word "Eeny meeny miny moe.")
+                    (animatable (str word))))
+  (:br) (:br)
+  (:button :onclick (ps (toggle-page)) "next")
+  (script*
+    `(defun toggle-page ()
+       (let ((el ((@ document get-element-by-id) "id")))
+         (setf (@ el selected) (ps:% (+ (@ el selected) 1) 4))))))

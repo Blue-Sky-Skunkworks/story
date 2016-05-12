@@ -2,7 +2,7 @@
 
 (defgeneric render (element stream)
   (:method :before ((element element) stream)
-           (note "rendering ~S" element))
+    (note "rendering ~S" element))
   (:method ((element element) stream)
     (iter (for child in (children element))
           (render child stream)))
@@ -50,7 +50,7 @@
             (when (imports story) (render-imports story stream))
             (when (stylesheets story) (render-stylesheets story stream))
             (when (scripts story) (render-scripts story stream)))))
-        (:body
+        (:body :class (body-class page)
          (when (prefixes story) (render-prefixes story stream))
          (funcall (body page) stream page)
          (when (suffixes story) (render-suffixes story stream)))))))

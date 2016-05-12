@@ -51,6 +51,7 @@
   ((path :reader path :initarg :path)
    (title :reader title :initform nil :initarg :title)
    (renderer :reader renderer :initarg :renderer)
+   (body-class :reader body-class :initarg :body-class :initform nil)
    (body :reader body :initarg :body)))
 
 (defmethod print-object ((page page) stream)

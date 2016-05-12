@@ -9,8 +9,11 @@ __      __   _                    _____      ___ _                _
                                                              |__/
 ")
 
-(defun initialize ()
-  (format t "Welcome to Story!~%")
+(defun initialize-story ()
   (format t "~A~%" (blue *welcome-text* :effect :bright))
   (start-server))
+
+(defun initialize ()
+  (format t "Welcome to Story!~%")
+  (initialize-story))
 

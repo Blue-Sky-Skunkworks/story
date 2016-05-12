@@ -4,7 +4,7 @@
 
 (defparameter *original-standard-output* *standard-output*)
 
-(defparameter *required-sbcl-version* "1.3.0")
+(defparameter *required-sbcl-version* "1.3.4")
 
 (defun split-sbcl-version (string)
   (loop with start = 0
@@ -39,8 +39,6 @@
 (format t "starting the ~(~A~)~%" *project*)
 
 (defparameter *backtrace-exit-on-error* t)
-(defparameter *run-all-tests* nil)
-(defparameter *report-code-coverage* nil)
 
 (flet ((split-arg (arg)
          (let ((pos (position #\= arg)))
@@ -51,21 +49,13 @@
     (when args
       (format t "additional arguments:~%~:{  ~A~30T~A~%~}~%" (mapcar #'split-arg args))
       (when (member 'debug args :test #'string-equal)
-        (setf *backtrace-exit-on-error* nil))
-      (when (member 'run-tests args :test #'string-equal)
-        (format t "~%** Running all tests and exiting. **~2%")
-        (setf *run-all-tests* t))
-      (when (member 'cover args :test #'string-equal)
-        (format t "~%** Performing code coverage and exiting. **~2%")
-        (setf *report-code-coverage* t)))))
+        (setf *backtrace-exit-on-error* nil)))))
 
 (format t "~A ~A~%"
         (lisp-implementation-type)
         (lisp-implementation-version))
 
 (require :asdf)
-
-(require 'sb-sprof)
 
 (defparameter *start-column* 1)
 
@@ -144,17 +134,7 @@
 
 (format t "PID ~A~%" (sb-unix:unix-getpid))
 
-(require :stefil)
-;; stefil is capturing the now closed library.errors.txt file
-;; (setf stefil::*test-run-standard-output* *standard-output*)
-
 (format t "loading the ~(~A~)...~%" *project*)
-
-(with-backtrace-exit
-  (let ((asdf:*asdf-verbose* nil)
-        (*compile-verbose* nil)
-        (*compile-print* nil))
-    (require 'helpers)))
 
 (let ((count 0))
   (defun progress-macroexpand-hook (expander form env)
@@ -166,11 +146,6 @@
       (finish-output)
       (funcall expander form env))))
 
-;; (when *report-code-coverage*
-;;   (require :sb-cover)
-;;   (declaim (optimize sb-cover:store-coverage-data))
-;;   (setf *run-all-tests* t))
-
 (let ((*macroexpand-hook* #'progress-macroexpand-hook))
   (with-backtrace-exit
     (let ((asdf:*asdf-verbose* nil)
@@ -179,20 +154,21 @@
       (handler-bind ((sb-ext:compiler-note #'muffle-warning))
         (require *project*)))))
 
-(helpers:start-swank)
+(require :swank)
+
+(defun start-swank (&optional (port 4005))
+  (do ((try-port port (1+ try-port)))
+      (nil)
+    (handler-case
+        (progn
+          (swank:create-server :dont-close t :port try-port)
+          (return try-port))
+      (sb-bsd-sockets:address-in-use-error ()
+        ;; (warn "SWANK port ~a taken, trying the next." try-port)
+        ))))
+
+(start-swank)
 
 (format t "~%initializing...~%")
 
 (funcall (find-symbol "INITIALIZE" *project*))
-
-(when *run-all-tests*
-  (format t "Running all tests...~2%")
-  (funcall (find-symbol "RUN-TESTS" :helpers)))
-
-;; (when *report-code-coverage*
-;;   (let ((dir "/mnt/projects/coverage-reports/" ))
-;;     (ensure-directories-exist dir)
-;;     (sb-cover:report dir)))
-
-(when (or *report-code-coverage* *run-all-tests*)
-  (sb-ext:exit))

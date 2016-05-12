@@ -165,7 +165,7 @@
 
 (defun stage-story-module (name &key (demo nil))
   (load-story-module name)
-  (funcall (symb 'stage-story-module- (string-upcase name)))
+  (funcall (symb-in :story 'stage-story-module- (string-upcase name)))
   (when demo (story (format nil "demo-~A" name))))
 
 (defun load-all-story-modules ()

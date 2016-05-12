@@ -114,6 +114,9 @@
 (defun symb (&rest args)
   (values (intern (apply #'mkstr args))))
 
+(defun symb-in (package &rest args)
+  (values (intern (apply #'mkstr args) package)))
+
 (defun ksymb (&rest args)
   (values (intern (apply #'mkstr args) :keyword)))
 

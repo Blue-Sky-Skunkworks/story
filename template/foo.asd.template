@@ -1,0 +1,10 @@
+(defsystem "FOO"
+  :description "DESCRIPTION"
+  :version "VERSION"
+  :author "AUTHOR"
+  :license "LICENSE"
+  :serial t
+  :depends-on ("story"DEPENDENCIES)
+  :components ((:static-file "FOO.asd")
+               (:file "package")
+               (:file "initialize")))

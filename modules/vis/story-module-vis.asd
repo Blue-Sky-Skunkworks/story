@@ -10,5 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-vis.asd")
-               (:file "demo-vis")))
+               (:file "demo-vis")
                (:file "vis")))

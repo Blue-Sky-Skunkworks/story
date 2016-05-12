@@ -129,7 +129,7 @@ matches NAME."
        rtn))))
 
 (defun remove-leading-/ (string)
-  (if (char= (char string 0) #//)
+  (if (char= (char string 0) #\/)
       (subseq string 1)
       string))
 

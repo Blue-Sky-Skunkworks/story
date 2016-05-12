@@ -128,27 +128,6 @@ matches NAME."
        (note "Minimized script from ~D to ~D (~D%)." len lrtn (round (* (/ lrtn len) 100)))
        rtn))))
 
-(defun collect-imports (file stream)
-  (when *debug-importing* (format stream "<!-- Importing ~A -->~%" file))
-  (when *current-imports* (setf (gethash (pathname-name file) *current-imports*) t))
-  (let ((index 0)
-        (text (slurp-file file)))
-    ;; Note that the following regex has only been fleshed out enough
-    ;; to work with polymer. This is not guaranteed to work with all
-    ;; html. For that a true HTML parse and re-emit may be needed.
-    (do-scans (ms me rs re (create-scanner "(<!--[^'].*?-->)|(<link rel=\"import\" href=\"(.+?)\">)" :single-line-mode t) text)
-      (princ (subseq text index ms) stream)
-      (setf index me)
-      (unless (aref rs 0)
-        (let ((importing (subseq text (aref rs 2) (aref re 2))))
-          (setf index me)
-          (when *current-imports*
-            (unless (gethash (pathname-name importing) *current-imports*)
-              (collect-imports (merge-pathnames-.. importing file) stream))))))
-    (princ (subseq text index) stream))
-  (when *debug-importing* (format stream "<!-- Done importing ~A -->~%" file))
-  (values))
-
 (defun remove-leading-/ (string)
   (if (char= (char string 0) #//)
       (subseq string 1)

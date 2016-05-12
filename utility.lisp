@@ -139,3 +139,8 @@
 
 (defmacro with-words ((var sentence) &body body)
   `(iter (for ,var in (split-sequence #\space ,sentence)) ,@body))
+
+(defun expand-home-path (path)
+  (if (char= (char path 0) #\~)
+      (format nil "~A~A" (uiop/os:getenv "HOME") (subseq path 1))
+      path))

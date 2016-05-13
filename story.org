@@ -114,4 +114,9 @@ and what did they produce?  The cuckoo-clock.
 ** TODO use 'tree' on the wiki and github repos to list the entire projects into text files
 ** TODO implement HTML scrapers with https://github.com/AccelerationNet/css-selectors
 ** TODO bring in echo library for image loading
-
+** TODO research what PostCss does
+   https://github.com/postcss/postcss
+   https://github.com/postcss/postcss/blob/master/docs/plugins.md
+** TODO research what Lucien is doing with 'guh'
+   https://github.com/LPGhatguy/guh
+** TODO code walker to automatically include modules

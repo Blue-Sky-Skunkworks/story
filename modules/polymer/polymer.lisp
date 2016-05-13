@@ -3,9 +3,10 @@
 (defmacro  define-polymer-macros (prefix &rest names)
   `(progn
      ,@(iter (for name in names)
-             (collect
-                 `(defmacro ,name (&body body)
-                    `(html (,,(ksymb prefix '- name ) ,@body)))))))
+             (appending
+              `((defmacro ,name (&body body)
+                  `(html (,,(ksymb prefix '- name ) ,@body)))
+                (export ',name))))))
 
 (define-story-module polymer
     :directories (("imports" "polymer") "webcomponentsjs")
@@ -65,3 +66,4 @@
 
 (define-story-module google-map :extends :polymer :imports ("google-map/google-map"))
 (defmacro google-map (&body body) `(html (:google-map ,@body)))
+(export 'google-map)

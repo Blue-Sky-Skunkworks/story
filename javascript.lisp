@@ -97,6 +97,10 @@
         (setf (@ *string prototype ends-with)
          (lambda (suffix) (return (not (== ((@ this index-of) suffix (- (@ this length) (@ suffix length))) -1)))))
 
+        (defun when-ready (fn)
+          ((@ document add-event-listener) "WebComponentsReady"
+           (lambda () (funcall fn))))
+
         (defun id (id &optional (error t))
           (let ((hit ((@ document get-element-by-id) id)))
             (if hit

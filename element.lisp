@@ -83,7 +83,7 @@
          (iter (for el in els)
            (collect (format nil "~(~A~)/~A.html" (or (extends module) name) el)))
          into rtn)))
-    (finally (return (append rtn (slot-value story 'imports))))))
+    (finally (return (append rtn (mapcar (lambda (el) (format nil "imports/~A.html" el)) (slot-value story 'imports)))))))
 
 (defmethod suffixes ((story story))
   (iter
@@ -110,7 +110,7 @@
     (when (modules story)
       (mapc #'stage-story-module (modules story))
       (load-directories (localize-directories base (slot-value story 'directories)))
-      (load-imports (localize-imports base (slot-value story 'directories)))
+      (load-imports (localize-imports base (slot-value story 'imports)))
       (load-scripts (localize-scripts base "/" (slot-value story' scripts)))
       (collect-stylesheets-and-scripts story))))
 

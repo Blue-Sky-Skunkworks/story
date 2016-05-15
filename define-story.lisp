@@ -28,7 +28,6 @@
     (setf name (or (assoc-value *story-indexes* name)
                    (error "Invalid story index ~S." name))))
   (setf *story* (gethash name *stories*))
-  (reset-server)
   (setup-server *story*))
 
 (defmacro do-stories ((name story) &body body)

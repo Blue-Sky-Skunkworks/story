@@ -110,6 +110,7 @@
     (finally (return (append rtn (slot-value story 'prefixes))))))
 
 (defun setup-server (story)
+  (reset-server)
   (let ((base (asdf-base-path (story-package story))))
     (when (modules story)
       (mapc #'stage-story-module (modules story))

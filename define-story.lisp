@@ -57,7 +57,9 @@
       (html-to-string (:html (:head (:title "No Story"))
                              (:body "No story has been loaded.")))))
 
-(defmacro define-story (name (&key title modules page-args) &body body)
+(defvar *deploy-changed-stories* nil)
+
+(defmacro define-story (name (&key title modules page-args directories) &body body)
   `(progn
      (let* ((page (make-instance 'page :path "index.html"
                                        :renderer 'render-complete-page
@@ -66,6 +68,8 @@
                                                (html ,@body))
                                  ,@page-args))
             (story (make-instance 'story :name ,(string-downcase name) :title ,title
-                                         :home page :modules ',modules)))
+                                         :home page :modules ',modules
+                                         :directories ',directories)))
        (add-child story page)
-       (add-story story))))
+       (add-story story)
+       (when *deploy-changed-stories* (story ,(string-downcase name))))))

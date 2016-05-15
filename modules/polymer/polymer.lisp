@@ -66,4 +66,5 @@
 
 (define-story-module google-map :extends :polymer :imports ("google-map/google-map"))
 (defmacro google-map (&body body) `(html (:google-map ,@body)))
-(export 'google-map)
+(defmacro map-marker (&body body) `(html (:google-map-marker ,@body)))
+(export '(google-map map-marker))

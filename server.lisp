@@ -156,13 +156,15 @@ matches NAME."
                                  (string val)
                                  (null (warn "Missing script ~S." script))
                                  (t (funcall val))))))))))
-  (when (stylesheets story)
+  (when-let (stylesheets (stylesheets story))
     (setf (gethash "/css-all.css" *css*)
           (apply #'concatenate 'string
-                 (iter (for stylesheet in (stylesheets story))
+                 (iter (for stylesheet in stylesheets)
                    (collect (prepare-css-for-production
-                             (directory-namestring stylesheet) (gethash (ensure-css-extension stylesheet) *css*)))))))
-  (when (imports story)
+                             (directory-namestring stylesheet)
+                             (or (gethash (format nil "/~A" (ensure-css-extension stylesheet)) *css*)
+                                 (warn "Missing stylesheet ~S." stylesheet))))))))
+  (when *imports*
     (setf *all-imports*
           (collect-all-imports (remove-duplicates *imports* :test 'equalp :from-end t))))
   (values))

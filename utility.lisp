@@ -150,3 +150,7 @@
 
 (defun starts-with-char (string char)
   (char= char (char string 0)))
+
+(defmacro vertical-break (&optional (height "20px"))
+  `(html (:div :style ,(format nil "height:~A;" height))))
+

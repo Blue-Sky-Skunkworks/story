@@ -13,6 +13,7 @@
   (:import-from cl-ansi-text with-color black red green yellow blue magenta cyan white)
   (:import-from uiop directory-files subdirectories directory-exists-p)
   (:export initialize-story define-story story toggle-production html *deploy-changed-stories* *story*
-           script script* starts-with-char))
+           script script* starts-with-char
+           parenscript ps ps* @ new create))
 
 (require 'story-modules)

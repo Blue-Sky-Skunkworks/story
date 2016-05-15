@@ -72,7 +72,11 @@
                                       (format nil "~A.js" script)
                                       script)))))
                (collect path))) into rtn)))
-      (finally (return (if include-js (cons "js.js" rtn) rtn))))))
+      (finally (return
+                 (append
+                  (if include-js (cons "js.js" rtn) rtn)
+                  (mapcar (lambda (el) (if (consp el) (car el) el))
+                          (slot-value story 'scripts))))))))
 
 (defmethod imports ((story story))
   (iter

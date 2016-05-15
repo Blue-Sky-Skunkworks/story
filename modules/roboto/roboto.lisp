@@ -1,7 +1,7 @@
 (in-package :story)
 
 (define-story-module roboto
-    :stylesheets ("/roboto.scss")
+    :stylesheets ("roboto.scss")
     :directories (("fonts" "roboto")))
 
 

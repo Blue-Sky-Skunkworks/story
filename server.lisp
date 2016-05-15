@@ -94,20 +94,19 @@ matches NAME."
                               ((probe-file "/usr/bin/scss") "/usr/bin/scss")
                               (t (error "Missing scss."))))
 
-(defun load-stylesheets (&rest args)
-  (iter (for (file path) on args by 'cddr)
-        (let ((text (run-program-to-string *scss-script* (list file))))
+(defun load-stylesheets (mapping)
+  (iter (for (file path) in mapping)
+    (let ((text (run-program-to-string *scss-script* (list file))))
           (setf (gethash path *css*) text))))
 
 (defvar *scripts*)
 
-(defun load-scripts (args)
-  (iter (for (file path) on args by 'cddr)
-        (setf (gethash path *scripts*)
-              (typecase file
-                (string (pathname file))
-                (t file)))))
-
+(defun load-scripts (mapping)
+  (iter (for (file path) in mapping)
+    (setf (gethash path *scripts*)
+          (typecase file
+            (string (pathname file))
+            (t file)))))
 
 (defun minimize-script (text)
   (let* ((len (length text))
@@ -145,24 +144,24 @@ matches NAME."
       (princ (subseq text index) stream))))
 
 (defun collect-stylesheets-and-scripts (story)
-  (when (scripts story)
+  (when-let (scripts (scripts story))
     (setf (gethash "/js.js" *scripts*) 'story-js:js-file)
     (setf (gethash "/js-all.min.js" *scripts*)
           (minimize-script
            (apply #'concatenate 'string
                   (iter (for script in (scripts story))
-                        (let ((val (gethash (format nil "/~A" script) *scripts*)))
-                          (collect (typecase val
-                                     (pathname (slurp-file val))
-                                     (string val)
-                                     (null (warn "Missing script ~S." script))
-                                     (t (funcall val))))))))))
+                    (let ((val (gethash (format nil "/~A" script) *scripts*)))
+                      (collect (typecase val
+                                 (pathname (slurp-file val))
+                                 (string val)
+                                 (null (warn "Missing script ~S." script))
+                                 (t (funcall val))))))))))
   (when (stylesheets story)
     (setf (gethash "/css-all.css" *css*)
           (apply #'concatenate 'string
                  (iter (for stylesheet in (stylesheets story))
-                       (collect (prepare-css-for-production
-                                 (directory-namestring stylesheet) (gethash (ensure-css-extension stylesheet) *css*)))))))
+                   (collect (prepare-css-for-production
+                             (directory-namestring stylesheet) (gethash (ensure-css-extension stylesheet) *css*)))))))
   (when (imports story)
     (setf *all-imports*
           (collect-all-imports (remove-duplicates *imports* :test 'equalp :from-end t))))
@@ -170,12 +169,12 @@ matches NAME."
 
 (defvar *directories*)
 
-(defun load-directories (&rest args)
-  (iter (for (dir prefix) on args by 'cddr)
-        (when-let (current (gethash prefix *directories*))
-          (unless (equal current dir)
-            (warn "Resetting directory ~S from ~S to ~S" prefix current dir)))
-        (setf (gethash prefix *directories*) dir)))
+(defun load-directories (mapping)
+  (iter (for (dir prefix) in mapping)
+    (when-let (current (gethash prefix *directories*))
+      (unless (equal current dir)
+        (warn "Resetting directory ~S from ~S to ~S" prefix current dir)))
+    (setf (gethash prefix *directories*) dir)))
 
 (defvar *module-dispatches*)
 

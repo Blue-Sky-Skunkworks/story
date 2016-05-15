@@ -2,7 +2,7 @@
 
 (define-story-module photoswipe
     :directories ("ps")
-    :stylesheets ("/ps/photoswipe.css" "/ps/default-skin/default-skin.css")
+    :stylesheets ("ps/photoswipe.css" "ps/default-skin/default-skin.css")
     :scripts ("/ps/photoswipe.js" "photoswipe-ui-default-modified.js" ("ps.js" photoswipe))
     :prefixes ("photoswipe.html"))
 

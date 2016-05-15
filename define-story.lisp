@@ -59,7 +59,8 @@
 
 (defvar *deploy-changed-stories* nil)
 
-(defmacro define-story (name (&key title modules page-args directories) &body body)
+(defmacro define-story (name (&key title modules page-args package
+                                stylesheets directories scripts imports suffixes prefixes) &body body)
   `(progn
      (let* ((page (make-instance 'page :path "index.html"
                                        :renderer 'render-complete-page
@@ -69,7 +70,13 @@
                                  ,@page-args))
             (story (make-instance 'story :name ,(string-downcase name) :title ,title
                                          :home page :modules ',modules
-                                         :directories ',directories)))
+                                         :package ,(or package :story)
+                                         :directories ',directories
+                                         :stylesheets ',stylesheets
+                                         :imports ',imports
+                                         :scripts ',scripts
+                                         :suffixes ',suffixes
+                                         :prefixes ',prefixes)))
        (add-child story page)
        (add-story story)
        (when *deploy-changed-stories* (story ,(string-downcase name))))))

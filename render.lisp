@@ -5,7 +5,7 @@
     (note "rendering ~S" element))
   (:method ((element element) stream)
     (iter (for child in (children element))
-          (render child stream)))
+      (render child stream)))
   (:method ((page page) stream)
     (funcall (renderer page) page stream)
     (call-next-method)))
@@ -13,25 +13,25 @@
 (defun render-stylesheets (story stream)
   (html
     (iter (for css in (stylesheets story))
-          (htm (:link :rel "stylesheet" :type "text/css" :href (ensure-css-extension css))))))
+      (htm (:link :rel "stylesheet" :type "text/css" :href (ensure-css-extension css))))))
 
 (defun render-scripts (story stream)
   (html
     (iter (for script in (scripts story))
-          (htm (:script :type "text/javascript" :src script)))))
+      (htm (:script :type "text/javascript" :src script)))))
 
 (defun render-imports (story stream)
   (html
     (iter (for import in (imports story))
-          (htm (:link :rel "import" :href import)))))
+      (htm (:link :rel "import" :href import)))))
 
 (defun render-suffixes (story stream)
   (iter (for suffix in (suffixes story))
-        (princ (slurp-file (format nil "~A/~A" (story-file) suffix)) stream)))
+    (princ (slurp-file (format nil "~A/~A" (story-file) suffix)) stream)))
 
 (defun render-prefixes (story stream)
   (iter (for prefix in (prefixes story))
-        (princ (slurp-file (format nil "~A/~A" (story-file) prefix)) stream)))
+    (princ (slurp-file (format nil "~A/~A" (story-file) prefix)) stream)))
 
 (defmethod render-complete-page ((page page) stream)
   (let* ((story (parent page))
@@ -51,8 +51,8 @@
             (when (stylesheets story) (render-stylesheets story stream))
             (when (scripts story) (render-scripts story stream)))))
         (:body :class (body-class page)
-         (when (prefixes story) (render-prefixes story stream))
-         (funcall (body page) stream page)
-         (when (suffixes story) (render-suffixes story stream)))))))
+               (when (prefixes story) (render-prefixes story stream))
+               (funcall (body page) stream page)
+               (when (suffixes story) (render-suffixes story stream)))))))
 
 

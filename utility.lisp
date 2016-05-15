@@ -148,5 +148,5 @@
       (format nil "~A~A" (uiop/os:getenv "HOME") (subseq path 1))
       path))
 
-(defun start-with-char (string char)
+(defun starts-with-char (string char)
   (char= char (char string 0)))

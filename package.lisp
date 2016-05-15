@@ -11,6 +11,7 @@
   (:import-from alexandria with-output-to-file when-let if-let with-input-from-file assoc-value with-gensyms ensure-list once-only)
   (:import-from cl-ansi-text with-color black red green yellow blue magenta cyan white)
   (:import-from uiop directory-files subdirectories directory-exists-p)
-  (:export initialize-story define-story story))
+  (:export initialize-story define-story story toggle-production html *deploy-changed-stories* *story*
+           script script* start-with-char))
 
 (require 'story-modules)

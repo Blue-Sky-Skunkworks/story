@@ -13,6 +13,8 @@
     :scripts ("/webcomponentsjs/webcomponents-lite.js")
     :imports ("polymer/polymer"))
 
+(define-story-module font-roboto :extends :polymer :imports ("font-roboto/roboto"))
+
 (defmacro define-polymer-module (name &key (helpers t))
   (let*  ((raw (symbol-name name))
           (pos (position #\- raw))

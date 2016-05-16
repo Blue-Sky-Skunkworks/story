@@ -9,7 +9,27 @@
 (defun rsync (from to)
   (run-program-to-string "rsync" (list "-a" "--no-l" "-L" from to)))
 
-(defun publish (&key (clear nil) (story *story*))
+(defmacro with-cd-excursion (path &body body)
+  (let ((pwd (gensym)))
+    `(let ((,pwd (sb-posix:getcwd)))
+       (unwind-protect
+            (progn
+              (sb-posix:chdir ,path)
+              ,@body)
+         (sb-posix:chdir ,pwd)))))
+
+(defun push-story (&optional (story *story*))
+  (note "Pushing ~S." story)
+  (let ((*repository* (namestring (truename (publish-directory story)))))
+    (with-cd-excursion *repository*
+      (note "adding")
+      (git `("add" "-A" "."))
+      (note "committing")
+      (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(format nil "story push from ~S ~A" (uiop:hostname) (now)))))
+      (note "pushing")
+      (format t "~{;;   ~A~^~%~}" (git `("push" "origin")))))))
+
+(defun publish (&key (clear nil) (push t) (story *story*))
   (let ((publish-path (publish-directory story)))
     (note "Publishing to ~S." publish-path)
     (flet ((path (name)
@@ -62,8 +82,7 @@
           (format t "  ~A~%" base)
           (write-to-file (path base)
                          (with-output-to-string (stream)
-                           (funcall (renderer page) page stream)))))
-      ))
+                           (funcall (renderer page) page stream)))))))
   ;; (format t "~%dispatches:~%")
   ;; (iter (for el in *module-dispatches*) (format t "  ~A~%" el))
-  )
+  (when push (push-story story)))

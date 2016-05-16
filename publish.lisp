@@ -10,6 +10,7 @@
   (run-program-to-string "rsync" (list "-a" "--no-l" "-L" from to)))
 
 (defun publish (&key (clear nil) (story *story*))
+  (note "Publishing to ~S." *publish-path*)
   (flet ((path (name)
            (let ((rtn (concatenate 'string *publish-path* (subseq name 1))))
              (ensure-directories-exist rtn)

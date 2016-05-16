@@ -4,7 +4,7 @@
   (:export js-file id set-html console))
 
 (defpackage story
-  (:use common-lisp cl-who iterate hunchentoot local-time split-sequence)
+  (:use common-lisp cl-who iterate hunchentoot local-time split-sequence cffi)
   (:import-from story-js id set-html console)
   (:import-from parenscript ps ps* @ new create)
   (:import-from ppcre scan do-scans create-scanner)

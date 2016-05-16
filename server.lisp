@@ -179,6 +179,15 @@ matches NAME."
         (warn "Resetting directory ~S from ~S to ~S" prefix current dir)))
     (setf (gethash prefix *directories*) dir)))
 
+(defvar *files*)
+
+(defun load-files (mapping)
+  (iter (for (dir prefix content-type) in mapping)
+    (when-let (current (gethash prefix *files*))
+      (unless (equal current dir)
+        (warn "Resetting file ~S from ~S to ~S" prefix current dir)))
+    (setf (gethash prefix *files*) (cons dir content-type))))
+
 (defvar *module-dispatches*)
 
 (defun load-module-dispatches (dispatches)
@@ -218,9 +227,12 @@ matches NAME."
        (iter (for (prefix dir) in-hashtable *directories*)
              (let ((mismatch (mismatch request-path prefix :test #'char=)))
                (when (or (null mismatch) (>= mismatch (length prefix)))
-                 (handle-static-file (concatenate 'string dir (subseq request-path (length prefix))))))
-             (finally (setf (return-code *reply*) +http-not-found+)
-                      (abort-request-handler)))))))
+                 (handle-static-file (concatenate 'string dir (subseq request-path (length prefix)))))))
+       (iter (for (prefix (file . content-type)) in-hashtable *files*)
+         (when (string= prefix request-path)
+           (handle-static-file file content-type))
+         (finally (setf (return-code *reply*) +http-not-found+)
+                  (abort-request-handler)))))))
 
 (defun server ()
   "Describe the server."
@@ -233,6 +245,8 @@ matches NAME."
     (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~@[~A~]~%" k (typecase v (string nil) (t v))))
     (format t "~%directories:~%")
     (iter (for (k v) in-hashtable *directories*) (format t "  ~36A  ~A~%" k v))
+    (format t "~%files:~%")
+    (iter (for (k (name . type)) in-hashtable *files*) (format t "  ~36A  ~16A ~A~%" k type name))
     (format t "~%imports:~%")
     (iter (for el in (remove-duplicates *imports* :test 'equal :from-end t)) (format t "  ~A~%" el))
     (format t "~%dispatches:~%")
@@ -241,6 +255,7 @@ matches NAME."
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)
         *directories* (make-hash-table :test 'equal)
+        *files* (make-hash-table :test 'equal)
         *scripts* (make-hash-table :test 'equal)
         *imports* nil
         *all-imports* ""

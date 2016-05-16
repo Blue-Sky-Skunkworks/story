@@ -29,7 +29,7 @@
 
 (defmacro define-story-module (name &key init stylesheets directories scripts
                                       imports production-import-fix
-                                      extends dispatches suffixes prefixes)
+                                      extends dispatches suffixes prefixes files)
   (let* ((kname (ksymb (string-upcase name)))
          (mname (or extends name))
          (base (format nil "~A~(~A~)/" (story-modules-file) mname)))
@@ -39,7 +39,7 @@
                                     :directories ',directories :scripts ',scripts
                                     :imports ',imports :production-import-fix ',production-import-fix
                                     :extends ,extends :dispatches ',dispatches
-                                    :suffixes ',suffixes :prefixes ',prefixes))
+                                    :suffixes ',suffixes :prefixes ',prefixes :files ',files))
        (defun ,(symb 'stage-story-module- name) ()
          ,@(when extends `((,(symb 'stage-story-module- extends))))
          ,@(when stylesheets `((load-stylesheets ',(localize-stylesheets base stylesheets))))
@@ -47,6 +47,7 @@
          ,@(when directories `((load-directories ',(localize-directories base directories))))
          ,@(when imports `((load-imports ',(localize-imports base imports production-import-fix))))
          ,@(when dispatches `((load-module-dispatches ',dispatches)))
+         ,@(when files `((load-files ',(localize-files base files))))
          ,@init
          (values)))))
 
@@ -65,6 +66,17 @@
           (list
            (format nil "~A~A/" base from)
            (format nil "/~A/" to))))))
+
+(defun localize-files (base files)
+  (iter (for file in files)
+    (let* ((from (if (consp file) (first file) file))
+           (to (if (consp file) (second file) file))
+           (path (format nil "~A~A" base from)))
+      (collect
+          (list
+           path
+           (format nil "/~A" to)
+           (second (multiple-value-list (magic (pathname path)))))))))
 
 (defun localize-imports (base imports &optional fix)
   (iter (for import in imports)

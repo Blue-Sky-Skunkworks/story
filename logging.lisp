@@ -15,7 +15,7 @@
       (t  addr))))
 
 (defmethod hunchentoot:acceptor-log-access ((acceptor web-acceptor) &key return-code)
-  (note "~A ~:[ ~@[ (~A)~]~;~:*~A~@[ (~A)~]~]~:[~;~: *~A~] ~A ~A ~A  ~A  ~A"
+  (note "~A ~:[ ~@[ (~A)~]~;~:*~A~@[ (~A)~]~]~:[~;~: *~A~] ~A ~A ~16A ~A  ~A  ~A"
         (cyan "A" :effect :bright)
         (short-remote-addr)
         (header-in* :x-forwarded-for)
@@ -28,6 +28,7 @@
                        :stream stream :effect :bright)
             (format stream "~3D" return-code)))
         (short-user-agent)
+        (short-content-type*)
         (or (and (content-length*) (format nil "~7D" (content-length*)))
             (if (eql return-code +http-not-modified+)
                 "      "
@@ -47,6 +48,12 @@
                     (query-string*)
                     (unless (member (server-protocol*) *known-server-protocols* :test 'string=)
                       (red (server-protocol*) :effect :bright)))))))
+
+(defun short-content-type* ()
+  (let ((raw (content-type*)))
+    (if-let ((pos (position #\; raw)))
+      (subseq raw 0 pos)
+      raw)))
 
 (defmethod acceptor-log-message ((acceptor web-acceptor) log-level format-string &rest format-arguments)
   (handler-case

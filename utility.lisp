@@ -142,7 +142,10 @@
   `(html (:script (str (ps* ,@body)))))
 
 (defmacro with-words ((var sentence) &body body)
-  `(iter (for ,var in (split-sequence #\space ,sentence)) ,@body))
+  (let ((raw (gensym)))
+    `(iter (for ,raw in (split-sequence #\space ,sentence :remove-empty-subseqs t))
+       (let ((,var (remove #\newline ,raw)))
+         ,@body))))
 
 (defun expand-home-path (path)
   (if (char= (char path 0) #\~)

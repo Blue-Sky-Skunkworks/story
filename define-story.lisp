@@ -60,7 +60,7 @@
 
 (defmacro define-story (name (&key title modules page-args package
                                 stylesheets directories scripts imports suffixes prefixes
-                                publish-directory) &body body)
+                                publish-directory cname) &body body)
   `(progn
      (let* ((page (make-instance 'page :path "index.html"
                                        :renderer 'render-complete-page
@@ -78,6 +78,7 @@
                                          :scripts ',scripts
                                          :suffixes ',suffixes
                                          :prefixes ',prefixes
+                                         :cname ,cname
                                          :publish-directory ,(or publish-directory *publish-path*))))
        (add-child story page)
        (add-story story)

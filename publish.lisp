@@ -49,6 +49,9 @@
       (when *production*
         (format t "~%imports:~%  /all.html~%")
         (write-to-file (path "/all.html") *all-imports*))
+      (when (and *production* (cname story))
+        (format t "~%cname:~%  /CNAME~%")
+        (write-to-file (path "/CNAME") (cname story)))
       (format t "~%directories:~%")
       (iter (for (k v) in-hashtable *directories*)
         (format t "  ~A~%" k)

@@ -37,7 +37,8 @@
    (publish-directory :reader publish-directory :initarg :publish-directory)
    (title :reader title :initarg :title)
    (home :reader home :initarg :home)
-   (modules :reader modules :initarg :modules :initform nil)))
+   (modules :reader modules :initarg :modules :initform nil)
+   (cname :reader cname :initarg :cname)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)

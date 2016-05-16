@@ -154,3 +154,5 @@
 (defmacro vertical-break (&optional (height "20px"))
   `(html (:div :style ,(format nil "height:~A;" height))))
 
+(defun last1 (list)
+  (car (last list)))

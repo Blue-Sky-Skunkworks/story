@@ -34,7 +34,8 @@
 
 (defclass story (module)
   ((package :reader story-package :initarg :package)
-   (title :reader title :initarg :title :initform "Unititled Story")
+   (publish-directory :reader publish-directory :initarg :publish-directory)
+   (title :reader title :initarg :title)
    (home :reader home :initarg :home)
    (modules :reader modules :initarg :modules :initform nil)))
 

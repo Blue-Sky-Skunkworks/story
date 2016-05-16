@@ -1,15 +1,18 @@
 (in-package :story)
 
 (defparameter *sample-images-font* (story-modules-file "roboto/fonts/Roboto-Medium.ttf"))
+(defparameter *sample-image-width* 400)
+(defparameter *sample-image-height* 200)
+(defparameter *sample-image-font-size* 40)
 
 (define-story-module sample-images
     :dispatches ((:prefix "/sample-images/" serve-sample-image)))
 
 (defun create-sample-image (stream text)
-  (vecto:with-canvas (:width 400 :height 200)
+  (vecto:with-canvas (:width *sample-image-width* :height *sample-image-height*)
     (let ((font (vecto:get-font *sample-images-font*)))
-      (vecto:set-font font 40)
-      (vecto:draw-centered-string 200 100 text)
+      (vecto:set-font font *sample-image-font-size*)
+      (vecto:draw-centered-string (round *sample-image-width* 2) (round *sample-image-height* 2) text)
       (vecto:save-png-stream stream))))
 
 (defun serve-sample-image ()

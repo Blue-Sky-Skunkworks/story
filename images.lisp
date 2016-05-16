@@ -1,14 +1,19 @@
 (in-package :story)
 
 (defmacro image (&rest args)
-  `(htm (:img ,@(process-image-args args))))
+  `(html (:img ,@(process-image-args args))))
 
-(defvar *image-processors* '(default-image-processor))
-(defvar *valid-image-arguments* '(:src :alt :width :height))
+(defvar *image-processors*)
+(defvar *valid-image-arguments*)
+
+(defun reset-image-processors ()
+  (setf *image-processors* '(default-image-processor)
+        *valid-image-arguments* '(:src :alt :width :height)))
 
 (defun register-image-processor (processor &rest additional-arguments)
-  (when (member processor *image-processors*) (warn "Reregistering image processor ~S." processor))
-  (pushnew processor *image-processors*)
+  (if (member processor *image-processors*)
+      (warn "Reregistering image processor ~S." processor)
+      (setf *image-processors* (append *image-processors* (list processor))))
   (iter (for arg in additional-arguments) (pushnew arg *valid-image-arguments*)))
 
 (defun process-image-args (args)

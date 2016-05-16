@@ -2,7 +2,19 @@
 
 (define-story-module echo
   :scripts ("echo.js" ("init-echo.js" init-echo))
-  :files ("blank.png"))
+  :files ("blank.png")
+  :init ((register-image-processor 'echo-image-processor)))
+
+(defun echo-image-processor (args)
+  (let (src)
+    (append
+     (iter (for (k v) on args by 'cddr)
+       (cond
+         ((eq k :src) (setf src v))
+         (t (appending (list k v)))))
+     (list
+      :src "blank.png"
+      :data-echo src))))
 
 (in-package :story-js)
 

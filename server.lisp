@@ -259,7 +259,8 @@ matches NAME."
         *scripts* (make-hash-table :test 'equal)
         *imports* nil
         *all-imports* ""
-        *module-dispatches* nil))
+        *module-dispatches* nil)
+  (reset-image-processors))
 
 
 (defun local-path-from-server (path)

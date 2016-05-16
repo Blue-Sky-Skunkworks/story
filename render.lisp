@@ -53,6 +53,8 @@
         (:body :class (body-class page)
                (when (prefixes story) (render-prefixes story stream))
                (funcall (body page) stream page)
-               (when (suffixes story) (render-suffixes story stream)))))))
+               (when (suffixes story) (render-suffixes story stream))
+               (when-let ((init (script-init story)))
+                 (htm (:script (str (apply #'ps* init))))))))))
 
 

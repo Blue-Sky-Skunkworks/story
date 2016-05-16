@@ -22,6 +22,7 @@
   ((name :reader name :initarg :name)
    (stylesheets :reader stylesheets :initarg :stylesheets)
    (directories :reader directories :initarg :directories)
+   (script-init :reader script-init :initarg :script-init)
    (scripts :reader scripts :initarg :scripts)
    (imports :reader imports :initarg :imports)
    (production-import-fix :reader production-import-fix :initarg :production-import-fix)
@@ -111,6 +112,13 @@
          (iter (for el in els)
            (collect (format nil "modules/~(~A~)/~A" (or (extends module) name) el))) into rtn)))
     (finally (return (append rtn (slot-value story 'prefixes))))))
+
+(defmethod script-init ((story story))
+  (iter
+    (for name in (modules-and-parents (modules story)))
+    (let ((module (find-module name)))
+      (when-let (els (script-init module))
+        (appending els)))))
 
 (defun setup-server (story)
   (reset-server)

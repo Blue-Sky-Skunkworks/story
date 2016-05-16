@@ -3,7 +3,8 @@
 (define-story-module echo
   :scripts ("echo.js" ("init-echo.js" init-echo))
   :files ("blank.png")
-  :init ((register-image-processor 'echo-image-processor)))
+  :init ((register-image-processor 'echo-image-processor))
+  :script-init ((initialize-echo)))
 
 (defun echo-image-processor (args)
   (let (src)

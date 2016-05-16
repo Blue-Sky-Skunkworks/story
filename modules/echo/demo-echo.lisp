@@ -5,6 +5,5 @@
   should be lazily loading them for your pleasure and enjoyment! ...")
     (image :alt word :src (format nil "sample-images/~A.png" word)))
   (dotimes (x 100)
-    (image :alt "random" :src (format nil "sample-images-random/~A.png" x)))
-  (script (initialize-echo)))
+    (image :alt "random" :src (format nil "sample-images-random/~A.png" x))))
 

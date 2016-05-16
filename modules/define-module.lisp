@@ -27,7 +27,7 @@
      (format nil "~Acss" (subseq path 0 (- (length path) (length (pathname-type path))))))
     (t path)))
 
-(defmacro define-story-module (name &key init stylesheets directories scripts
+(defmacro define-story-module (name &key init script-init stylesheets directories scripts
                                       imports production-import-fix
                                       extends dispatches suffixes prefixes files)
   (let* ((kname (ksymb (string-upcase name)))
@@ -39,7 +39,8 @@
                                     :directories ',directories :scripts ',scripts
                                     :imports ',imports :production-import-fix ',production-import-fix
                                     :extends ,extends :dispatches ',dispatches
-                                    :suffixes ',suffixes :prefixes ',prefixes :files ',files))
+                                    :suffixes ',suffixes :prefixes ',prefixes :files ',files
+                                    :script-init ',script-init))
        (defun ,(symb 'stage-story-module- name) ()
          ,@(when extends `((,(symb 'stage-story-module- extends))))
          ,@(when stylesheets `((load-stylesheets ',(localize-stylesheets base stylesheets))))

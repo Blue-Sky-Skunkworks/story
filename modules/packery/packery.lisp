@@ -7,7 +7,7 @@
 (in-package :story-js)
 
 (define-script packery
-  (defun setup-packing (container-id item &optional (gutter 20))
+  (defun pack (container-id item &optional (gutter 20))
     (let ((container (id container-id)))
       (if (@ container pack)
           ((@ container pack layout))

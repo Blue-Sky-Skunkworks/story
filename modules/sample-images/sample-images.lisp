@@ -16,7 +16,5 @@
       (vecto:save-png-stream stream))))
 
 (defun serve-sample-image ()
-  (let ((request-path (script-name*)) served)
-    (setf (content-type*) "image/png")
-    (let ((out (send-headers)))
-      (create-sample-image out (pathname-name request-path)))))
+  (setf (content-type*) "image/png")
+  (create-sample-image (send-headers) (pathname-name (script-name*))))

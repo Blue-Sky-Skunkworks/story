@@ -60,3 +60,5 @@
   (typecase el
     (pathname (magic-file (namestring el)))
     (vector (magic-buffer el))))
+
+(initialize-magic)

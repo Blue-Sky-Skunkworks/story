@@ -41,7 +41,10 @@
                        (string v)
                        (pathname (slurp-file v))
                        (t (funcall v)))))
-    (format t "~%directories:~%")
+    (when *production*
+      (format t "~%imports:~%  /all.html~%")
+      (write-to-file (path "/all.html") *all-imports*))
+     (format t "~%directories:~%")
     (iter (for (k v) in-hashtable *directories*)
       (format t "  ~A~%" k)
       (rsync v (path k)))

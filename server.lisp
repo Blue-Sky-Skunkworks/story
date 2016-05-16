@@ -145,28 +145,29 @@ matches NAME."
 
 (defun collect-stylesheets-and-scripts (story)
   (when-let (scripts (scripts story))
-    (setf (gethash "/js.js" *scripts*) 'story-js:js-file)
-    (setf (gethash "/js-all.min.js" *scripts*)
-          (minimize-script
-           (apply #'concatenate 'string
-                  (iter (for script in (scripts story))
-                    (let ((val (gethash (format nil "/~A" script) *scripts*)))
-                      (collect (typecase val
-                                 (pathname (slurp-file val))
-                                 (string val)
-                                 (null (warn "Missing script ~S." script))
-                                 (t (funcall val))))))))))
+    (let ((all (minimize-script
+                (apply #'concatenate 'string
+                       (iter (for script in (scripts story))
+                         (let ((val (gethash (format nil "/~A" script) *scripts*)))
+                           (collect (typecase val
+                                      (pathname (slurp-file val))
+                                      (string val)
+                                      (null (warn "Missing script ~S." script))
+                                      (t (funcall val))))))))))
+      (setf *scripts* (make-hash-table :test 'equal)
+            (gethash "/js-all.min.js" *scripts*) all)))
   (when-let (stylesheets (stylesheets story))
-    (setf (gethash "/css-all.css" *css*)
-          (apply #'concatenate 'string
-                 (iter (for stylesheet in stylesheets)
-                   (collect (prepare-css-for-production
-                             (directory-namestring stylesheet)
-                             (or (gethash (format nil "/~A" (ensure-css-extension stylesheet)) *css*)
-                                 (warn "Missing stylesheet ~S." stylesheet))))))))
+    (let ((all (apply #'concatenate 'string
+                      (iter (for stylesheet in stylesheets)
+                        (collect (prepare-css-for-production
+                                  (directory-namestring stylesheet)
+                                  (or (gethash (format nil "/~A" (ensure-css-extension stylesheet)) *css*)
+                                      (warn "Missing stylesheet ~S." stylesheet))))))))
+      (setf *css* (make-hash-table :test 'equal)
+            (gethash "/css-all.css" *css*) all)))
   (when *imports*
-    (setf *all-imports*
-          (collect-all-imports (remove-duplicates *imports* :test 'equalp :from-end t))))
+    (setf *all-imports* (collect-all-imports (remove-duplicates *imports* :test 'equalp :from-end t))
+          *imports* '("/all.html")))
   (values))
 
 (defvar *directories*)
@@ -193,7 +194,7 @@ matches NAME."
       ((string= request-path "/")
        (setf (content-type*) "text/html")
        (render-current-story))
-      ((string= request-path "/all.html")
+      ((and *production* (string= request-path "/all.html"))
        (setf (content-type*) "text/html")
        (return-from acceptor-dispatch-request *all-imports*))
       (t
@@ -229,9 +230,11 @@ matches NAME."
     (format t "~%css:~%")
     (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))
     (format t "~%scripts:~%")
-    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~S~%" k (typecase v (string :all) (t v))))
+    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~@[~A~]~%" k (typecase v (string nil) (t v))))
     (format t "~%directories:~%")
     (iter (for (k v) in-hashtable *directories*) (format t "  ~36A  ~A~%" k v))
+    (format t "~%imports:~%")
+    (iter (for el in (remove-duplicates *imports* :test 'equal :from-end t)) (format t "  ~A~%" el))
     (format t "~%dispatches:~%")
     (iter (for el in *module-dispatches*) (format t "  ~A~%" el))))
 

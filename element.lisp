@@ -117,7 +117,8 @@
       (load-directories (localize-directories base (slot-value story 'directories)))
       (load-imports (localize-imports base (slot-value story 'imports)))
       (load-scripts (localize-scripts base "/" (slot-value story' scripts)))
-      (collect-stylesheets-and-scripts story))))
+      (load-scripts '((story-js:js-file "/js.js")))
+      (when *production* (collect-stylesheets-and-scripts story)))))
 
 ;;; page
 

@@ -14,6 +14,7 @@
   (:import-from uiop directory-files subdirectories directory-exists-p)
   (:export initialize-story define-story story server toggle-production html *deploy-changed-stories* *story*
            script script* starts-with-char
-           parenscript ps ps* @ new create vertical-break))
+           parenscript ps ps* @ new create vertical-break
+           image))
 
 (require 'story-modules)

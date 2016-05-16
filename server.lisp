@@ -20,7 +20,7 @@ matches NAME."
         (:exact (create-exact-dispatcher (second dispatch) (third dispatch)))
         (:regex (hunchentoot:create-regex-dispatcher (second dispatch) (third dispatch)))
         (:folder (hunchentoot:create-folder-dispatcher-and-handler (second dispatch) (third dispatch)))
-        (:static (hunchentoot:create-static-file-dispatcher-and-handler (second dispatch) (third dispatch))))
+        (:static (hunchentoot:create-static-file-dispatcher-and-handler (second dispatch) (third dispatch) (fourth dispatch))))
       dispatch))
 
 (defun start-server ()

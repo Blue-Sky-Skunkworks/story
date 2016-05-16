@@ -35,7 +35,7 @@
      ,@(iter (for name in names)
          (collect
              `(define-story-module ,(symb 'iron-icons- name)
-                :extends :polymer :imports (,(format nil "iron-icons/~(~A~)-icons" name))))))))
+                :extends :polymer :imports (,(format nil "iron-icons/~(~A~)-icons" name)))))))
 (define-iron-icons communication device editor hardware image maps notification places social)
 
 (define-polymer-module iron-icon)

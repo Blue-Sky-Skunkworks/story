@@ -1,7 +1,7 @@
 (in-package :story)
 
 (defmacro image (&rest args)
-  `(html (:img ,@(process-image-args args))))
+  `(render-image stream ,@args))
 
 (defvar *image-processors*)
 (defvar *valid-image-arguments*)
@@ -56,7 +56,11 @@
        (when (or width height)
          (warn "Overriding image width and height. ~A->~A ~A->~A" iw width ih height))
        (unless alt (warn "Missing image :ALT ~S." src))
-       (list
-        :width (or width iw)
-        :height (or height ih))))))
+       `(,@(when (or width iw) `(:width ,(or width iw)))
+         ,@(when (or height ih) `(:height ,(or height ih))))))))
 
+(defun render-image (stream &rest args)
+  (format stream "<img ")
+  (iter (for (k v) on (process-image-args args) by 'cddr)
+    (format stream "~(~A~)=~S " k v))
+  (format stream ">"))

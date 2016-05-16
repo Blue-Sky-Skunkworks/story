@@ -27,7 +27,7 @@
       (note "committing")
       (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(format nil "story push from ~S ~A" (uiop:hostname) (now)))))
       (note "pushing")
-      (format t "~{;;   ~A~^~%~}" (git `("push" "origin")))))))
+      (format t "~{;;   ~A~^~%~}" (git `("push" "origin"))))))
 
 (defun publish (&key (clear nil) (push nil) (story *story*))
   (let ((publish-path (publish-directory story)))

@@ -17,6 +17,6 @@
                (:file "publish")
                (:file "logging")
                (:file "bower")
-               (:file "images")
                (:file "demos")
+               (:file "images")
                (:file "initialize")))

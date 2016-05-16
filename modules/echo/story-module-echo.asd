@@ -10,5 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-echo.asd")
-               (:file "demo-echo")))
+               (:file "demo-echo")
                (:file "echo")))

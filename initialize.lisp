@@ -10,6 +10,7 @@ __      __   _                    _____      ___ _                _
 ")
 
 (defun initialize-story ()
+  (require 'story-modules)
   (format t "~A~%" (blue *welcome-text* :effect :bright))
   (start-server))
 

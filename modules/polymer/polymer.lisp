@@ -26,8 +26,18 @@
 
 (define-polymer-module iron-meta)
 (define-story-module iron-flex-layout :extends :polymer :imports ("iron-flex-layout/iron-flex-layout-classes"))
+
 (define-polymer-module iron-icons)
+(defmacro define-iron-icons (&rest  names)
+  `(progn
+     ,@(iter (for name in names)
+         (collect
+             `(define-story-module ,(symb 'iron-icons- name)
+                :extends :polymer :imports (,(format nil "iron-icons/~(~A~)-icons" name))))))))
+(define-iron-icons communication device editor hardware image maps notification places social)
+
 (define-polymer-module iron-icon)
+
 (define-polymer-module iron-pages)
 (define-polymer-module paper-button)
 (define-polymer-module paper-icon-button)

@@ -224,7 +224,7 @@ matches NAME."
 (defun server ()
   "Describe the server."
   (let ((server *web-acceptor*))
-    (print-heading "story sever")
+    (print-heading "story server")
     (format t "port ~S~@[ address ~A~]~%" (acceptor-port server) (acceptor-address server))
     (format t "~%css:~%")
     (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))

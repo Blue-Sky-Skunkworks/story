@@ -120,3 +120,4 @@ and what did they produce?  The cuckoo-clock.
 ** TODO research what Lucien is doing with 'guh'
    https://github.com/LPGhatguy/guh
 ** TODO code walker to automatically include modules
+** TODO integrate https://github.com/aFarkas/lazysizes

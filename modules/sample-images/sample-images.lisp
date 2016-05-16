@@ -6,7 +6,8 @@
 (defparameter *sample-image-font-size* 40)
 
 (define-story-module sample-images
-    :dispatches ((:prefix "/sample-images/" serve-sample-image)))
+  :dispatches ((:prefix "/sample-images/" serve-sample-image)
+               (:prefix "/sample-images-random/" serve-sample-image-random)))
 
 (defun create-sample-image (stream text)
   (vecto:with-canvas (:width *sample-image-width* :height *sample-image-height*)
@@ -17,4 +18,9 @@
 
 (defun serve-sample-image ()
   (setf (content-type*) "image/png")
-  (create-sample-image (send-headers) (or (pathname-name (script-name*)) (random-word))))
+  (create-sample-image (send-headers) (pathname-name (script-name*))))
+
+(defun serve-sample-image-random ()
+  (setf (content-type*) "image/png")
+  (create-sample-image (send-headers) (random-word)))
+

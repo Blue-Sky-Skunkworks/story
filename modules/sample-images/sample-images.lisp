@@ -17,4 +17,4 @@
 
 (defun serve-sample-image ()
   (setf (content-type*) "image/png")
-  (create-sample-image (send-headers) (pathname-name (script-name*))))
+  (create-sample-image (send-headers) (or (pathname-name (script-name*)) (random-word))))

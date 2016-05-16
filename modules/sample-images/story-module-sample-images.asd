@@ -10,5 +10,6 @@
   :serial t
   :depends-on ("story-modules" "vecto")
   :components ((:static-file "story-module-sample-images.asd")
+               (:file "words")
                (:file "sample-images")
                (:file "demo-sample-images")))

@@ -6,6 +6,7 @@
   :components ((:static-file "story.asd")
                (:file "package")
                (:file "magic")
+               (:file "ascii-text")
                (:file "configuration")
                (:file "javascript")
                (:file "utility")

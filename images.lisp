@@ -8,7 +8,7 @@
 
 (defun reset-image-processors ()
   (setf *image-processors* '(default-image-processor)
-        *valid-image-arguments* '(:src :alt :width :height)))
+        *valid-image-arguments* '(:src :alt :width :height :style)))
 
 (defun register-image-processor (processor &rest additional-arguments)
   (if (member processor *image-processors*)
@@ -48,13 +48,13 @@
          (t (cond
               ((eq k :width) (setf width v))
               ((eq k :height) (setf height v))
-              ((member k '(:src :alt))
+              ((member k '(:src :alt :style))
                (when (eq k :src) (setf src v))
                (when (eq k :alt) (setf alt v))
                (appending (list k v)))))))
      (multiple-value-bind (iw ih) (when-let (path (local-path-from-server src)) (image-size path))
        (when (or width height)
-         (warn "Overriding image width and height. ~A->~A ~A->~A" iw width ih height))
+         (note "Overriding image width and height. ~A->~A ~A->~A" iw width ih height))
        (unless alt (warn "Missing image :ALT ~S." src))
        `(,@(when (or width iw) `(:width ,(or width iw)))
          ,@(when (or height ih) `(:height ,(or height ih))))))))

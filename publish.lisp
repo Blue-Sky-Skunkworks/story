@@ -25,7 +25,7 @@
       (note "adding")
       (git `("add" "-A" "."))
       (note "committing")
-      (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(format nil "story push from ~S ~A" (uiop:hostname) (now)))))
+      (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(format nil "story push from ~S ~A" (hostname) (now)))))
       (note "pushing")
       (format t "~{;;   ~A~^~%~}" (git `("push" "origin"))))))
 
@@ -40,16 +40,16 @@
       (when clear
         (cond
           ((y-or-n-p "Really recursively delete ~S?" publish-path)
-           (iter (for file in (uiop:directory-files publish-path))
+           (iter (for file in (directory-files publish-path))
              (note "removing ~S" file)
              (delete-file file))
-           (iter (for dir in (uiop:subdirectories publish-path))
+           (iter (for dir in (subdirectories publish-path))
              (cond
                ((equal (last1 (pathname-directory dir)) ".git")
                 (note "skipping ~S" dir))
                (t
                 (note "removing ~S" dir)
-                (uiop:delete-directory-tree dir :validate t)))))
+                (delete-directory-tree dir :validate t)))))
           (t
            (warn "Not publishing.")
            (return-from publish))))

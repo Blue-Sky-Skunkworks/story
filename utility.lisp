@@ -83,9 +83,15 @@
       (write-string string stream)
       (write-char slash-character stream))))
 
+
+(asdf/run-program:run-program
+ (format nil "~A -f ~A -w ~D ~A" *figlet-executable*
+         *figlet-font* *print-right-margin* (symbol-name form))
+ :output s)
+
 (defun run-program-to-string (program args)
   (with-output-to-string (str)
-    (sb-ext:run-program program args :output str :error str :search t)))
+    (asdf/run-program:run-program (format nil "~A ~{~A~^ ~}" program args) :output str)))
 
 (defun slurp-file (filename &optional external-format)
   (with-input-from-file (stream filename :external-format (or external-format :utf-8))

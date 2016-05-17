@@ -29,7 +29,8 @@
      (create :offset 100
              :throttle 250
              :unload nil
-             :callback (lambda (el op) (console el op)))))
+             ;; :callback (lambda (el op) (console el op))
+             )))
 
   (defun echo-watch-scrolling (container-id)
     ((@ (id container-id) add-event-listener) "content-scroll" echo-handle-scroll))

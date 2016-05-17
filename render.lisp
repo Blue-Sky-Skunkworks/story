@@ -38,6 +38,7 @@
          (title (or (title page) (title story))))
     (with-html-output (stream stream)
       (:html
+        (when (header story) (funcall (header story) stream))
         (:head
          (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
          (when title (htm (:title (esc title))))
@@ -55,6 +56,7 @@
                (funcall (body page) stream page)
                (when (suffixes story) (render-suffixes story stream))
                (when-let ((init (script-init story)))
-                 (htm (:script (str (apply #'ps* init))))))))))
+                 (htm (:script (str (apply #'ps* init))))))
+        (when (footer story) (funcall (footer story) stream))))))
 
 

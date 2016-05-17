@@ -38,6 +38,8 @@
   ((package :reader story-package :initarg :package)
    (publish-directory :reader publish-directory :initarg :publish-directory)
    (title :reader title :initarg :title)
+   (header :reader header :initarg :header)
+   (footer :reader footer :initarg :footer)
    (home :reader home :initarg :home)
    (modules :reader modules :initarg :modules :initform nil)
    (cname :reader cname :initarg :cname)))

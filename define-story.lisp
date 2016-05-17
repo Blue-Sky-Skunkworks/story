@@ -56,7 +56,7 @@
       (html-to-string (:html (:head (:title "No Story"))
                              (:body "No story has been loaded.")))))
 
-(defvar *deploy-changed-stories* nil)
+(defparameter *deploy-changed-stories* nil)
 
 (defmacro define-story (name (&key title modules page-args package
                                 stylesheets directories scripts imports suffixes prefixes

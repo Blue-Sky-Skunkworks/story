@@ -39,7 +39,16 @@
                (error "Ascii font index out of range.")
                (nth (1- name-or-index) *ascii-fonts*))))))
 
-(defun ascii-text (text &key (font *ascii-font*) (width 80) border crop gay metal left right)
+(defun indent-paragraph (text spaces &optional (char #\space))
+  (let ((lines (split-sequence #\newline text))
+        (indent (make-string spaces :initial-element char)))
+    (with-output-to-string (stream)
+      (iter (for els on lines)
+        (princ indent stream)
+        (princ (car els) stream)
+        (when (cdr els) (terpri stream))))))
+
+(defun ascii-text (text &key (font *ascii-font*) (width 80) indent border crop gay metal left right)
   (select-ascii-text-font font)
   (let ((filter (format nil "~{~@[~A~^:~]~}" (list (and border "border")
                                                    (and crop "crop")
@@ -47,10 +56,13 @@
                                                    (and metal "metal")
                                                    (and left "left")
                                                    (and right "right")))))
-    (run-program-to-string "toilet" (nconc
-                                     (list "-f" *ascii-font* "-w" width)
-                                     (when (plusp (length filter)) (list "-F" filter))
-                                     (list text)))))
+    (let ((base (run-program-to-string "toilet" (nconc
+                                                 (list "-f" *ascii-font* "-w" width)
+                                                 (when (plusp (length filter)) (list "-F" filter))
+                                                 (list text)))))
+      (if indent
+          (indent-paragraph base indent)
+          base))))
 
 (defun demo-ascii-fonts ()
   (iter (for font in *ascii-fonts* )

@@ -59,7 +59,7 @@
     (let ((base (run-program-to-string "toilet" (nconc
                                                  (list "-f" *ascii-font* "-w" width)
                                                  (when (plusp (length filter)) (list "-F" filter))
-                                                 (list text)))))
+                                                 (list (prin1-to-string text))))))
       (if indent
           (indent-paragraph base indent)
           base))))

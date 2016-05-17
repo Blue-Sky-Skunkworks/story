@@ -264,6 +264,7 @@ matches NAME."
 
 
 (defun local-path-from-server (path)
-
-
-  )
+  (when-let (pos (position #\/ path))
+    (when-let (hit (gethash (format nil "/~A/" (subseq path 0 pos)) *directories*))
+      (return-from local-path-from-server (concatenate 'string hit (subseq path (1+ pos))))))
+  (warn "Missing local path ~S. path" path))

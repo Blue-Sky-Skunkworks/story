@@ -31,8 +31,8 @@
              :unload nil
              :callback (lambda (el op) (console el op)))))
 
-  (defun echo-watch (id)
-    ((@ (id id) add-event-listener) "content-scroll" echo-handle-scroll))
+  (defun echo-watch-scrolling (container-id)
+    ((@ (id container-id) add-event-listener) "content-scroll" echo-handle-scroll))
 
   (defun echo-handle-scroll ()
     ((@ echo render)))

@@ -16,5 +16,5 @@
            script script* starts-with-char
            parenscript ps ps* @ new create vertical-break comment
            image
-           ascii-text list-ascii-text-fonts select-ascii-text-font))
+           ascii-text list-ascii-text-fonts select-ascii-text-font indent-paragraph))
 

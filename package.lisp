@@ -15,5 +15,6 @@
   (:export initialize-story define-story story server toggle-production html *deploy-changed-stories* *story*
            script script* starts-with-char
            parenscript ps ps* @ new create vertical-break comment
-           image))
+           image
+           ascii-text list-ascii-text-fonts select-ascii-text-font))
 

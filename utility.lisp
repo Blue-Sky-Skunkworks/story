@@ -83,12 +83,6 @@
       (write-string string stream)
       (write-char slash-character stream))))
 
-
-(asdf/run-program:run-program
- (format nil "~A -f ~A -w ~D ~A" *figlet-executable*
-         *figlet-font* *print-right-margin* (symbol-name form))
- :output s)
-
 (defun run-program-to-string (program args)
   (with-output-to-string (str)
     (asdf/run-program:run-program (format nil "~A ~{~A~^ ~}" program args) :output str)))

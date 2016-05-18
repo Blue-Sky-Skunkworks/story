@@ -25,7 +25,7 @@
       (note "adding")
       (git `("add" "-A" "."))
       (note "committing")
-      (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(format nil "story push from ~S ~A" (hostname) (now)))))
+      (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(format nil "\"story push from '~A' ~A\"" (hostname) (now)))))
       (note "pushing")
       (format t "~{;;   ~A~^~%~}" (git `("push" "origin"))))))
 

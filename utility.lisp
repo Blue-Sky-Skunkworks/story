@@ -153,15 +153,6 @@
 (defmacro vertical-break (&optional (height "20px"))
   `(html (:div :style ,(format nil "height:~A;" height))))
 
-(defun indent-paragraph (text spaces &optional (char #\space))
-  (let ((lines (split-sequence #\newline text))
-        (indent (make-string spaces :initial-element char)))
-    (with-output-to-string (stream)
-      (iter (for els on lines)
-        (princ indent stream)
-        (princ (car els) stream)
-        (when (cdr els) (terpri stream))))))
-
 (defmacro comment (text &key (indent 2))
   `(html (str (format nil "<!--~%~%~A~%-->" ,(if indent
                                                  `(indent-paragraph ,text ,indent)

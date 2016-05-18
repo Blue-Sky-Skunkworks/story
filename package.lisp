@@ -9,12 +9,12 @@
   (:import-from parenscript ps ps* @ new create)
   (:import-from ppcre scan do-scans create-scanner)
   (:import-from anaphora aand it)
+  (:import-from cl-ascii-art indent-paragraph)
   (:import-from alexandria with-output-to-file when-let if-let with-input-from-file assoc-value with-gensyms ensure-list once-only)
   (:import-from cl-ansi-text with-color black red green yellow blue magenta cyan white)
   (:import-from uiop directory-files subdirectories directory-exists-p hostname delete-directory-tree)
   (:export initialize-story define-story story server toggle-production html *deploy-changed-stories* *story*
            script script* starts-with-char
            parenscript ps ps* @ new create vertical-break comment
-           image
-           ascii-text list-ascii-text-fonts select-ascii-text-font indent-paragraph publish))
+           image publish))
 

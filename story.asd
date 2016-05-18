@@ -2,11 +2,10 @@
   :serial t
   :depends-on ("alexandria" "cl-who" "parenscript" "hunchentoot" "split-sequence" "zpng" "cl-json"
                             "cl-ppcre" "iterate" "local-time" "cl-ansi-text" "cl-uglify-js" "anaphora"
-                            "cffi" "printv")
+                            "cffi" "printv" "cl-ascii-art")
   :components ((:static-file "story.asd")
                (:file "package")
                (:file "magic")
-               (:file "ascii-text")
                (:file "configuration")
                (:file "javascript")
                (:file "utility")

@@ -168,7 +168,7 @@
         (princ (car els) stream)
         (when (cdr els) (terpri stream))))))
 
-(defmacro comment (text &key indent)
+(defmacro comment (text &key (indent 2))
   `(html (str (format nil "<!--~%~%~A~%-->" ,(if indent
                                                  `(indent-paragraph ,text ,indent)
                                                  text)))))

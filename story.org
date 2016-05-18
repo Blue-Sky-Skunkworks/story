@@ -121,3 +121,4 @@ and what did they produce?  The cuckoo-clock.
    https://github.com/LPGhatguy/guh
 ** TODO code walker to automatically include modules
 ** TODO integrate https://github.com/aFarkas/lazysizes
+** TODO return 304 for all.html and such

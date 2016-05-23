@@ -34,7 +34,6 @@ and what did they produce?  The cuckoo-clock.
    Their subjects claim the achievement as their own.
 * story tasks
 ** TODO favicon
-** TODO stylesheets
 ** TODO move to quicklisp parenscript
 ** TODO gzip encoding?
 ** TODO flotr2
@@ -122,3 +121,7 @@ and what did they produce?  The cuckoo-clock.
 ** TODO code walker to automatically include modules
 ** TODO integrate https://github.com/aFarkas/lazysizes
 ** TODO return 304 for all.html and such
+** TODO tree -C for color ansii art trees of the project
+** TODO add background video
+   http://rishabhp.github.io/bideo.js/
+** TODO stylesheets

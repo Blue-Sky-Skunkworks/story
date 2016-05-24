@@ -96,8 +96,10 @@ matches NAME."
 
 (defun load-stylesheets (mapping)
   (iter (for (file path) in mapping)
-    (let ((text (run-program-to-string *scss-script* (list file))))
-          (setf (gethash path *css*) text))))
+    (setf (gethash path *css*)
+          (typecase file
+            (string (run-program-to-string *scss-script* (list file)))
+            (t file)))))
 
 (defvar *scripts*)
 
@@ -147,7 +149,7 @@ matches NAME."
   (when-let (scripts (scripts story))
     (let ((all (minimize-script
                 (apply #'concatenate 'string
-                       (iter (for script in (scripts story))
+                       (iter (for script in scripts)
                          (let ((val (gethash (format nil "/~A" script) *scripts*)))
                            (collect (typecase val
                                       (pathname (slurp-file val))
@@ -210,7 +212,10 @@ matches NAME."
        (if-let (css (gethash request-path *css*))
          (progn
            (setf (content-type*) "text/css")
-           (return-from acceptor-dispatch-request css))
+           (return-from acceptor-dispatch-request
+             (etypecase css
+               (symbol (funcall css))
+               (string css))))
          (iter (for (path file) in-hashtable *scripts*)
                (let ((mismatch (mismatch request-path path :test #'char=)))
                  (when (null mismatch)
@@ -240,7 +245,7 @@ matches NAME."
     (print-heading "story server")
     (format t "port ~S~@[ address ~A~]~%" (acceptor-port server) (acceptor-address server))
     (format t "~%css:~%")
-    (iter (for (k v) in-hashtable *css*) (format t "  ~A~%" k))
+    (iter (for (k v) in-hashtable *css*) (format t "  ~36A  ~@[~A~]~%" k (unless (stringp v) v)))
     (format t "~%scripts:~%")
     (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~@[~A~]~%" k (typecase v (string nil) (t v))))
     (format t "~%directories:~%")

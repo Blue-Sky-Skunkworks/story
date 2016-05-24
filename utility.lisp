@@ -157,7 +157,7 @@
 
 (defmacro comment (text &key (indent 2))
   `(html (str (format nil "<!--~%~%~A~%-->" ,(if indent
-                                                 `(indent-text ,text ,indent)
+                                                 `(as-string (indent-text ,text ,indent))
                                                  text)))))
 
 (defun last1 (list)

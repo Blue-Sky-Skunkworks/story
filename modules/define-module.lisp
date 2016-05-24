@@ -21,12 +21,6 @@
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
-(defun ensure-css-extension (path)
-  (cond
-    ((not (equalp (pathname-type path) "css"))
-     (format nil "~Acss" (subseq path 0 (- (length path) (length (pathname-type path))))))
-    (t path)))
-
 (defmacro define-story-module (name &key init script-init stylesheets directories scripts
                                       imports production-import-fix
                                       extends dispatches suffixes prefixes files)
@@ -52,12 +46,23 @@
          ,@init
          (values)))))
 
+(defun ensure-css-extension (path)
+  (let ((type (pathname-type path)))
+    (cond
+      ((not (equalp type "css"))
+       (format nil "~A~@[~A~]css" (subseq path 0 (- (length path) (length type)))
+               (when (null type) ".")))
+      (t path))))
+
 (defun localize-stylesheets (base stylesheets)
-  (iter (for css in stylesheets)
-    (collect
-        (list
-         (format nil "~A~A" base css)
-         (format nil "/~A" (ensure-css-extension css))))))
+  (iter (for el in stylesheets)
+    (destructuring-bind (css &optional fn) (ensure-list el)
+      (collect
+          (list
+           (if fn
+               (intern (symbol-name fn) :story-css)
+               (format nil "~A~A" base css))
+           (format nil "/~A" (ensure-css-extension css)))))))
 
 (defun localize-directories (base directories)
   (iter (for dir in directories)

@@ -57,7 +57,14 @@
        (finally (return (append rtn (slot-value story ',slot)))))))
 
 (define-story-accessor directories)
-(define-story-accessor stylesheets)
+
+(defmethod stylesheets ((story story))
+  (iter
+    (for name in (modules-and-parents (modules story)))
+    (let ((module (find-module name)))
+      (when-let (els (stylesheets module))
+        (appending els into rtn)))
+    (finally (return (append rtn (mapcar #L(if (consp %) (car %) %) (slot-value story 'stylesheets)))))))
 
 (defmethod scripts ((story story))
   (let (include-js)
@@ -129,6 +136,7 @@
       (mapc #'stage-story-module (modules story))
       (load-directories (localize-directories base (slot-value story 'directories)))
       (load-imports (localize-imports base (slot-value story 'imports)))
+      (load-stylesheets (localize-stylesheets base (slot-value story' stylesheets)))
       (load-scripts (localize-scripts base "/" (slot-value story' scripts)))
       (load-scripts '((story-js:js-file "/js.js")))
       (when *production* (collect-stylesheets-and-scripts story)))))

@@ -8,6 +8,7 @@
                (:file "magic")
                (:file "configuration")
                (:file "javascript")
+               (:file "sharpl")
                (:file "utility")
                (:file "git")
                (:file "element")

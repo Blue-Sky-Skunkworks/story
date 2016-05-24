@@ -36,7 +36,9 @@
 
 (defun format-describe-line (indent els &optional (printer "~A"))
   (with-output-to-string (*standard-output*)
-    (indent-text (word-wrap (format nil (format nil "~~{~A~~^, ~~}" printer) els) 100) indent :skip-first t)))
+    (indent-text
+     (remove-trailing-newline
+      (word-wrap (format nil (format nil "~~{~A~~^, ~~}" printer) els) 100)) indent :skip-first t)))
 
 (defun describe-story (&optional (all nil))
   "Describe the story or stories."

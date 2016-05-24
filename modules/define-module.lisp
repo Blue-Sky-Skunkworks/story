@@ -84,13 +84,27 @@
            (format nil "/~A" to)
            (second (multiple-value-list (magic (pathname path)))))))))
 
-(defun localize-imports (base imports &optional fix)
-  (iter (for import in imports)
-    (let ((file (format nil "~Aimports/~A.html" base import)))
+  (iter (for el in stylesheets)
+    (destructuring-bind (css &optional fn) (ensure-list el)
       (collect
-          (if fix
-              (cons file fix)
-              file)))))
+          (list
+           (if fn
+               (intern (symbol-name fn) :story-css)
+               (format nil "~A~A" base css))
+           (format nil "/~A" (ensure-css-extension css))))))
+
+
+(defun localize-imports (base imports &optional fix)
+  (iter (for el in imports)
+    (destructuring-bind (name &optional fn) (ensure-list el)
+      (collect
+          (nconc
+           (list
+            (if fn
+                (intern (symbol-name fn) :story-css)
+                (format nil "~Aimports/~A.html" base name))
+            (format nil "/~A.html" name))
+           (when fix (list fix)))))))
 
 (defun localize-scripts (base prefix scripts)
   (iter (for el in scripts)

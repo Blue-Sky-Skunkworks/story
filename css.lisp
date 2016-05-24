@@ -4,6 +4,6 @@
   `(with-html-output-to-string (stream nil)
      (:style ,@args
        (terpri stream)
-       (str (css ,@body))))))
+       (str (css ,@body)))))
 
 

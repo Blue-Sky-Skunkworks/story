@@ -98,9 +98,10 @@
       (when-let (els (imports module))
         (appending
          (iter (for el in els)
-           (collect (format nil "~(~A~)/~A.html" (or (extends module) name) el)))
+           (collect (format nil "~(~A~)/~A.html" (or (extends module) name) (carr el))))
          into rtn)))
-    (finally (return (append rtn (mapcar (lambda (el) (format nil "imports/~A.html" el)) (slot-value story 'imports)))))))
+    (finally (return (append rtn (mapcar (lambda (el) (format nil "~A.html" (carr el)))
+                                         (slot-value story 'imports)))))))
 
 (defmethod suffixes ((story story))
   (iter

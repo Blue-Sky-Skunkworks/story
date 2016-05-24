@@ -37,8 +37,12 @@ matches NAME."
   (hunchentoot:start *web-acceptor*))
 
 (defvar *imports*)
+(defvar *import-fns*)
 
 (defun load-imports (files)
+  (iter (for (local path) in files)
+    (when (symbolp local)
+      (setf (gethash path *import-fns*) local)))
   (setf *imports* (append *imports* files)))
 
 (defvar *all-imports*)
@@ -58,9 +62,15 @@ matches NAME."
 (defun collect-imports (file stream)
   "Removes comments and flattents HTML <link rel='import' ...> tags."
   (when *debug-importing* (format stream "<!-- Importing ~A -->~%" file))
-  (when *current-imports* (setf (gethash (pathname-name file) *current-imports*) t))
+  (when *current-imports* (setf (gethash
+                                 (etypecase file
+                                   (symbol file)
+                                   (string (pathname-name file)))
+                                 *current-imports*) t))
   (let ((index 0)
-        (text (slurp-file file)))
+        (text (etypecase file
+                (symbol (funcall file))
+                (string (slurp-file file)))))
     ;; Note that the following regex has only been fleshed out enough
     ;; to work with polymer. This is not guaranteed to work with all
     ;; html. For that a true HTML parse and re-emit may be needed.
@@ -80,13 +90,14 @@ matches NAME."
 (defun collect-all-imports (files)
   (let ((*current-imports* (make-hash-table :test 'equal)))
     (with-output-to-string (stream)
-      (iter (for el in files)
-            (let ((file (if (consp el) (car el) el))
-                  (fix (and (consp el) (cdr el))))
-              (unless (gethash (pathname-name file) *current-imports*)
-                (if fix
-                    (funcall fix (with-output-to-string (fix-stream) (collect-imports file fix-stream)) stream)
-                    (collect-imports file stream))))))))
+      (iter (for (file local &optional fix) in files)
+        (unless (gethash (etypecase file
+                           (symbol file)
+                           (string (pathname-name file)))
+                         *current-imports*)
+          (if fix
+              (funcall fix (with-output-to-string (fix-stream) (collect-imports file fix-stream)) stream)
+              (collect-imports file stream)))))))
 
 (defvar *css*)
 
@@ -209,26 +220,30 @@ matches NAME."
        (setf (content-type*) "text/html")
        (return-from acceptor-dispatch-request *all-imports*))
       (t
-       (if-let (css (gethash request-path *css*))
+       (if-let (import-fn (gethash request-path *import-fns*))
          (progn
-           (setf (content-type*) "text/css")
-           (return-from acceptor-dispatch-request
-             (etypecase css
-               (symbol (funcall css))
-               (string css))))
-         (iter (for (path file) in-hashtable *scripts*)
-               (let ((mismatch (mismatch request-path path :test #'char=)))
-                 (when (null mismatch)
-                   (return-from acceptor-dispatch-request
-                     (cond
-                       ((stringp file)
-                        (setf (content-type*) "text/javascript")
-                        file)
-                       ((pathnamep file)
-                        (handle-static-file file))
-                       (t
-                        (setf (content-type*) "text/javascript")
-                        (funcall file))))))))
+           (setf (content-type*) "text/html")
+           (return-from acceptor-dispatch-request (funcall import-fn)))
+         (if-let (css (gethash request-path *css*))
+           (progn
+             (setf (content-type*) "text/css")
+             (return-from acceptor-dispatch-request
+               (etypecase css
+                 (symbol (funcall css))
+                 (string css))))
+           (iter (for (path file) in-hashtable *scripts*)
+             (let ((mismatch (mismatch request-path path :test #'char=)))
+               (when (null mismatch)
+                 (return-from acceptor-dispatch-request
+                   (cond
+                     ((stringp file)
+                      (setf (content-type*) "text/javascript")
+                      file)
+                     ((pathnamep file)
+                      (handle-static-file file))
+                     (t
+                      (setf (content-type*) "text/javascript")
+                      (funcall file)))))))))
        (iter (for (prefix dir) in-hashtable *directories*)
              (let ((mismatch (mismatch request-path prefix :test #'char=)))
                (when (or (null mismatch) (>= mismatch (length prefix)))
@@ -262,6 +277,7 @@ matches NAME."
         *directories* (make-hash-table :test 'equal)
         *files* (make-hash-table :test 'equal)
         *scripts* (make-hash-table :test 'equal)
+        *import-fns* (make-hash-table :test 'equal)
         *imports* nil
         *all-imports* ""
         *module-dispatches* nil)

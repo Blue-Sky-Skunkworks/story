@@ -176,3 +176,9 @@
                   (cons list acc))))))
     (when list (rec list nil))))
 
+(defmacro carr (el)
+  (let ((var (gensym)))
+    `(let ((,var ,el))
+       (if (consp ,var)
+           (car ,var)
+           ,var))))

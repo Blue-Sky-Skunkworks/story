@@ -124,4 +124,9 @@ and what did they produce?  The cuckoo-clock.
 ** TODO tree -C for color ansii art trees of the project
 ** TODO add background video
    http://rishabhp.github.io/bideo.js/
+** TODO embed a JS engine
+   https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/How_to_embed_the_JavaScript_engine
+   https://github.com/v8/v8/wiki/Getting-Started-with-Embedding
 ** TODO stylesheets
+** TODO HSL colors
+   [[file:~/documents/www.w3.org/TR/css3-color.html][CSS Color Module Level 3]]

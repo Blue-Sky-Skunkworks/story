@@ -90,7 +90,7 @@ matches NAME."
 (defun collect-all-imports (files)
   (let ((*current-imports* (make-hash-table :test 'equal)))
     (with-output-to-string (stream)
-      (iter (for (file local &optional fix) in files)
+      (iter (for (file local fix) in files)
         (unless (gethash (etypecase file
                            (symbol file)
                            (string (pathname-name file)))

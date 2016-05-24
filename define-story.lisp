@@ -44,12 +44,12 @@
   "Describe the story or stories."
   (macrolet ((field (name)
                `(when-let (vals (,name story))
-                  (format t "    ~(~A~): ~A~%"
+                  (format t "~&    ~(~A~): ~A"
                           ',name (format-describe-line ,(+ 6 (length (symbol-name name))) vals)))))
     (iter (for (name story) in-hashtable *stories*)
       (for index from 1)
       (when (or all (eq story *story*))
-        (format t "~A.~A ~S~%~%" index (if (eq story *story*) "*" " ") story)
+        (format t "~&~A. ~A~%" index (if (eq story *story*) (blue name :effect :bright) name))
         (field modules)
         (field imports)
         (field stylesheets)

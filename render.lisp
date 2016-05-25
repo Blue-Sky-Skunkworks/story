@@ -40,7 +40,7 @@
       (:html
         (when (header story) (funcall (header story) stream))
         (:head
-         (fmt "~%<!-- ~A ~A ~A -->~%" (name (parent page)) (git-latest-commit) (format-timestring nil (now)))
+         (fmt "~%<!-- ~A ~A ~C ~A -->~%" (name (parent page)) (git-latest-commit) (clock-face) (format-timestring nil (now)))
          (when title (htm (:title (esc title))))
          (cond
            (*production*

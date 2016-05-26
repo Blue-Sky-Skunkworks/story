@@ -88,9 +88,6 @@
 
 (in-package :story-js)
 
-(defpsmacro create-element (node-type)
-  `((@ document create-element) ,node-type))
-
 (define-script iron-request
   (defun request (url response-handler &optional (error-handler default-request-error-handler))
     (let* ((req (create-element "iron-request"))

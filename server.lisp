@@ -203,7 +203,7 @@ matches NAME."
 
 (defvar *module-dispatches*)
 
-(defun load-module-dispatches (dispatches)
+(defun load-dispatches (dispatches)
   (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatch dispatches))))
 
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)

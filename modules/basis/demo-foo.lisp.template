@@ -1,4 +1,4 @@
 (in-package :story)
 
-(define-demo FOO (:FOO))
+(define-demo FOO ((:FOO)))
 

@@ -13,7 +13,7 @@
                  (concatenate 'string (subseq line (aref rs 2) (- (aref rs 3) 2))
                               (subseq line (aref re 3) (aref re 2)))))))))
 
-(define-demo timeline (:vis)
+(define-demo timeline ((:vis))
   (:div :id "id")
   (script*
     `(new ((@ vis *timeline)

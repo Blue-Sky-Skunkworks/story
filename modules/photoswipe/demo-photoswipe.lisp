@@ -1,6 +1,6 @@
 (in-package :story)
 
-(define-demo photoswipe (:photoswipe :sample-images)
+(define-demo photoswipe ((:photoswipe :sample-images))
   (:style (str ".pswp__bg {background:white;}"))
   (:button :onclick "showPhotoswipeDemo();" "Again")
   (script*

@@ -1,4 +1,4 @@
 (in-package :story)
 
-(define-demo wiki (:wiki))
+(define-demo wiki ((:wiki)))
 

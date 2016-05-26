@@ -1,6 +1,6 @@
 (in-package :story)
 
-(define-demo page (:page)
+(define-demo page ((:page))
   (:div :id "id" "home")
   (:br)
   (:button :onclick "page(\"/\")\;" "home") " "

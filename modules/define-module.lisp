@@ -45,7 +45,7 @@
          ,@(when scripts `((load-scripts ',(localize-scripts base (format nil "/~(~A~)/" mname) scripts))))
          ,@(when directories `((load-directories ',(localize-directories base directories))))
          ,@(when imports `((load-imports ',(localize-imports base imports production-import-fix))))
-         ,@(when dispatches `((load-module-dispatches ',dispatches)))
+         ,@(when dispatches `((load-dispatches ',dispatches)))
          ,@(when files `((load-files ',(localize-files base files))))
          ,@init
          (values)))))

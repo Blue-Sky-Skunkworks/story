@@ -10,5 +10,5 @@
   :serial t
   :depends-on ("story-modules")
   :components ((:static-file "story-module-wiki.asd")
+               (:file "wiki")
                (:file "demo-wiki")))
-               (:file "wiki")))

@@ -1,6 +1,6 @@
 (in-package :story)
 
-(define-demo roboto (:roboto)
+(define-demo roboto ((:roboto))
   (describe-font-folder (story-modules-file "roboto/fonts/") stream))
 
 (defun font-information (filename)

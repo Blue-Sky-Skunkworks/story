@@ -22,8 +22,8 @@
           (rest (subseq raw (1+ pos))))
     `(progn
        (define-story-module ,name
-           :extends :polymer
-           :imports (,(format nil "~(~A/~A~)" name name)))
+         :extends :polymer
+         :imports (,(format nil "~(~A/~A~)" name name)))
        ,@(when helpers `((define-polymer-macros ,(symb module) ,(symb rest)))))))
 
 (define-polymer-module iron-meta)
@@ -39,8 +39,10 @@
 (define-iron-icons communication device editor hardware image maps notification places social)
 
 (define-polymer-module iron-icon)
-
 (define-polymer-module iron-pages)
+
+(define-story-module iron-request :extends :polymer :imports ("iron-ajax/iron-request"))
+
 (define-polymer-module paper-button)
 (define-polymer-module paper-icon-button)
 (define-polymer-module paper-material)

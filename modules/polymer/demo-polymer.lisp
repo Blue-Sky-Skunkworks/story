@@ -25,13 +25,11 @@
     (:div "Iron Pages does not work!!")
     (:div "Iron Pages works!")))
 
-(define-demo iron-request ((:iron-request))
-    (:div :style "cursor:pointer;" :onclick (ps (test-iron-request)) "Testme")
-  (script
-    (defun test-iron-request ()
-      (request "/test-iron-request" handle-test-iron-request))
-    (defun handle-test-iron-request (val)
-      (console "Hitme!" val))))
+(define-demo iron-request ((:iron-request) :dispatches ((:prefix "/test-iron-request" handle-test-iron-request)))
+  (:div :id "id" "Original Value")
+  (script (request "/test-iron-request" (lambda (val) (set-html "id" (@ val response))))))
+
+(defun handle-test-iron-request (&rest args) "Iron Request works!")
 
 (define-demo paper-button ((:paper-button))
   (button :style "background:blue;color:white;" "Paper Buttons work!"))

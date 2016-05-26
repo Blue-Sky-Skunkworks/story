@@ -88,16 +88,6 @@
            (format nil "/~A" to)
            (second (multiple-value-list (magic (pathname path)))))))))
 
-  (iter (for el in stylesheets)
-    (destructuring-bind (css &optional fn) (ensure-list el)
-      (collect
-          (list
-           (if fn
-               (intern (symbol-name fn) :story-css)
-               (format nil "~A~A" base css))
-           (format nil "/~A" (ensure-css-extension css))))))
-
-
 (defun localize-imports (base imports &optional fix)
   (iter (for el in imports)
     (destructuring-bind (name &optional fn) (ensure-list el)

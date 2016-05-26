@@ -37,9 +37,6 @@
 (defun git-list-files ()
   (git '("ls-files")))
 
-(defun git-list-files ()
-  (git '("ls-files")))
-
 (defun git-list-config ()
   (git '("config" "--list")))
 

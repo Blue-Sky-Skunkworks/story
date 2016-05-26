@@ -41,7 +41,9 @@
 (define-polymer-module iron-icon)
 (define-polymer-module iron-pages)
 
-(define-story-module iron-request :extends :polymer :imports ("iron-ajax/iron-request"))
+(define-story-module iron-request :extends :polymer
+  :imports ("iron-ajax/iron-request")
+  :scripts (("iron-request.js" iron-request)))
 
 (define-polymer-module paper-button)
 (define-polymer-module paper-icon-button)
@@ -82,3 +84,18 @@
 (defmacro google-map (&body body) `(html (:google-map ,@body)))
 (defmacro map-marker (&body body) `(html (:google-map-marker ,@body)))
 (export '(google-map map-marker))
+
+
+(in-package :story-js)
+
+(defpsmacro create-element (node-type)
+  `((@ document create-element) ,node-type))
+
+(define-script iron-request
+  (defun request (url response-handler &optional (error-handler default-request-error-handler))
+    (let* ((req (create-element "iron-request"))
+           (promise ((@ req send) (create :url url))))
+      ((@ promise then) response-handler error-handler)))
+
+  (defun default-request-error-handler (val)
+    (console "error in request" val)))

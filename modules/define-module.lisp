@@ -12,17 +12,20 @@
 
 (defun modules-and-parents (modules)
   (remove-duplicates
-   (iter (for module in modules)
-         (when-let (extends (extends (find-module module)))
-           (collect extends))
-         (collect module))
+   (iter (for name in modules)
+     (let ((module (find-module name)))
+       (when-let (extends (extends module))
+         (unioning (modules-and-parents (list extends))))
+       (when-let (depends-on (depends-on module))
+         (unioning (modules-and-parents (ensure-list depends-on)))))
+     (collect name))
    :from-end t))
 
 (defmacro when-module (name &body body)
   `(when (member ,name *story-modules*) ,@body))
 
 (defmacro define-story-module (name &key init script-init stylesheets directories scripts
-                                      imports production-import-fix
+                                      imports production-import-fix depends-on
                                       extends dispatches suffixes prefixes files)
   (let* ((kname (ksymb (string-upcase name)))
          (mname (or extends name))
@@ -34,9 +37,10 @@
                                     :imports ',imports :production-import-fix ',production-import-fix
                                     :extends ,extends :dispatches ',dispatches
                                     :suffixes ',suffixes :prefixes ',prefixes :files ',files
-                                    :script-init ',script-init))
+                                    :script-init ',script-init :depends-on ',depends-on))
        (defun ,(symb 'stage-story-module- name) ()
          ,@(when extends `((,(symb 'stage-story-module- extends))))
+         ,@(when depends-on (iter (for el in (ensure-list depends-on)) (collect `(,(symb 'stage-story-module- el)))))
          ,@(when stylesheets `((load-stylesheets ',(localize-stylesheets base stylesheets))))
          ,@(when scripts `((load-scripts ',(localize-scripts base (format nil "/~(~A~)/" mname) scripts))))
          ,@(when directories `((load-directories ',(localize-directories base directories))))

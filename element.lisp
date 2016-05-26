@@ -27,6 +27,7 @@
    (imports :reader imports :initarg :imports)
    (production-import-fix :reader production-import-fix :initarg :production-import-fix)
    (extends :reader extends :initarg :extends)
+   (depends-on :reader depends-on :initarg :depends-on)
    (dispatches :reader dispatches :initarg :dispatches)
    (files :reader files :initarg :files)
    (suffixes :reader suffixes :initarg :suffixes)

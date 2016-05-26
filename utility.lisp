@@ -153,3 +153,39 @@
        (if (consp ,var)
            (car ,var)
            ,var))))
+
+(defun render-tree (stream fn tree)
+  (labels ((recur (el level)
+             (funcall fn stream level (car el))
+             (iter (for child in (cdr el))
+                   (recur child (1+ level)))))
+    (recur tree 0)))
+
+(defun first-char-p (char string)
+  (char= (char string 0) char))
+
+(let (original-eval-region)
+  (defun naked-eval-region (string)
+    (if (and (plusp (length string)) (first-char-p #\( string))
+      (funcall original-eval-region string)
+      (let ((first-word
+              (if-let (pos (position #\space string))
+                (subseq string 0 pos)
+                (string-right-trim '(#\newline) string))))
+        (if (fboundp (find-symbol (string-upcase first-word)))
+          (funcall original-eval-region (format nil "(~A)" string))
+          (funcall original-eval-region string)))))
+  (defun use-naked-repl (&optional (enable t))
+    (if enable
+      (if original-eval-region
+        (format t "Already using a naked repl.~%")
+        (progn
+          (setf original-eval-region (symbol-function (find-symbol "EVAL-REGION" :swank))
+                (symbol-function (find-symbol "EVAL-REGION" :swank)) #'naked-eval-region)
+          (format t "Now using a naked repl.~%")))
+      (progn
+        (when original-eval-region
+          (setf (symbol-function (find-symbol "EVAL-REGION" :swank)) original-eval-region
+                original-eval-region nil))
+        (format t "No longer using a naked repl.~%")))
+    (values)))

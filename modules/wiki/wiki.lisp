@@ -64,15 +64,7 @@
 
 (define-script wiki
 
-  (define-story-module-parameters wiki (title url home title-id body-id page)
-    (fetch-wiki-page home))
-
-  (defun setup-wiki (title url home title-id body-id)
-    (setf *wiki-title* title
-          *wiki-url* url
-          *wiki-home* home
-          *wiki-title-id* title-id
-          *wiki-body-id* body-id)
+  (define-story-module-parameters wiki (title url (home "Home") title-id body-id page)
     (fetch-wiki-page home))
 
   (defun fetch-wiki-page (page)

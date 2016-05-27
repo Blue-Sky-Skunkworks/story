@@ -21,7 +21,10 @@
         (:button :onclick (ps (view-wiki-source)) "View Source"))
   (:div :id "wiki-body")
   (script
-    (setup-wiki "Story Sample Wiki" "/sample-wiki/" "Home" "wiki-title" "wiki-body")
+    (setup-wiki :title "Story Sample Wiki"
+                :url "/sample-wiki/"
+                :title-id "wiki-title"
+                :body-id "wiki-body")
     (page "/:page" (lambda (ctx) (fetch-wiki-page (@ ctx params page))))
     (page "/" (lambda () (page "/Home")))
     (page (create :hashbang t))))

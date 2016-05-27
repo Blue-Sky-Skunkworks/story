@@ -95,6 +95,12 @@
 (defun symb (&rest args)
   (values (intern (apply #'mkstr args))))
 
+(defun maximize-string-length (els)
+  (let ((max 0))
+    (loop for string in (mapcar #'princ-to-string els)
+          do (let ((len (length string))) (when (> len max) (setf max len))))
+    max))
+
 (defmacro/ps define-story-module-parameters (module-name names &body body)
   `(progn
      ,@(loop for name in names
@@ -103,7 +109,13 @@
        ,@(loop for el in names
                collect (let ((name (if (consp el) (car el) el)))
                          `(setf ,(symb '* module-name '- name '*) ,name)))
-       ,@body)))
+       ,@body)
+     (defun ,(symb 'describe-module- module-name) ()
+       (console ,(format nil "module: ~(~A~)" module-name))
+       ,@(let ((max (maximize-string-length names)))
+           (loop for el in names
+                 collect (let ((name (if (consp el) (car el) el)))
+                           `(console ,(format nil (format nil "  ~~(~~~AA~~)" (+ max 2)) name) ,(symb '* module-name '- name '*))))))))
 
 (defparameter *js-file*
   (concatenate

@@ -1,9 +1,10 @@
 (in-package :story)
 
 (defparameter *web-port* 3300)
-(defvar *web-acceptor* nil)
+(defvar *server* nil)
 
-(defclass web-acceptor (hunchentoot:acceptor) ())
+(defclass server (hunchentoot:acceptor)
+  ((css :reader css)))
 
 (defun create-exact-dispatcher (name handler)
   "Creates a request dispatch function which will dispatch to the
@@ -29,17 +30,17 @@ matches NAME."
       dispatch))
 
 (defun start-server ()
-  (when *web-acceptor*
+  (when *server*
     (warn "Server already started. Restarting")
-    (hunchentoot:stop *web-acceptor*))
+    (hunchentoot:stop *server*))
   (note "starting story server on port ~S" *web-port*)
   (reset-server)
-  (setf *web-acceptor*
-        (make-instance 'web-acceptor
+  (setf *server*
+        (make-instance 'server
                        :port *web-port*
                        :access-log-destination sb-sys:*stdout*
                        :message-log-destination sb-sys:*stdout*))
-  (hunchentoot:start *web-acceptor*))
+  (hunchentoot:start *server*))
 
 (defvar *imports*)
 (defvar *import-fns*)
@@ -212,7 +213,7 @@ matches NAME."
   (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatch dispatches))))
 
 ;;; serve-all
-(defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)
+(defmethod hunchentoot:acceptor-dispatch-request ((acceptor server) request)
   (iter (for dispatcher in *module-dispatches*)
     (when-let (action (funcall dispatcher *request*))
       (when-let (rtn (funcall action))
@@ -275,7 +276,7 @@ matches NAME."
 
 (defun server ()
   "Describe the server."
-  (let ((server *web-acceptor*))
+  (let ((server *server*))
     (print-heading "story server")
     (format t "port ~S~@[ address ~A~]~%" (acceptor-port server) (acceptor-address server))
     (format t "~%css:~%")

@@ -32,7 +32,7 @@
   (values (parse-integer (first (git `("cat-file" "-s" ,id))))))
 
 (defun git-object-contents (id)
-  (git `("cat-file" ,id)))
+  (git `("cat-file" ,(git-object-type id),id)))
 
 (defun git-list-files ()
   (git '("ls-files")))

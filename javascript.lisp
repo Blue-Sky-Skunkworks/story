@@ -88,6 +88,23 @@
            (console *trace-level* ,sname "returned" rtn)
            (return rtn))))))
 
+(defun mkstr (&rest args)
+  (with-output-to-string (s)
+    (dolist (a args) (when a (princ a s)))))
+
+(defun symb (&rest args)
+  (values (intern (apply #'mkstr args))))
+
+(defmacro/ps define-story-module-parameters (module-name names &body body)
+  `(progn
+     ,@(loop for name in names
+             collect `(defvar ,(symb '* module-name '- (if (consp name) (car name) name) '*)))
+     (defun ,(symb 'setup- module-name) (&key ,@names)
+       ,@(loop for el in names
+               collect (let ((name (if (consp el) (car el) el)))
+                         `(setf ,(symb '* module-name '- name '*) ,name)))
+       ,@body)))
+
 (defparameter *js-file*
   (concatenate
    'string

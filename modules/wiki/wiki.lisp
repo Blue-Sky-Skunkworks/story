@@ -63,14 +63,11 @@
 (in-package :story-js)
 
 (define-script wiki
-  (defvar *wiki-url*)
-  (defvar *wiki-home*)
-  (defvar *wiki-page*)
-  (defvar *wiki-title*)
-  (defvar *wiki-title-id*)
-  (defvar *wiki-body-id*)
 
-  (defun-trace setup-wiki (title url home title-id body-id)
+  (define-story-module-parameters wiki (title url home title-id body-id page)
+    (fetch-wiki-page home))
+
+  (defun setup-wiki (title url home title-id body-id)
     (setf *wiki-title* title
           *wiki-url* url
           *wiki-home* home
@@ -78,14 +75,14 @@
           *wiki-body-id* body-id)
     (fetch-wiki-page home))
 
-  (defun-trace fetch-wiki-page (page)
+  (defun fetch-wiki-page (page)
     (request (+ *wiki-url* "/" page ".md") handle-wiki-response)
     (setf *wiki-page* page)
     (let ((text (+ *wiki-title* " — " ((@ page replace) (regex "/-/g") " "))))
       (setf (@ document title) text)
       (set-html (id *wiki-title-id*) text)))
 
-  (defun-trace handle-wiki-response (val)
+  (defun handle-wiki-response (val)
     (set-html (id *wiki-body-id*) (marked (@ val response))))
 
   (defun select-ilink (ilink)

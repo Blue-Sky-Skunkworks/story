@@ -64,7 +64,10 @@
     (for name in (modules-and-parents (modules story)))
     (let ((module (find-module name)))
       (when-let (els (stylesheets module))
-        (appending els into rtn)))
+        (appending
+         (iter (for el in els)
+           (collect (if (consp el) (car el) el)))
+         into rtn)))
     (finally (return (append rtn (mapcar #L(if (consp %) (car %) %) (slot-value story 'stylesheets)))))))
 
 (defmethod scripts ((story story))
@@ -85,7 +88,8 @@
                                   (if (null (pathname-type script))
                                       (format nil "~A.js" script)
                                       script)))))
-               (collect path))) into rtn)))
+               (collect path)))
+           into rtn)))
       (finally (return
                  (append
                   (if include-js (cons "js.js" rtn) rtn)

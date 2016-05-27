@@ -13,13 +13,18 @@ matches NAME."
     (and (equal name (script-name request))
          handler)))
 
+(defun string-or-val (el)
+  (etypecase el
+    (string el)
+    (symbol (symbol-value el))))
+
 (defun format-dispatch (dispatch)
   (if (consp dispatch)
       (ecase (first dispatch)
         (:prefix (hunchentoot:create-prefix-dispatcher (second dispatch) (third dispatch)))
         (:exact (create-exact-dispatcher (second dispatch) (third dispatch)))
         (:regex (hunchentoot:create-regex-dispatcher (second dispatch) (third dispatch)))
-        (:folder (hunchentoot:create-folder-dispatcher-and-handler (second dispatch) (third dispatch)))
+        (:folder (hunchentoot:create-folder-dispatcher-and-handler (second dispatch) (string-or-val (third dispatch))))
         (:static (hunchentoot:create-static-file-dispatcher-and-handler (second dispatch) (third dispatch) (fourth dispatch))))
       dispatch))
 
@@ -206,53 +211,67 @@ matches NAME."
 (defun load-dispatches (dispatches)
   (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatch dispatches))))
 
+;;; serve-all
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor web-acceptor) request)
   (iter (for dispatcher in *module-dispatches*)
-        (when-let (action (funcall dispatcher *request*))
-          (when-let (rtn (funcall action))
-            (return-from acceptor-dispatch-request rtn))))
-  (let ((request-path (script-name*)) served)
-    (cond
-      ((string= request-path "/")
+    (when-let (action (funcall dispatcher *request*))
+      (when-let (rtn (funcall action))
+        (return-from acceptor-dispatch-request rtn))))
+  (let ((query (script-name*)))
+    (acond
+
+      ((string= query "/")              ; root
+
        (setf (content-type*) "text/html")
        (render-current-story))
-      ((and *production* (string= request-path "/all.html"))
+
+
+      ((and *production* (string= query "/all.html")) ; all html imports
+
+
        (setf (content-type*) "text/html")
-       (return-from acceptor-dispatch-request *all-imports*))
-      (t
-       (if-let (import-fn (gethash request-path *import-fns*))
-         (progn
-           (setf (content-type*) "text/html")
-           (return-from acceptor-dispatch-request (funcall import-fn)))
-         (if-let (css (gethash request-path *css*))
-           (progn
-             (setf (content-type*) "text/css")
-             (return-from acceptor-dispatch-request
-               (etypecase css
-                 (symbol (funcall css))
-                 (string css))))
-           (iter (for (path file) in-hashtable *scripts*)
-             (let ((mismatch (mismatch request-path path :test #'char=)))
-               (when (null mismatch)
-                 (return-from acceptor-dispatch-request
-                   (cond
-                     ((stringp file)
-                      (setf (content-type*) "text/javascript")
-                      file)
-                     ((pathnamep file)
-                      (handle-static-file file))
-                     (t
-                      (setf (content-type*) "text/javascript")
-                      (funcall file)))))))))
-       (iter (for (prefix dir) in-hashtable *directories*)
-             (let ((mismatch (mismatch request-path prefix :test #'char=)))
-               (when (or (null mismatch) (>= mismatch (length prefix)))
-                 (handle-static-file (concatenate 'string dir (subseq request-path (length prefix)))))))
-       (iter (for (prefix (file . content-type)) in-hashtable *files*)
-         (when (string= prefix request-path)
-           (handle-static-file file content-type))
-         (finally (setf (return-code *reply*) +http-not-found+)
-                  (abort-request-handler)))))))
+       *all-imports*)
+
+
+      ((gethash query *import-fns*)     ; import functions
+
+       (setf (content-type*) "text/html")
+       (funcall it))
+
+
+
+      ((gethash query *css*)            ; stylesheets
+
+       (setf (content-type*) "text/css")
+       (etypecase it
+         (symbol (funcall it))
+         (string it)))
+
+
+      ((iter (for (path file) in-hashtable *scripts*) ; javascript
+         (when (null (mismatch query path :test #'char=)) (return file)))
+
+       (etypecase it
+         (string (setf (content-type*) "text/javascript") it)
+         (pathname (handle-static-file it))
+         (symbol (setf (content-type*) "text/javascript") (funcall it))))
+
+
+      ((iter (for (prefix dir) in-hashtable *directories*) ; directories
+         (let ((mismatch (mismatch query prefix :test #'char=)))
+           (when (or (null mismatch) (>= mismatch (length prefix)))
+             (handle-static-file (concatenate 'string dir (subseq query (length prefix))))))))
+
+
+      ((iter (for (prefix (file . content-type)) in-hashtable *files*) ; files
+         (when (string= prefix query)
+           (handle-static-file file content-type))))
+
+
+      (t                                ; not found
+
+       (setf (return-code *reply*) +http-not-found+)
+       (abort-request-handler)))))
 
 (defun server ()
   "Describe the server."

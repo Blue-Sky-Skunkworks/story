@@ -8,7 +8,7 @@
   :author "unknown"
   :license "unknown"
   :serial t
-  :depends-on ("story-modules")
+  :depends-on ("story-modules" "story-module-polymer")
   :components ((:static-file "story-module-wiki.asd")
                (:file "wiki")
                (:file "demo-wiki")))

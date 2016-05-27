@@ -8,7 +8,7 @@
 
 (defparameter *emoji-include-regional-indicator-range* nil)
 
-(defun normalize-unicode-name (name) (substitute #\- #\_ (string-downcase name))))
+(defun normalize-unicode-name (name) (substitute #\- #\_ (string-downcase name)))
 (defun normalize-unicode-code (code) (normalize-unicode-name (subseq (prin1-to-string (code-char code)) 2)))
 
 (defun emoji-code (name)
@@ -40,6 +40,8 @@
 (defun setup-emoji-aliases ()
   (iter (for (name char) in *emoji-aliases*)
     (setf (gethash name *emoji*) (char-code char))))
+
+(load-emoji)
 
 (defun list-emoji-codes ()
   (sort (iter (for (k v) in-hashtable *emoji*) (collect v)) '<))

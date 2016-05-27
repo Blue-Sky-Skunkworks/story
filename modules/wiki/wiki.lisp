@@ -108,4 +108,6 @@
 
 (in-package :story-css)
 
-(defun wiki-css () "a.ilink {cursor:pointer;color:blue;}")
+(defun wiki-css ()
+  (css
+   '(("a.ilink" :cursor pointer :color blue))))

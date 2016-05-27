@@ -14,7 +14,7 @@
       ((scan (ppcre:create-scanner "chrome" :case-insensitive-mode t) agent) "chrome")
       (t  addr))))
 
-(defmethod hunchentoot:acceptor-log-access ((acceptor web-acceptor) &key return-code)
+(defmethod hunchentoot:acceptor-log-access ((acceptor server) &key return-code)
   (note "~A ~:[ ~@[ (~A)~]~;~:*~A~@[ (~A)~]~]~:[~;~: *~A~] ~A ~A ~16A ~A  ~A  ~A"
         (cyan "A" :effect :bright)
         (short-remote-addr)
@@ -55,7 +55,7 @@
       (subseq raw 0 pos)
       raw)))
 
-(defmethod acceptor-log-message ((acceptor web-acceptor) log-level format-string &rest format-arguments)
+(defmethod acceptor-log-message ((acceptor server) log-level format-string &rest format-arguments)
   (handler-case
       (note "~@[~A~] ~A~%"
             (and log-level

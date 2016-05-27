@@ -15,6 +15,7 @@
                (:file "define-story")
                (:file "render")
                (:file "server")
+               (:file "status-messages")
                (:file "publish")
                (:file "logging")
                (:file "bower")

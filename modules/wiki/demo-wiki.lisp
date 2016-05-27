@@ -2,15 +2,6 @@
 
 (defparameter *sample-wiki-directory* (story-modules-file "wiki/sample-wiki/"))
 
-
-    ;; (toolbar :class "wiki-controls"
-    ;;          (:span :class "title")
-    ;;          (icon-button :id "wiki-view-toggle" :icon "list" :onclick "toggleWikiView();")
-    ;;          (icon-button :icon "cloud" :onclick "viewWikiSource();")
-    ;;          (icon-button :icon "editor:mode-edit" :onclick "editWiki();")
-    ;;          (icon-button :icon "refresh" :onclick "refreshWiki();"))
-
-
 (define-demo wiki ((:wiki) :dispatches ((:folder "/sample-wiki/" *sample-wiki-directory*)))
   (:div :id "wiki-title")
   (:br)
@@ -20,6 +11,8 @@
         ;; (:button :onclick (ps (edit-wiki)) "Edit") " "
         ;; (:button :onclick (ps (view-wiki-source)) "View Source")
         )
+  (:br)
+  (:div :id "wiki-tree" (render-wiki-tree stream))
   (:div :id "wiki-body")
   (script
     (setup-wiki :title "Story Sample Wiki"

@@ -54,11 +54,17 @@
       (let ((missing (equal (char name 0) #\*)))
         (when missing (setf name (subseq name 2)))
         (html
-          (:div
-           :class (when missing "wiki-missing")
+          (:a
+           :class (concatenate 'string "ilink" (when missing " wiki-missing"))
            :onclick (format nil "selectIlink(\"~A\");" name)
            (:span :style (format nil "display:inline-block;width:~Apx;" (* (max 0 (1- level)) 20)))
-           (esc name))))))
+           (esc name))
+          (:br)))))
+
+;; (render-tree t (lambda (stream level name) (format stream "~A: ~A~%" level name)) (build-wiki-tree))
+
+(defun render-wiki-tree (stream)
+  (render-tree stream 'render-wiki-tree-row (build-wiki-tree)))
 
 (in-package :story-js)
 

@@ -26,6 +26,9 @@
 (defpsmacro set-html (el html)
   `(setf (slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) ,html))
 
+(defpsmacro inner-html (el)
+  `(slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l))
+
 (defpsmacro remove-node (el)
   `((@ ,el parent-node remove-child) ,el))
 

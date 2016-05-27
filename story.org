@@ -130,3 +130,4 @@ and what did they produce?  The cuckoo-clock.
 ** TODO stylesheets
 ** TODO HSL colors
    [[file:~/documents/www.w3.org/TR/css3-color.html][CSS Color Module Level 3]]
+** use docdiff to show wiki diffs

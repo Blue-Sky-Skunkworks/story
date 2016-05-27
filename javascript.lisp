@@ -104,6 +104,9 @@
           ((@ document add-event-listener) "WebComponentsReady"
            (lambda () (funcall fn))))
 
+        (defun visit-url (url)
+          ((@ window open) url "_blank"))
+
         (defun id (id &optional (error t))
           (let ((hit ((@ document get-element-by-id) id)))
             (if hit

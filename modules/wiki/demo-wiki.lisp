@@ -17,8 +17,9 @@
   (:div :id "wiki-controls"
         (:button :onclick (ps (view-wiki-home)) "Home") " "
         (:button :onclick (ps (reload-wiki)) "Reload") " "
-        (:button :onclick (ps (edit-wiki)) "Edit") " "
-        (:button :onclick (ps (view-wiki-source)) "View Source"))
+        ;; (:button :onclick (ps (edit-wiki)) "Edit") " "
+        ;; (:button :onclick (ps (view-wiki-source)) "View Source")
+        )
   (:div :id "wiki-body")
   (script
     (setup-wiki :title "Story Sample Wiki"

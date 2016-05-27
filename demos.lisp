@@ -10,5 +10,6 @@
         (:h1 :style "font-family:sans-serif;" ,title)
         ,@body))))
 
-(define-demo trivial ())
+;; (define-demo trivial ())
+
 

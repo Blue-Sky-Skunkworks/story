@@ -96,3 +96,29 @@
 
   (defun default-request-error-handler (val)
     (console "error in request" val)))
+
+(in-package :story-css)
+
+(defmacro var (name)
+  (format nil "var(~(~A~))" name))
+
+;; red pink purple deep-purple indigo blue light-blue cyan teal green
+;; light-green lime yellow amber orange deep-orange brown grey blue-grey
+
+(defparameter *polymer-color-indexes* '(50 100 200 300 400 500 600 700 800 900))
+(defparameter *polymer-saturated-color-indexes* '(100 200 400 700))
+
+(defun %color (name number &optional saturated)
+  (unless (member number *polymer-color-indexes*)
+    (error "Unvalid color index ~A." number))
+  (when (and saturated (not  (member number *polymer-saturated-color-indexes*)))
+    (error "Unvalid saturated color index ~A." number))
+  (assert (or (null saturated) (member number '(100 200 400 700))))
+  (format nil "var(--paper-~(~A~)-~@[~A~]~A)" name (and saturated "a") number))
+
+(defmacro color (name number &optional saturated)
+  (%color name number saturated))
+
+(defmacro app (what)
+  (format nil "{ @apply(~(~A~)); }" what))
+

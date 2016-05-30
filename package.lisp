@@ -15,8 +15,12 @@
   (:import-from anaphora aand acond it)
   (:import-from alexandria with-output-to-file when-let if-let with-input-from-file assoc-value with-gensyms ensure-list once-only)
   (:import-from uiop directory-files subdirectories directory-exists-p hostname delete-directory-tree)
-  (:export initialize-story define-story story server toggle-production html *deploy-changed-stories* *story*
-           script script* starts-with-char
-           parenscript ps ps* @ new create vertical-break comment
-           image publish))
+  (:export
+   *story* *deploy-changed-stories* initialize-story define-story story
+   server toggle-production
+   html script script*
+   vertical-break comment image
+   parenscript ps ps* @ new create
+   note starts-with-char use-naked-repl
+   publish))
 

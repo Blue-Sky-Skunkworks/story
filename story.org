@@ -131,3 +131,25 @@ and what did they produce?  The cuckoo-clock.
 ** TODO HSL colors
    [[file:~/documents/www.w3.org/TR/css3-color.html][CSS Color Module Level 3]]
 ** use docdiff to show wiki diffs
+** TODO research matrix
+   https://matrix.org/
+
+Matrix is an open standard for decentralised communication, providing
+simple HTTP APIs and open source reference implementations for
+securely distributing and persisting JSON over an open federation of
+servers.
+
+You can use Matrix for…
+
+Decentralised Group Chat
+
+Fully distributed persistent chatrooms with no single points of
+control or failure
+
+WebRTC Signalling
+
+Web-friendly signalling transport for interoperable VoIP and video calling
+
+Internet of Things
+
+Exchanging and persisting data between devices and services

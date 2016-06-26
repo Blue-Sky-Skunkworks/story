@@ -42,7 +42,8 @@
   (unless (zerop (magic-load *magic-cookie* (null-pointer)))
     (error "magic-load failure."))
   (unless (zerop (magic-load *magic-mime-cookie* (null-pointer)))
-    (error "magic-load failure.")))
+    (error "magic-load failure."))
+  (note "magic initialized"))
 
 (defun $magic-buffer (cookie buffer)
   (cffi:with-pointer-to-vector-data (buf buffer)
@@ -60,5 +61,3 @@
   (typecase el
     (pathname (magic-file (namestring el)))
     (vector (magic-buffer el))))
-
-(initialize-magic)

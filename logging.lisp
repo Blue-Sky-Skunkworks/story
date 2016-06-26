@@ -31,7 +31,7 @@
         (short-content-type*)
         (or (and (content-length*) (format nil "~7D" (content-length*)))
             (if (eql return-code +http-not-modified+)
-                "      "
+                "       "
                 (red "none" :effect :bright)))
         (format nil "~36A"
                 (let ((referer (referer))
@@ -50,10 +50,17 @@
                       (red (server-protocol*) :effect :bright)))))))
 
 (defun short-content-type* ()
-  (let ((raw (content-type*)))
-    (if-let ((pos (position #\; raw)))
-      (subseq raw 0 pos)
-      raw)))
+  (let ((mime (let ((raw (content-type*)))
+                (if-let ((pos (position #\; raw)))
+                  (subseq raw 0 pos)
+                  raw))))
+    (cond
+      ((string= mime "text/html") :html)
+      ((string= mime "text/css") :css)
+      ((string= mime "text/javascript") :js)
+      ((string= mime "application/octet-stream") :bytes)
+      ((string= mime "image/png") :bytes)
+      (t mime))))
 
 (defmethod acceptor-log-message ((acceptor server) log-level format-string &rest format-arguments)
   (handler-case

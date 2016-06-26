@@ -2,7 +2,7 @@
 
 (defvar *demos* nil)
 
-(defmacro define-demo (name (modules &key dispatches) &body body)
+(defmacro define-demo (name (&optional modules &key dispatches) &body body)
   (let ((title (format nil "Story Demo ~A" (string-capitalize name))))
     `(progn
        (pushnew ',name *demos*)

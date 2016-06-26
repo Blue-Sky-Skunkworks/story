@@ -9,9 +9,10 @@ __      __   _                    _____      ___ _                _
                                                              |__/
 ")
 
-(defun initialize-story ()
+(defun initialize-story (&optional quiet)
   (require 'story-modules)
-  (format t "~A~%" (blue *welcome-text* :effect :bright))
+  (unless quiet (format t "~A~%" (blue *welcome-text* :effect :bright)))
+  (initialize-magic)
   (start-server))
 
 (defun initialize ()

@@ -1,4 +1,4 @@
 
 (defpackage FOO
-  (:use common-lisp iterate))
+  (:use common-lisp story iterate))
 

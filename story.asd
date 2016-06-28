@@ -21,5 +21,6 @@
                (:file "bower")
                (:file "images")
                (:file "css")
+               (:file "new")
 	       (:file "demos")
                (:file "initialize")))

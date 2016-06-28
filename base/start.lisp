@@ -95,7 +95,7 @@
   (defun list-depends-on (system)
     (cdr (assoc 'asdf:load-op (asdf:component-depends-on 'asdf:prepare-op (asdf:find-system system)))))
 
-  (defparameter *excluded-libraries* '(:cl-ascii-art))
+  (defparameter *excluded-libraries* '(:story :story-modules :story-module-polymer :cl-ascii-art))
 
   (defun support-libraries (systems)
     (loop for system in systems
@@ -115,8 +115,9 @@
               current-library)
           (handler-case
               (dolist (m (support-libraries (cons *project* *excluded-libraries*)))
-                (unless (member m *excluded-libraries*)
+                (unless (member m *excluded-libraries* :test 'string-equal)
                   (setf current-library m)
+                  (format *original-standard-output* "~%Loading ~A " m)
                   (require m)))
             (error (c)
               (format *original-standard-output*
@@ -128,9 +129,15 @@
               (sb-ext:exit :code -1)))))))
 
   (defparameter *loaded-from-core* t)
-  (format t "~2%saving a core...~2%")
-  (ensure-directories-exist "/mnt/projects/cores/")
-  (save-lisp-and-die (format nil "/mnt/projects/cores/~(~A.core~)" *project*)))
+  (format t "~2%saving a core with ~%")
+  (loop for package in (list-all-packages)
+        for index from 1
+        do (format t "  ~(~A~)" (package-name package))
+           (when (= 0 (mod index 5)) (terpri)))
+  (terpri)
+  (let ((path (format nil "~A/.cache/common-lisp/cores/" (user-homedir-pathname))))
+    (ensure-directories-exist path)
+    (save-lisp-and-die (format nil "~A~(~A.core~)" path *project*))))
 
 (format t "PID ~A~%" (sb-unix:unix-getpid))
 

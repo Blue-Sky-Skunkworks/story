@@ -16,6 +16,7 @@
       (copy-and-replace (from "system.asd") (to asdf-name) "FOO" name)
       (copy-and-replace (from "initialize.lisp") (to "initialize.lisp") "FOO" name "Foo" (string-capitalize name))
       (copy-and-replace (from "package.lisp") (to "package.lisp") "FOO" name)
+      (copy-and-replace (from "utility.lisp") (to "utility.lisp") "FOO" name)
       (copy-and-replace (from "start") (to "start") "FOO" name)
       (copy-and-replace (from ".project") (to ".project") "FOO" name "Foo" (string-capitalize name)
                         "ICON" (prin1-to-string icon) "COLOR" color)

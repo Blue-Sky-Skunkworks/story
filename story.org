@@ -153,3 +153,5 @@ Web-friendly signalling transport for interoperable VoIP and video calling
 Internet of Things
 
 Exchanging and persisting data between devices and services
+** TODO gulp-svgstore
+   https://github.com/w0rm/gulp-svgstore

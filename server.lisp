@@ -109,6 +109,7 @@ matches NAME."
 
 (defparameter *scss-script* (cond
                               ((probe-file "/usr/bin/scss") "/usr/bin/scss")
+                              ((probe-file "/usr/local/bin/scss") "/usr/local/bin/scss")
                               (t (error "Missing scss."))))
 
 (defun load-stylesheets (mapping)

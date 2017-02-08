@@ -26,6 +26,9 @@
 (defpsmacro set-html (el html)
   `(setf (slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) ,html))
 
+(defpsmacro set-html* (el html)
+  `(setf (slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) (parenscript:ps-html ,html)))
+
 (defpsmacro inner-html (el)
   `(slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l))
 

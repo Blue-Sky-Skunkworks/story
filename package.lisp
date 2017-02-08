@@ -1,7 +1,7 @@
 
 (defpackage story-js
   (:use common-lisp parenscript)
-  (:export js-file id set-html console))
+  (:export js-file id set-html set-html* console))
 
 (defpackage story-css
   (:use common-lisp iterate cl-who cl-css)
@@ -9,7 +9,7 @@
 
 (defpackage story
   (:use common-lisp cl-who iterate hunchentoot local-time split-sequence cffi printv cl-ascii-art)
-  (:import-from story-js id set-html console)
+  (:import-from story-js id set-html set-html* console)
   (:import-from parenscript ps ps* @ new create)
   (:import-from ppcre scan do-scans create-scanner)
   (:import-from anaphora aand acond it)

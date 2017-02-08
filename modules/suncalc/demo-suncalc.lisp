@@ -1,0 +1,51 @@
+(in-package :story)
+
+(define-demo suncalc ((:suncalc))
+  (:div :id "location")
+  (:br)
+  (:div :id "sun")
+  (:br)
+  (:div :id "moon")
+  (script
+    (defun ptime (name time)
+      (let ((pos (sun-position time)))
+        (parenscript:ps-html
+         (:tr (:th name)
+              ((:td :style "padding-left:20px;") (format-time time))
+              ((:td :style "padding-left:20px;") (round (rad-to-deg (@ pos altitude))))
+              ((:td :style "padding-left:20px;") (round (rad-to-deg (@ pos azimuth))))
+              ))))
+    (defun pmtime (name time)
+      (let ((pos (moon-position time))
+            (ill (moon-illumination time)))
+        (parenscript:ps-html
+         (:tr (:th name)
+              (:td (format-time time))
+              (:td (round (rad-to-deg (@ pos altitude))))
+              (:td (round (rad-to-deg (@ pos azimuth))))
+              (:td (round (@ pos distance)))
+              (:td (@ ill fraction))
+              (:td (@ ill phase))
+              (:td (rad-to-deg (@ ill angle)))))))
+    (let* ((now (new (*date)))
+           (times (sun-times now))
+           (mtimes (moon-times now)))
+      (set-html* "location"
+                 (:table (:tr (:th "latitude") (:td *sc-lat*))
+                         (:tr (:th "longiture") (:td *sc-lng*))))
+      (set-html* "sun"
+                 (:table
+                  (:tr (:th) (:th "time") (:th "altitude") (:th "azimuth"))
+                  (ptime "dawn" (@ times dawn))
+                  (ptime "sunrise" (@ times sunrise))
+                  (ptime "solar noon" (@ times solar-noon))
+                  (ptime "sunset" (@ times sunset))
+                  (ptime "dusk" (@ times dusk))
+                  (ptime "night" (@ times night))))
+      (set-html* "moon"
+                 (:table
+                  (:tr (:th) (:th "time") (:th "altitude") (:th "azimuth") (:th "distance")
+                       (:th "fraction") (:th "phase") (:th "angle"))
+                  (pmtime "now" now)
+                  (pmtime "rise" (@ mtimes rise))
+                  (pmtime "set" (@ mtimes set)))))))

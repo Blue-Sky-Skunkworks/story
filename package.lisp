@@ -22,5 +22,5 @@
    vertical-break comment image
    parenscript ps ps* @ new create
    note starts-with-char use-naked-repl
-   publish create-story))
+   publish create-story stories describe-story render-current-story))
 

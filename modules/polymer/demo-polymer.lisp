@@ -31,6 +31,11 @@
 
 (defun handle-test-iron-request (&rest args) "Iron Request works!")
 
+(define-demo iron-collapse ((:iron-collapse))
+  (:button :onclick (ps (toggle)) "toggle")
+  (collapse :id "id" (:div "Iron Collapse Works"))
+  (script (defun toggle () ((@ (id "id") toggle)))))
+
 (define-demo paper-button ((:paper-button))
   (button :style "background:blue;color:white;" "Paper Buttons work!"))
 

@@ -40,6 +40,8 @@
 
 (define-polymer-module iron-icon)
 (define-polymer-module iron-pages)
+(define-polymer-module iron-collapse)
+
 
 (define-story-module iron-request :extends :polymer
   :imports ("iron-ajax/iron-request")

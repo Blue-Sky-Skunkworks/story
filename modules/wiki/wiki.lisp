@@ -66,6 +66,8 @@
 (defun render-wiki-tree (stream)
   (render-tree stream 'render-wiki-tree-row (build-wiki-tree)))
 
+(export 'render-wiki-tree)
+
 (in-package :story-js)
 
 (define-script wiki

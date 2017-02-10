@@ -67,6 +67,11 @@
 (define-demo paper-toolbar ((:paper-toolbar))
   (toolbar (:div "Paper Toolbars work!")))
 
+(define-demo paper-listbox ((:paper-listbox :paper-item))
+  (listbox
+    (item "First Item")
+    (item "Second Item")))
+
 (define-demo neon-animated-pages ((:neon-animatable :neon-animated-pages :slide-from-right-animation :slide-left-animation))
   (animated-pages :selected 0 :id "id" :entry-animation "slide-from-right-animation" :exit-animation "slide-left-animation"
                   (with-words (word "Eeny meeny miny moe.")

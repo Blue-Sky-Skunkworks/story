@@ -72,6 +72,11 @@
     (item "First Item")
     (item "Second Item")))
 
+(define-demo paper-drawer-panel ((:paper-drawer-panel))
+  (drawer-panel
+    (:div :drawer t "Drawer")
+    (:div :main t "Main")))
+
 (define-demo neon-animated-pages ((:neon-animatable :neon-animated-pages :slide-from-right-animation :slide-left-animation))
   (animated-pages :selected 0 :id "id" :entry-animation "slide-from-right-animation" :exit-animation "slide-left-animation"
                   (with-words (word "Eeny meeny miny moe.")

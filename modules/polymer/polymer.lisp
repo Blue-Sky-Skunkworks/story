@@ -57,6 +57,7 @@
 (define-polymer-module paper-header-panel)
 (define-polymer-module paper-toolbar)
 (define-polymer-module paper-listbox)
+(define-polymer-module paper-drawer-panel)
 
 (define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animated-pages"))
 

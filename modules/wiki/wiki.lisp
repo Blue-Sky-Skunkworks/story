@@ -86,7 +86,7 @@
     (set-html (id *wiki-body-id*) (marked (@ val response))))
 
   (defun select-ilink (ilink)
-    (page (+ "/" ((@ ilink replace) (regex "/ /g") "-"))))
+    (page (+ "/" (or *wiki-prefix* "") ((@ ilink replace) (regex "/ /g") "-"))))
 
   (defun reload-wiki () (fetch-wiki-page *wiki-page*))
 

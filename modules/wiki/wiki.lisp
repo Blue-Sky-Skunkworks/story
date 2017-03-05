@@ -72,8 +72,7 @@
 
 (define-script wiki
 
-  (define-story-module-parameters wiki (title url (home "Home") title-id body-id page)
-    (fetch-wiki-page home))
+  (define-story-module-parameters wiki (title url (home "Home") title-id body-id page prefix))
 
   (defun fetch-wiki-page (page)
     (request (+ *wiki-url* "/" page ".md") handle-wiki-response)

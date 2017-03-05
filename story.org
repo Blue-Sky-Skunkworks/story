@@ -155,3 +155,10 @@ Internet of Things
 Exchanging and persisting data between devices and services
 ** TODO gulp-svgstore
    https://github.com/w0rm/gulp-svgstore
+** TODO graph libraries
+*** TODO sigma
+*** TODO cytoscape
+*** TODO gun
+** TODO js-git
+** TODO research git-core
+** TODO gitlet

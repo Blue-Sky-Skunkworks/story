@@ -21,5 +21,6 @@
            (new ((@ vis *data-set)
                  (make-array
                   ,@(iter (for (y m d text) in (load-computer-calender))
-                          (for index from 1)
-                          (collect `(create :id ,index :content ,text :start ,(format nil "~A-~A-~A" y m d)))))))))))
+                      (for index from 1)
+                      (collect `(create :id ,index :content ,text
+                                        :start ,(format nil "~A-~A-~A" y m d)))))))))))

@@ -2,7 +2,7 @@
 
 (defparameter *sample-wiki-directory* (story-modules-file "wiki/sample-wiki/"))
 
-(define-demo wiki ((:wiki) :dispatches ((:folder "/sample-wiki/" *sample-wiki-directory*)))
+(define-demo wiki ((:wiki :page) :dispatches ((:folder "/sample-wiki/" *sample-wiki-directory*)))
   (:div :id "wiki-title")
   (:br)
   (:div :id "wiki-controls"

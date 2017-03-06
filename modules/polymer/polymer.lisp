@@ -44,10 +44,7 @@
 (define-polymer-module iron-pages)
 (define-polymer-module iron-collapse)
 (define-polymer-module iron-image :depends-on (:images)
-  :init ((register-image-processor 'iron-image-image-processor :sizing :position)))
-
-(defun iron-image-image-processor (args)
-  args)
+  :init ((register-image-arguments :sizing :position)))
 
 (defmacro image (&rest args)
   `(render-iron-image stream ,@args))

@@ -20,7 +20,7 @@
    *story* *deploy-changed-stories* initialize-story define-story story
    server toggle-production
    html script script*
-   vertical-break comment image
+   vertical-break comment
    parenscript ps ps* @ new create
    note starts-with-char use-naked-repl
    publish create-story stories describe-story render-current-story slurp-file

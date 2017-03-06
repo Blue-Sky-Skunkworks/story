@@ -162,3 +162,5 @@ Exchanging and persisting data between devices and services
 ** TODO js-git
 ** TODO research git-core
 ** TODO gitlet
+** TODO image slideshow
+

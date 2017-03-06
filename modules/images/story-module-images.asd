@@ -1,4 +1,4 @@
-(defsystem "story-module-echo"
+(defsystem "story-module-images"
   :defsystem-depends-on ("story-module-system")
   :class :story-module-system
   :category "none"
@@ -8,7 +8,8 @@
   :author "unknown"
   :license "unknown"
   :serial t
-  :depends-on ("story-modules" "story-module-images")
-  :components ((:static-file "story-module-echo.asd")
-               (:file "echo")
-               (:file "demo-echo")))
+  :depends-on ("story-modules")
+  :components ((:static-file "story-module-images.asd")
+               (:file "images")
+               (:file "demo-images")))
+

@@ -1,7 +1,35 @@
 (in-package :story)
 
+(define-story-module images)
+
+(defun exif (&rest args)
+  (apply #'run-program-to-string "exif" args))
+
+(defun parse-jpeg-exif (filename)
+  (string-to-table (exif "-m" filename)))
+
+(defun jpeg-comment (filename)
+  (exif "-t0x9286" "-m" filename))
+
+(defun clean-jpeg-exif (filename)
+  (iter (for id in '(#x927C ;MakerNote
+                     ))
+    (note "~A"
+          (exif (format nil "-t0x~X" id) "--ifd=EXIF" "--remove" "-o" filename filename))))
+
+(defun set-jpeg-comment (filename comment)
+  (exif "-t0x9286" "--ifd=EXIF" "-o" filename (format nil "--set-value=\"~A\"" comment) filename))
+
+(defun jpeg-image-size (filename)
+  (if (probe-file filename)
+      (values-list (mapcar #'parse-integer
+                           (split-sequence #\x (third (split-sequence #\space (run-program-to-string "identify" filename))))))
+      (warn "Missing ~S." filename)))
+
 (defmacro image (&rest args)
   `(render-image stream ,@args))
+
+(export 'image)
 
 (defvar *image-processors*)
 (defvar *valid-image-arguments*)
@@ -37,6 +65,7 @@
         (multiple-value-bind (desc mime) (magic (pathname path))
           (cond
             ((equal mime "image/png") (png-image-size path))
+            ((equal mime "image/jpeg") (jpeg-image-size path))
             (t (warn "Unsupported image type ~S ~S." mime desc)))))))
 
 (defun default-image-processor (args)
@@ -65,3 +94,4 @@
   (iter (for (k v) on (process-image-args args) by 'cddr)
     (format stream "~(~A~)=~S " k v))
   (format stream ">"))
+

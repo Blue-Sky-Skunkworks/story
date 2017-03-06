@@ -60,6 +60,10 @@
   (with-output-to-string (str)
     (run-program (format nil "~A ~{~A~^ ~}" program args) :output str)))
 
+(defun string-to-table (string)
+  (mapcar #L(split-sequence #\tab %)
+          (split-sequence #\newline string :remove-empty-subseqs t)))
+
 (defun slurp-file (filename &optional external-format)
   (with-input-from-file (stream filename :external-format (or external-format :utf-8))
     (let* ((len (file-length stream))

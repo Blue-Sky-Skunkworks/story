@@ -11,7 +11,7 @@
   (:use common-lisp cl-who iterate hunchentoot local-time split-sequence cffi printv cl-ascii-art)
   (:import-from story-js id set-html set-html* console)
   (:import-from asdf/run-program run-program)
-  (:import-from parenscript ps ps* @ new create)
+  (:import-from parenscript ps ps* defpsmacro @ new create)
   (:import-from ppcre scan do-scans create-scanner)
   (:import-from anaphora aand acond it)
   (:import-from alexandria with-output-to-file when-let if-let with-input-from-file assoc-value with-gensyms ensure-list once-only)

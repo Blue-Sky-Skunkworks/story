@@ -10,7 +10,8 @@
   (string-to-table (exif "-m" filename)))
 
 (defun jpeg-comment (filename)
-  (string-right-trim '(#\newline) (exif "-t0x9286" "-m" filename)))
+  (handler-case (string-right-trim '(#\newline) (exif "-t0x9286" "-m" filename))
+    (uiop/run-program:subprocess-error () nil)))
 
 (defun clean-jpeg-exif (filename)
   (iter (for id in '(#x927C ;MakerNote
@@ -29,8 +30,6 @@
 
 (defmacro image (&rest args)
   `(render-image stream ,@args))
-
-(export 'image)
 
 (defvar *image-processors*)
 (defvar *valid-image-arguments*)
@@ -81,6 +80,23 @@
           ((equal mime "image/jpeg") (jpeg-comment path))
           (t (warn "Unsupported image type ~S ~S." mime desc))))))
 
+(defun set-image-comment (path comment)
+  (if (not (probe-file path))
+      (warn "Missing image ~S." path)
+      (multiple-value-bind (desc mime) (magic (pathname path))
+        (cond
+          ((equal mime "image/jpeg") (set-jpeg-comment path comment))
+          (t (warn "Unsupported image type ~S ~S." mime desc)))))
+  comment)
+
+(defun clean-image (path)
+  (if (not (probe-file path))
+      (warn "Missing image ~S." path)
+      (multiple-value-bind (desc mime) (magic (pathname path))
+        (cond
+          ((equal mime "image/jpeg") (clean-jpeg-exif path))
+          (t (warn "Unsupported image type ~S ~S." mime desc))))))
+
 (defun default-image-processor (args)
   (let (alt src width height)
     (prog1
@@ -112,4 +128,6 @@
   (iter (for (k v) on (process-image-args args) by 'cddr)
     (format stream "~(~A~)=~S " k v))
   (format stream ">"))
+
+(export '(image image-comment set-image-comment clean-image))
 

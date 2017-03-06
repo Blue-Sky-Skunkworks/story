@@ -15,7 +15,7 @@
 
 (define-story-module font-roboto :extends :polymer :imports ("font-roboto/roboto"))
 
-(defmacro define-polymer-module (name &key (helpers t))
+(defmacro define-polymer-module (name &key (helpers t) depends-on)
   (let*  ((raw (symbol-name name))
           (pos (position #\- raw))
           (module (subseq raw 0 pos))
@@ -23,6 +23,7 @@
     `(progn
        (define-story-module ,name
          :extends :polymer
+         :depends-on ,depends-on
          :imports (,(format nil "~(~A/~A~)" name name)))
        ,@(when helpers `((define-polymer-macros ,(symb module) ,(symb rest)))))))
 
@@ -41,7 +42,16 @@
 (define-polymer-module iron-icon)
 (define-polymer-module iron-pages)
 (define-polymer-module iron-collapse)
+(define-polymer-module iron-image :depends-on (:images))
 
+(defmacro image (&rest args)
+  `(render-iron-image stream ,@args))
+
+(defun render-iron-image (stream &rest args)
+  (format stream "<iron-image ")
+  (iter (for (k v) on (process-image-args args) by 'cddr)
+    (format stream "~(~A~)=~S " k v))
+  (format stream "></iron-image>"))
 
 (define-story-module iron-request :extends :polymer
   :imports ("iron-ajax/iron-request")

@@ -58,7 +58,7 @@
 
 (defun run-program-to-string (program args)
   (with-output-to-string (str)
-    (asdf/run-program:run-program (format nil "~A ~{~A~^ ~}" program args) :output str)))
+    (run-program (format nil "~A ~{~A~^ ~}" program args) :output str)))
 
 (defun slurp-file (filename &optional external-format)
   (with-input-from-file (stream filename :external-format (or external-format :utf-8))

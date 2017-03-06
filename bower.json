@@ -26,6 +26,7 @@
     "paper-elements": null,
     "neon-elements": null,
     "google-map": null,
-    "suncalc": null
+    "suncalc": null,
+    "d3": null
   }
 }

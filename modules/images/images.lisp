@@ -1,6 +1,7 @@
 (in-package :story)
 
-(define-story-module images)
+(define-story-module images
+  :init ((reset-image-processors)))
 
 (defun exif (&rest args)
   (apply #'run-program-to-string "exif" args))
@@ -43,6 +44,9 @@
       (warn "Reregistering image processor ~S." processor)
       (setf *image-processors* (append *image-processors* (list processor))))
   (iter (for arg in additional-arguments) (pushnew arg *valid-image-arguments*)))
+
+(defun register-image-arguments (&rest args)
+  (iter (for arg in args) (pushnew arg *valid-image-arguments*)))
 
 (defun process-image-args (args)
   (iter (for processor in *image-processors*)
@@ -88,13 +92,14 @@
              (t (cond
                   ((eq k :width) (setf width v))
                   ((eq k :height) (setf height v))
-                  ((member k '(:src :alt :style))
+                  ((member k '(:src :alt))
                    (when (eq k :src) (setf src v))
                    (when (eq k :alt) (setf alt v))
-                   (appending (list k v)))))))
+                   (appending (list k v)))
+                  (t (appending (list k v)))))))
          (multiple-value-bind (iw ih) (when-let (path (local-path-from-server src)) (image-size path))
            (when (or width height)
-             (note "Overriding image width and height. ~A->~A ~A->~A" iw width ih height))
+             (note "Overriding image width and height. ~A->~A ~A->~A" width iw height ih))
            `(,@(when (or width iw) `(:width ,(or width iw)))
              ,@(when (or height ih) `(:height ,(or height ih)))))
          (unless alt

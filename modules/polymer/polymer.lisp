@@ -15,7 +15,7 @@
 
 (define-story-module font-roboto :extends :polymer :imports ("font-roboto/roboto"))
 
-(defmacro define-polymer-module (name &key (helpers t) depends-on)
+(defmacro define-polymer-module (name &key (helpers t) depends-on init)
   (let*  ((raw (symbol-name name))
           (pos (position #\- raw))
           (module (subseq raw 0 pos))
@@ -24,7 +24,8 @@
        (define-story-module ,name
          :extends :polymer
          :depends-on ,depends-on
-         :imports (,(format nil "~(~A/~A~)" name name)))
+         :imports (,(format nil "~(~A/~A~)" name name))
+         :init ,init)
        ,@(when helpers `((define-polymer-macros ,(symb module) ,(symb rest)))))))
 
 (define-polymer-module iron-meta)
@@ -42,7 +43,11 @@
 (define-polymer-module iron-icon)
 (define-polymer-module iron-pages)
 (define-polymer-module iron-collapse)
-(define-polymer-module iron-image :depends-on (:images))
+(define-polymer-module iron-image :depends-on (:images)
+  :init ((register-image-processor 'iron-image-image-processor :sizing :position)))
+
+(defun iron-image-image-processor (args)
+  args)
 
 (defmacro image (&rest args)
   `(render-iron-image stream ,@args))
@@ -72,7 +77,8 @@
 (define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animated-pages"))
 
 (define-story-module neon-animatable :extends :polymer :imports ("neon-animation/neon-animatable")
-                     :production-import-fix neon-animation-import-fix)
+  ;;:production-import-fix neon-animation-import-fix
+  )
 
 (defun neon-animation-import-fix (text stream)
   (multiple-value-bind (ms me) (scan (create-scanner "\\.\\./web-animations-js" :single-line-mode t) text)

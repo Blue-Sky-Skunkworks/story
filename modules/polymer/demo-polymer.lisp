@@ -36,6 +36,11 @@
   (collapse :id "id" (:div "Iron Collapse Works"))
   (script (defun toggle () ((@ (id "id") toggle)))))
 
+(define-demo iron-image ((:iron-image) :directories (("modules/demo-images" "demo-images")))
+  (image :src "demo-images/peltier-painting.jpg")
+  (:br)
+  (image :src "demo-images/peltier-painting.jpg" :style "width:200px;height:100px;" :sizing "cover"))
+
 (define-demo paper-button ((:paper-button))
   (button :style "background:blue;color:white;" "Paper Buttons work!"))
 

@@ -302,7 +302,8 @@ matches NAME."
         *imports* nil
         *all-imports* ""
         *module-dispatches* nil)
-  (reset-image-processors))
+  ;(reset-image-processors)
+  )
 
 
 (defun local-path-from-server (path)

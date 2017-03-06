@@ -23,7 +23,8 @@
 
 (defun png-image-size (filename)
   (if (probe-file filename)
-      (values-list (mapcar #'parse-integer (split-sequence #\x (third (split-sequence #\space (run-program-to-string "identify" (list filename)))))))
+      (values-list (mapcar #'parse-integer
+                           (split-sequence #\x (third (split-sequence #\space (run-program-to-string "identify" filename))))))
       (warn "Missing ~S." filename)))
 
 (defvar *image-sizes* (make-hash-table :test 'equal))

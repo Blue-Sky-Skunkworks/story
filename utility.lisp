@@ -56,7 +56,7 @@
       (write-string string stream)
       (write-char slash-character stream))))
 
-(defun run-program-to-string (program args)
+(defun run-program-to-string (program &rest args)
   (with-output-to-string (str)
     (run-program (format nil "~A ~{~A~^ ~}" program args) :output str)))
 

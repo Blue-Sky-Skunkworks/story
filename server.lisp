@@ -116,7 +116,7 @@ matches NAME."
   (iter (for (file path) in mapping)
     (setf (gethash path *css*)
           (typecase file
-            (string (run-program-to-string *scss-script* (list file)))
+            (string (run-program-to-string *scss-script* file))
             (t file)))))
 
 (defvar *scripts*)

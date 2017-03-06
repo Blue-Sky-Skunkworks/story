@@ -5,9 +5,9 @@
 (defun git (command &key (repository *repository*))
   (split-sequence:split-sequence
    #\newline
-   (run-program-to-string "git"
-                          (cons (format nil "--git-dir=~A.git" (ensure-trailing-slash repository))
-                                command))
+   (apply #'run-program-to-string "git"
+          (format nil "--git-dir=~A.git" (ensure-trailing-slash repository))
+          command)
    :remove-empty-subseqs t))
 
 (defun git-latest-commit (&key (branch "master") (repository *repository*) )

@@ -160,7 +160,13 @@ Exchanging and persisting data between devices and services
 *** TODO cytoscape
 *** TODO gun
 ** TODO js-git
-** TODO research git-core
 ** TODO gitlet
 ** TODO image slideshow
+** TODO image cropper
+   icropper
+   darkroom
+   fabric
+** TODO download D3 repo
+** TODO research git-core
+
 

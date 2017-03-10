@@ -6,20 +6,15 @@
   (script
     (defvar *c* (new ((@ fabric *canvas) "c")))
     (defvar *r* (new ((@ fabric *rect)
-                      (create :left 100
-                              :top 100
-                              :fill "red"
-                              :width 20
-                              :height 20
-                              :angle 45))))
+                      (create :left 100 :top 100
+                              :width 20 :height 20
+                              :angle 45 :fill "red"))))
     ((@ *c* add) *r*)
     (defvar *i*)
     ((@ fabric *image from-u-r-l) "samples/eye.png"
      (lambda (img) (setf *i* img) ((@ *c* add) img)))
     (defun hitme ()
-      ((@ *r* set) (create :left (* ((@ *math random)) 200)
-                           :top (* ((@ *math random)) 200)))
-      ((@ *i* set) (create :left (* ((@ *math random)) 200)
-                           :top (* ((@ *math random)) 200)))
+      ((@ *r* set) (create :left (random 200) :top (random 200)))
+      ((@ *i* set) (create :left (random 200) :top (random 200)))
       ((@ *c* render-all)))))
 

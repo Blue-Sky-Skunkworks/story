@@ -13,14 +13,14 @@
   (handler-case (string-right-trim '(#\newline) (exif "-t0x9286" "-m" filename))
     (uiop/run-program:subprocess-error () nil)))
 
+(defun set-jpeg-comment (filename comment)
+  (exif "-t0x9286" "--ifd=EXIF" "-o" filename (format nil "--set-value=\"~A\"" comment) filename))
+
 (defun clean-jpeg-exif (filename)
   (iter (for id in '(#x927C ;MakerNote
                      ))
     (note "~A"
           (exif (format nil "-t0x~X" id) "--ifd=EXIF" "--remove" "-o" filename filename))))
-
-(defun set-jpeg-comment (filename comment)
-  (exif "-t0x9286" "--ifd=EXIF" "-o" filename (format nil "--set-value=\"~A\"" comment) filename))
 
 (defun jpeg-image-size (filename)
   (if (probe-file filename)

@@ -16,5 +16,7 @@
     (defun hitme ()
       ((@ *r* set) (create :left (random 200) :top (random 200)))
       ((@ *i* set) (create :left (random 200) :top (random 200)))
+      ((@ *r* set-coords))
+      ((@ *i* set-coords))
       ((@ *c* render-all)))))
 

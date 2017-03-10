@@ -2,14 +2,11 @@
 
 (defvar *demos* nil)
 
-(defmacro define-demo (name (&optional modules &key dispatches directories stylesheets) &body body)
+(defmacro define-demo (name (&optional modules &rest args) &body body)
   (let ((title (format nil "Story Demo ~A" (string-capitalize name))))
     `(progn
        (pushnew ',name *demos*)
-       (define-story ,(symb 'demo- name) (:title ,title :modules ,modules
-                                          :dispatches ,dispatches
-                                          :directories ,directories
-                                          :stylesheets ,stylesheets)
+       (define-story ,(symb 'demo- name) (:title ,title :modules ,modules ,@args)
         (:h1 :style "font-family:sans-serif;" ,title)
         ,@body))))
 

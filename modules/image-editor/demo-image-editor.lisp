@@ -28,54 +28,74 @@
 (defpsmacro width (el) `(@ ,el width))
 (defpsmacro height (el) `(@ ,el height))
 (defpsmacro bring-to-front (el) `((@ *canvas* bring-to-front) ,el))
+(defpsmacro with-image ((var url) &body body)
+  `((@ fabric *image from-u-r-l) ,url (lambda (,var) ,@body)))
 
 (define-script image-editor
+
+  (defun nround (x n)
+    (if n
+        (let ((n ((@ *math pow) 10 n)))
+          (/ ((@ *math round) (* x n)) n))
+        ((@ *math round) x)))
+
   (defvar *canvas*)
   (defvar *container*)
-  (defvar *crop*)
   (defvar *mouse-down*)
-  (defvar *moving*)
+
   (defvar *modeline*)
+  (defun create-modeline ()
+    (setf *modeline* (text "" :stroke "white" :fill "white"
+                              :left 0 :top (- (@ *container* height) 50))))
+
+  (defvar *crop*)
+
+  (defun update-modeline ()
+    ((@ *modeline* set-text) (+ "(" (nround (left *crop*))
+                                "+" (width *crop*)
+                                "," (nround (top *crop*))
+                                "+" (height *crop*) ")")))
+
+  (defun create-cropper ()
+    (setf *crop* (rect fill "transparent"
+                       stroke "white"
+                       stroke-dash-array (array 2 -2)
+                       visible false
+                       border-color "white"
+                       corner-color "white"
+                       corner-size 20
+                       has-rotating-point false))
+    (on *crop* "moving" (update-modeline))
+    (on *crop* "scaling" (update-modeline)))
+
   (defun initialize-image-editor (canvas-id)
     (setf *canvas* (new ((@ fabric *canvas) canvas-id))
-          *container* ((@ (id canvas-id) get-bounding-client-rect))
-          *modeline* (text "" :stroke "white" :fill "white"
-                              :left 0 :top (- (@ *container* height) 50))
-          *crop* (rect fill "transparent"
-                       stroke "#ccc"
-                       stroke-dash-array (array 2 -2)
-                       visible false))
+          *container* ((@ (id canvas-id) get-bounding-client-rect)))
+    (create-modeline)
+    (create-cropper)
     (add *crop* *modeline*)
-    (defun point-inside (el x y)
-      (and (>= x (left el)) (<= x (+ (left el) (width el)))
-           (>= y (top el)) (<= y (+ (top el) (height el)))))
     (on *canvas* "mouse:down"
         (let ((left (- (@ event e page-x) (left *container*)))
               (top (- (@ event e page-y) (top *container*))))
-          (cond
-            ((point-inside *crop* left top)
-             (setf *moving* (create :x (left *crop*) :y (top *crop*))))
-            (t (setf (width *crop*) 2
-                     (height *crop*) 2
-                     (left *crop*) left
-                     (top *crop*) top
-                     (@ *crop* visible) t
-                     *moving* nil)))
-          (setf *mouse-down* (@ event e)))
-        (bring-to-front *crop*))
+          (when (not (@ *crop* visible))
+            (setf (width *crop*) 2
+                    (height *crop*) 2
+                    (left *crop*) left
+                    (top *crop*) top
+                    (@ *crop* visible) t)
+            (setf *mouse-down* (@ event e))
+            (bring-to-front *crop*))))
     (on *canvas* "mouse:up" (setf *mouse-down* nil))
     (on *canvas* "mouse:move"
         (when *mouse-down*
-          (if *moving*
-              (setf (top *crop*) (+ (@ *moving* y) (- (@ event e page-y) (@ *mouse-down* page-y)))
-                    (left *crop*) (+ (@ *moving* x) (- (@ event e page-x) (@ *mouse-down* page-x))))
-              (setf (width *crop*) (- (@ event e page-x) (@ *mouse-down* page-x))
-                    (height *crop*) (- (@ event e page-y) (@ *mouse-down* page-y))))
-          ((@ *modeline* set-text) (+ "(" (left *crop*) "+" (width *crop*) "," (top *crop*) "+" (height *crop*) ")"))
+          (setf (width *crop*) (- (@ event e page-x) (@ *mouse-down* page-x))
+                (height *crop*) (- (@ event e page-y) (@ *mouse-down* page-y)))
+          ((@ *crop* set-coords))
+          (update-modeline)
           ((@ *canvas* render-all)))))
   (defvar *image*)
   (defun load-image (url)
-    ((@ fabric *image from-u-r-l) url
-     (lambda (img) (setf *image* img)
-       ((@ img set) (create selectable false))
-       ((@ *canvas* add) img)))))
+    (with-image (img url)
+      (setf *image* img)
+      ((@ img set) (create selectable false))
+      (add img))))

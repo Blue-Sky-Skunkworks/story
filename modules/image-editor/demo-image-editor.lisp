@@ -1,12 +1,9 @@
 (in-package :story)
 
-(define-demo image-editor ((:image-editor :iron-icons :iron-icons-image :iron-icon
-                                          :paper-icon-button)
+(define-demo image-editor ((:image-editor)
                            :directories (("modules/demo-images" "samples"))
                            :scripts (("ied.js" image-editor))
                            :imports (("ied" image-editor-style)))
-  (icon-button :icon "zoom-in")
-  (icon-button :icon "zoom-out")
   (:canvas :id "canvas" :width 800 :height 600)
   (script
     (initialize-image-editor "canvas")
@@ -22,48 +19,59 @@
 (in-package :story-js)
 
 (defpsmacro rect (&rest args) `(new ((@ fabric *rect) (create ,@args))))
+(defpsmacro text (text &rest args) `(new ((@ fabric *text) ,text (create ,@args))))
 (defpsmacro on (el event-name &body body)
   `((@ ,el on) ,event-name (lambda (event) ,@body)))
+(defpsmacro add (&rest els) `(progn ,@(loop for el in els collect `((@ *canvas* add) ,el))))
+(defpsmacro left (el) `(@ ,el left))
+(defpsmacro top (el) `(@ ,el top))
+(defpsmacro width (el) `(@ ,el width))
+(defpsmacro height (el) `(@ ,el height))
+(defpsmacro bring-to-front (el) `((@ *canvas* bring-to-front) ,el))
 
 (define-script image-editor
   (defvar *canvas*)
   (defvar *container*)
-  (defvar *cropper*)
+  (defvar *crop*)
   (defvar *mouse-down*)
   (defvar *moving*)
+  (defvar *modeline*)
   (defun initialize-image-editor (canvas-id)
     (setf *canvas* (new ((@ fabric *canvas) canvas-id))
           *container* ((@ (id canvas-id) get-bounding-client-rect))
-          *cropper* (rect fill "transparent"
-                          stroke "#ccc"
-                          stroke-dash-array (array 2 -2)
-                          visible false))
-    ((@ *canvas* add) *cropper*)
+          *modeline* (text "" :stroke "white" :fill "white"
+                              :left 0 :top (- (@ *container* height) 50))
+          *crop* (rect fill "transparent"
+                       stroke "#ccc"
+                       stroke-dash-array (array 2 -2)
+                       visible false))
+    (add *crop* *modeline*)
     (defun point-inside (el x y)
-      (and (>= x (@ el left)) (<= x (+ (@ el left) (@ el width)))
-           (>= y (@ el top)) (<= y (+ (@ el top) (@ el height)))))
+      (and (>= x (left el)) (<= x (+ (left el) (width el)))
+           (>= y (top el)) (<= y (+ (top el) (height el)))))
     (on *canvas* "mouse:down"
-        (let ((left (- (@ event e page-x) (@ *container* left)))
-              (top (- (@ event e page-y) (@ *container* top))))
-          (if (point-inside *cropper* left top)
-              (setf *moving* (create :x (@ *cropper* left) :y (@ *cropper* top)))
-              (setf (@ *cropper* width) 2
-                    (@ *cropper* height) 2
-                    (@ *cropper* left) left
-                    (@ *cropper* top) top
-                    (@ *cropper* visible) t
-                    *moving* nil))
+        (let ((left (- (@ event e page-x) (left *container*)))
+              (top (- (@ event e page-y) (top *container*))))
+          (cond
+            ((point-inside *crop* left top)
+             (setf *moving* (create :x (left *crop*) :y (top *crop*))))
+            (t (setf (width *crop*) 2
+                     (height *crop*) 2
+                     (left *crop*) left
+                     (top *crop*) top
+                     (@ *crop* visible) t
+                     *moving* nil)))
           (setf *mouse-down* (@ event e)))
-        ((@  *canvas* bring-to-front) *cropper*))
-    (on *canvas* "mouse:up"
-        (setf *mouse-down* nil))
+        (bring-to-front *crop*))
+    (on *canvas* "mouse:up" (setf *mouse-down* nil))
     (on *canvas* "mouse:move"
         (when *mouse-down*
           (if *moving*
-              (setf (@ *cropper* top) (+ (@ *moving* y) (- (@ event e page-y) (@ *mouse-down* page-y)))
-                    (@ *cropper* left) (+ (@ *moving* x) (- (@ event e page-x) (@ *mouse-down* page-x))))
-              (setf (@ *cropper* width) (- (@ event e page-x) (@ *mouse-down* page-x))
-                    (@ *cropper* height) (- (@ event e page-y) (@ *mouse-down* page-y))))
+              (setf (top *crop*) (+ (@ *moving* y) (- (@ event e page-y) (@ *mouse-down* page-y)))
+                    (left *crop*) (+ (@ *moving* x) (- (@ event e page-x) (@ *mouse-down* page-x))))
+              (setf (width *crop*) (- (@ event e page-x) (@ *mouse-down* page-x))
+                    (height *crop*) (- (@ event e page-y) (@ *mouse-down* page-y))))
+          ((@ *modeline* set-text) (+ "(" (left *crop*) "+" (width *crop*) "," (top *crop*) "+" (height *crop*) ")"))
           ((@ *canvas* render-all)))))
   (defvar *image*)
   (defun load-image (url)

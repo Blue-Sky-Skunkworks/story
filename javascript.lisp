@@ -20,14 +20,16 @@
 (defpsmacro console (&rest rest)
   `((@ console log) ,@rest))
 
-(defpsmacro create-element (node-type)
-  `((@ document create-element) ,node-type))
+(defpsmacro create-element (node-type &optional parent)
+  `(let ((el ((@ document create-element) ,node-type)))
+     ,@(when parent `(((@ ,parent append-child) el)))
+     el))
 
 (defpsmacro set-html (el html)
-  `(setf (slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) ,html))
+  `(setf (getprop ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) ,html))
 
-(defpsmacro set-html* (el html)
-  `(setf (slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) (parenscript:ps-html ,html)))
+(defpsmacro set-html* (el &rest html)
+  `(setf (getprop ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) (parenscript:ps-html ,@html)))
 
 (defpsmacro inner-html (el)
   `(slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l))

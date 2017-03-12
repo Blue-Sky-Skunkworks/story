@@ -20,9 +20,10 @@
 (defpsmacro console (&rest rest)
   `((@ console log) ,@rest))
 
-(defpsmacro create-element (node-type &optional parent)
+(defpsmacro create-element (node-type &optional parent class-name)
   `(let ((el ((@ document create-element) ,node-type)))
      ,@(when parent `(((@ ,parent append-child) el)))
+     ,@(when class-name `((add-class el ,class-name)))
      el))
 
 (defpsmacro set-html (el html)
@@ -132,6 +133,9 @@
       '(progn
 
         (defvar *trace-level* 0)
+
+        (defun add-class (el name)
+          (setf (@ el class-name) (+ (@ el class-name) (if (@ el class-name) " " "") name)))
 
         (setf (@ *string prototype ends-with)
          (lambda (suffix) (return (not (== ((@ this index-of) suffix (- (@ this length) (@ suffix length))) -1)))))

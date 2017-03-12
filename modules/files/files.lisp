@@ -42,29 +42,37 @@
     (request (+ "/" url "/.file-listing")
              (lambda (val) (funcall callback (eval (+ "(" (@ val response) ")"))))))
 
-  (defun render-file-listing (container url &key headings)
+  (defun create-headings (parent)
+    (set-html* (create-element "tr" parent)
+               (:th "thumbnail") (:th "name") (:th "type") (:th "width") (:th "height")
+               (:th "description")))
+
+  (defun create-row (parent data)
+    (let ((tr (create-element "tr" parent)))
+      (set-html* tr
+                 (:td (when (@ data thumbnail)
+                        (ps-html
+                         ((:img :src (+ "data:" (@ data mime) ";base64,"
+                                        (@ data thumbnail)))))))
+                 ((:td :nowrap t) (@ data name))
+                 (:td (@ data mime))
+                 (:td (@ data width))
+                 (:td (@ data height))
+                 (:td (@ data description)))))
+
+  (defvar *create-headings-fn* (lambda (parent) (create-headings parent)))
+  (defvar *create-row-fn* (lambda (parent row) (create-row parent row)))
+
+  (defun render-file-listing (container url &key (parent-type "table"))
     (let* ((div (id container))
-           (table (create-element "table" div)))
-      (when headings
-        (set-html* (create-element "tr" table)
-                   (:th "thumbnail") (:th "name") (:th "type") (:th "width") (:th "height")
-                   (:th "description")))
+           (parent (create-element parent-type div)))
+      (funcall *create-headings-fn* parent)
       (fetch-file-listing
        url
        (lambda (rows)
          (setf (@ div rows) rows)
          (loop for row in rows
-               do (let ((tr (create-element "tr" table)))
-                    (set-html* tr
-                               (:td (when (@ row thumbnail)
-                                      (parenscript:ps-html
-                                       ((:img :src (+ "data:" (@ row mime) ";base64,"
-                                                      (@ row thumbnail)))))))
-                               ((:td :nowrap t) (@ row name))
-                               (:td (@ row mime))
-                               (:td (@ row width))
-                               (:td (@ row height))
-                               (:td (@ row description))))))))))
+               do (funcall *create-row-fn* parent row)))))))
 
 (in-package :story-css)
 

@@ -30,7 +30,10 @@
   `(setf (getprop ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) ,html))
 
 (defpsmacro set-html* (el &rest html)
-  `(setf (getprop ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) (parenscript:ps-html ,@html)))
+  (let ((el (if (stringp el) `(id ,el) el)))
+    `(let ((node ,el))
+       (setf (getprop node 'inner-h-t-m-l) (parenscript:ps-html ,@html))
+       node)))
 
 (defpsmacro inner-html (el)
   `(slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l))

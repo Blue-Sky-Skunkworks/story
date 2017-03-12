@@ -37,6 +37,10 @@
 
 (in-package :story-js)
 
+(defpsmacro on (event-name el &body body)
+  `(setf (getprop ,el ,(format nil "~(on~A~)" event-name))
+         (lambda (event) ,@body)))
+
 (define-script files
   (defun fetch-file-listing (url callback)
     (request (+ "/" url "/.file-listing")
@@ -47,17 +51,24 @@
                (when *show-images* (ps-html (:th "thumbnail")))
                (:th "name") (:th "type") (:th "width") (:th "height")))
 
+  (defun select-row (row)
+    (visit-url (+ "/" *file-listing-url* "/" (@ row name) "." (@ row type))))
+
+  (defvar *select-row-fn* (lambda (row) (select-row row)))
+
   (defun create-row (parent data)
-    (set-html* (create-element "tr" parent)
-               (when *show-images*
-                 (ps-html (:td (when (@ data thumbnail)
-                                 (ps-html
-                                  ((:img :src (+ "data:" (@ data mime) ";base64,"
-                                                 (@ data thumbnail)))))))))
-               ((:td :nowrap t) (@ data name))
-               (:td (@ data mime))
-               (:td (@ data width))
-               (:td (@ data height)))
+    (on "click"
+        (set-html* (create-element "tr" parent)
+                   (when *show-images*
+                     (ps-html (:td (when (@ data thumbnail)
+                                     (ps-html
+                                      ((:img :src (+ "data:" (@ data mime) ";base64,"
+                                                     (@ data thumbnail)))))))))
+                   ((:td :nowrap t) (@ data name))
+                   (:td (@ data mime))
+                   (:td (@ data width))
+                   (:td (@ data height)))
+        (funcall *select-row-fn* data))
     (when *show-description*
       (set-html* (create-element "tr" parent) ((:td :colspan 5) (@ data description)))))
 
@@ -73,6 +84,7 @@
   (defvar *show-controls* t)
 
   (defvar *file-listing*)
+  (defvar *file-listing-url*)
   (defvar *create-headings-fn* (lambda (parent) (create-headings parent)))
   (defvar *create-row-fn* (lambda (parent row) (create-row parent row)))
   (defvar *create-controls-fn* (lambda (parent row) (create-controls parent)))
@@ -81,7 +93,7 @@
                                               (parent-type "table") (class-name "files"))
     (let* ((div (id container))
            (parent (create-element parent-type div class-name)))
-      (setf *file-listing* parent)
+      (setf *file-listing* parent *file-listing-url* url)
       (when *show-controls* (funcall *create-controls-fn* parent))
       (funcall *create-headings-fn* parent)
       (let ((fn
@@ -112,4 +124,6 @@
 
 (defun files-css ()
   (css
-   '((".files td" :padding 5px 20px 5px 0px))))
+   '((".files td" :padding 5px 20px 5px 0px)
+     (".files tr" :cursor pointer)
+     (".files tr:hover" :background-color grey))))

@@ -44,38 +44,72 @@
 
   (defun create-headings (parent)
     (set-html* (create-element "tr" parent)
-               (:th "thumbnail") (:th "name") (:th "type") (:th "width") (:th "height")
-               (:th "description")))
+               (when *show-images* (ps-html (:th "thumbnail")))
+               (:th "name") (:th "type") (:th "width") (:th "height")))
 
   (defun create-row (parent data)
-    (let ((tr (create-element "tr" parent)))
-      (set-html* tr
-                 (:td (when (@ data thumbnail)
-                        (ps-html
-                         ((:img :src (+ "data:" (@ data mime) ";base64,"
-                                        (@ data thumbnail)))))))
-                 ((:td :nowrap t) (@ data name))
-                 (:td (@ data mime))
-                 (:td (@ data width))
-                 (:td (@ data height))
-                 (:td (@ data description)))))
+    (set-html* (create-element "tr" parent)
+               (when *show-images*
+                 (ps-html (:td (when (@ data thumbnail)
+                                 (ps-html
+                                  ((:img :src (+ "data:" (@ data mime) ";base64,"
+                                                 (@ data thumbnail)))))))))
+               ((:td :nowrap t) (@ data name))
+               (:td (@ data mime))
+               (:td (@ data width))
+               (:td (@ data height)))
+    (when *show-description*
+      (set-html* (create-element "tr" parent) ((:td :colspan 5) (@ data description)))))
 
+  (defun create-controls (parent &optional class-prefix)
+    (set-html* (create-element "tr" parent "controls")
+               (:td ((:button :style "margin-right:20px;" :onclick "toggleShowDescription()")
+                     (if *show-description* "hide description" "show description"))
+                    ((:button :onclick "toggleShowImages()")
+                     (if *show-images* "hide thumbnails" "show thumbnails")))))
+
+  (defvar *show-description* nil)
+  (defvar *show-images* nil)
+  (defvar *show-controls* t)
+
+  (defvar *file-listing*)
   (defvar *create-headings-fn* (lambda (parent) (create-headings parent)))
   (defvar *create-row-fn* (lambda (parent row) (create-row parent row)))
+  (defvar *create-controls-fn* (lambda (parent row) (create-controls parent)))
 
-  (defun render-file-listing (container url &key (parent-type "table"))
+  (defun render-file-listing (container url &key rerender
+                                              (parent-type "table") (class-name "files"))
     (let* ((div (id container))
-           (parent (create-element parent-type div)))
+           (parent (create-element parent-type div class-name)))
+      (setf *file-listing* parent)
+      (when *show-controls* (funcall *create-controls-fn* parent))
       (funcall *create-headings-fn* parent)
-      (fetch-file-listing
-       url
-       (lambda (rows)
-         (setf (@ div rows) rows)
-         (loop for row in rows
-               do (funcall *create-row-fn* parent row)))))))
+      (let ((fn
+              (lambda (rows)
+                (setf (@ div rows) rows)
+                (loop for row in rows
+                      do (funcall *create-row-fn* parent row)))))
+        (if rerender
+            (funcall fn (@ div rows))
+            (fetch-file-listing url fn)))))
+
+  (defun rerender-listing ()
+    (let ((container (@ *file-listing* parent-node id)))
+      (remove-node *file-listing*)
+      (render-file-listing container nil :rerender t)))
+
+  (defun toggle-show-description ()
+    (setf *show-description* (not *show-description*))
+    (rerender-listing))
+
+  (defun toggle-show-images ()
+    (setf *show-images* (not *show-images*))
+    (rerender-listing))
+
+  )
 
 (in-package :story-css)
 
 (defun files-css ()
   (css
-   '()))
+   '((".files td" :padding 5px 20px 5px 0px))))

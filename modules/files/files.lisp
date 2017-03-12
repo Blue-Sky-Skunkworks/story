@@ -5,6 +5,9 @@
   :scripts (("files.js" files))
   :depends-on (:iron-request :images))
 
+(defun create-image-thumbnail (filename)
+  (run/ss `(pipe (convert ,filename -thumbnail 200 -) (base64))))
+
 (defun create-file-listing (directory)
   (iter (for file in (directory-files directory))
     (unless (string= (pathname-name file) ".file-listing")
@@ -12,7 +15,8 @@
         (collect (nconc (list (cons :name (pathname-name file))
                               (cons :type (pathname-type file))
                               (cons :mime mime)
-                              (cons :description description))
+                              (cons :description description)
+                              (cons :thumbnail (create-image-thumbnail file)))
                         (additional-file-information (ksymb (string-upcase mime)) file)))))))
 
 (defgeneric additional-file-information (type file)
@@ -43,7 +47,7 @@
            (table (create-element "table" div)))
       (when headings
         (set-html* (create-element "tr" table)
-                   (:th "name") (:th "type") (:th "width") (:th "height")
+                   (:th "thumbnail") (:th "name") (:th "type") (:th "width") (:th "height")
                    (:th "description")))
       (fetch-file-listing
        url
@@ -52,6 +56,10 @@
          (loop for row in rows
                do (let ((tr (create-element "tr" table)))
                     (set-html* tr
+                               (:td (when (@ row thumbnail)
+                                      (parenscript:ps-html
+                                       ((:img :src (+ "data:" (@ row mime) ";base64,"
+                                                      (@ row thumbnail)))))))
                                ((:td :nowrap t) (@ row name))
                                (:td (@ row mime))
                                (:td (@ row width))

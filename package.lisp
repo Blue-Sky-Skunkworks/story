@@ -8,7 +8,8 @@
   (:export style))
 
 (defpackage story
-  (:use common-lisp cl-who iterate hunchentoot local-time split-sequence cffi printv cl-ascii-art)
+  (:use common-lisp cl-who iterate hunchentoot local-time split-sequence
+        cffi printv cl-ascii-art inferior-shell)
   (:import-from story-js id set-html set-html* console)
   (:import-from asdf/run-program run-program)
   (:import-from parenscript ps ps* defpsmacro @ new create)

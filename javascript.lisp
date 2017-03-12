@@ -37,6 +37,8 @@
 (defpsmacro remove-node (el)
   `((@ ,el parent-node remove-child) ,el))
 
+(defpsmacro random (max) `(* ((@ *math random)) ,max))
+
 (defun ensure-string (el)
   (if (null el) ""
     (typecase el

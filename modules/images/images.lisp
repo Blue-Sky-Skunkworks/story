@@ -10,8 +10,9 @@
   (string-to-table (exif "-m" filename)))
 
 (defun jpeg-comment (filename)
-  (handler-case (string-right-trim '(#\newline) (exif "-t0x9286" "-m" filename))
-    (uiop/run-program:subprocess-error () nil)))
+  (let* ((raw (run-program-to-string "exiftool" "-comment" filename))
+         (pos (position #\: raw)))
+    (when pos (string-trim '(#\space #\newline #\[ #\]) (subseq raw (1+ pos))))))
 
 (defun set-jpeg-comment (filename comment)
   (run-program-to-string "exiftool" (format nil "-comment=\"~A\"" comment) filename))

@@ -70,9 +70,11 @@
 (define-polymer-module paper-toolbar)
 (define-polymer-module paper-listbox)
 (define-polymer-module paper-drawer-panel)
+(define-polymer-module paper-input)
+(define-story-module paper-textarea :extends :polymer :imports ("paper-input/paper-textarea"))
+(define-polymer-macros paper textarea)
 
 (define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animated-pages"))
-
 (define-story-module neon-animatable :extends :polymer :imports ("neon-animation/neon-animatable")
   ;;:production-import-fix neon-animation-import-fix
   )

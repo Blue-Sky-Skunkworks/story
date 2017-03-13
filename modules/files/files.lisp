@@ -57,7 +57,7 @@
   (defun create-headings (parent)
     (set-html* (create-element "tr" parent)
                (when *show-images* (ps-html (:th "thumbnail")))
-               (:th "name") (:th "type") (:th "width") (:th "height")))
+               (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")))
 
   (defun select-row (row)
     (visit-url (+ "/" *file-listing-url* "/" (@ row name) "." (@ row type))))
@@ -74,6 +74,7 @@
                                                      (@ data thumbnail)))))))))
                    ((:td :nowrap t) (@ data name))
                    (:td (@ data mime))
+                   (:td (@ data size))
                    (:td (@ data width))
                    (:td (@ data height)))
         (funcall *select-row-fn* data))

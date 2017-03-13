@@ -80,13 +80,18 @@
 (defun localize-files (base files)
   (iter (for file in files)
     (let* ((from (if (consp file) (first file) file))
-           (to (if (consp file) (second file) file))
-           (path (format nil "~A~A" base from)))
-      (collect
-          (list
-           path
-           (format nil "/~A" to)
-           (second (multiple-value-list (magic (pathname path)))))))))
+           (fn (when (consp file) (second file)))
+           (path (or fn (format nil "~A~A" base from)))
+           (mime (if fn
+                     (or (third file) (mimes:mime-lookup from))
+                     (second (multiple-value-list (magic (pathname path)))))))
+      (if (or fn (probe-file path))
+          (collect
+              (list
+               path
+               (format nil "/~A" from)
+               mime))
+          (warn "Missing file ~S." path)))))
 
 (defun localize-imports (base imports &optional fix)
   (iter (for el in imports)

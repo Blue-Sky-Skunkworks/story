@@ -223,55 +223,47 @@ matches NAME."
     (acond
 
       ((string= query "/")              ; root
-
        (setf (content-type*) "text/html")
        (render-current-story))
 
-
       ((and *production* (string= query "/all.html")) ; all html imports
-
-
        (setf (content-type*) "text/html")
        *all-imports*)
 
-
       ((gethash query *import-fns*)     ; import functions
-
        (setf (content-type*) "text/html")
        (funcall it))
 
-
-
       ((gethash query *css*)            ; stylesheets
-
        (setf (content-type*) "text/css")
        (etypecase it
          (symbol (funcall it))
          (string it)))
 
-
       ((iter (for (path file) in-hashtable *scripts*) ; javascript
-         (when (null (mismatch query path :test #'char=)) (return file)))
-
+             (when (null (mismatch query path :test #'char=)) (return file)))
        (etypecase it
          (string (setf (content-type*) "text/javascript") it)
          (pathname (handle-static-file it))
          (symbol (setf (content-type*) "text/javascript") (funcall it))))
 
-
       ((iter (for (prefix dir) in-hashtable *directories*) ; directories
          (let ((mismatch (mismatch query prefix :test #'char=)))
            (when (or (null mismatch) (>= mismatch (length prefix)))
-             (handle-static-file (concatenate 'string dir (subseq query (length prefix))))))))
-
+             (return (list prefix dir)))))
+       (destructuring-bind (prefix dir) it
+         (handle-static-file (concatenate 'string dir (subseq query (length prefix))))))
 
       ((iter (for (prefix (file . content-type)) in-hashtable *files*) ; files
-         (when (string= prefix query)
-           (handle-static-file file content-type))))
-
+             (when (string= prefix query) (return (list file content-type))))
+       (destructuring-bind (file content-type) it
+           (cond
+             ((symbolp file)
+              (setf (content-type*) content-type)
+              (funcall file))
+             (t (handle-static-file file content-type)))))
 
       (t                                ; not found
-
        (setf (return-code *reply*) +http-not-found+)
        (abort-request-handler)))))
 

@@ -4,7 +4,7 @@
   :author "William Halliburton <whalliburton@gmail.com>"
   :license "GPLv3"
   :serial t
-  :depends-on ("story-module-system")
+  :depends-on ("story-module-system" "trivial-mimes")
   :components ((:static-file "story-modules.asd")
                (:file "utility")
                (:file "define-module")

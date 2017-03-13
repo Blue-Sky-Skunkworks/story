@@ -14,7 +14,10 @@
     (uiop/run-program:subprocess-error () nil)))
 
 (defun set-jpeg-comment (filename comment)
-  (exif "-t0x9286" "--ifd=EXIF" "-o" filename (format nil "--set-value=\"~A\"" comment) filename))
+  (run-program-to-string "exiftool" (format nil "-comment=\"~A\"" comment) filename))
+
+(defun set-jpeg-credit (filename credit)
+  (run-program-to-string "exiftool" (format nil "-credit=\"~A\"" credit) filename))
 
 (defun clean-jpeg-exif (filename)
   (iter (for id in '(#x927C ;MakerNote

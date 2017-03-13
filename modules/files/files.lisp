@@ -105,15 +105,18 @@
   (defvar *create-controls-fn* (lambda (parent row) (create-controls parent)))
 
   (defun render-file-listing (container url &key rerender
+                                              parent-id
                                               (parent-type "table") (class-name "files")
                                               (create-row-fn *create-row-fn*)
-                                              (create-controls-fn *create-controls-fn*))
+                                              (create-controls-fn *create-controls-fn*)
+                                              (create-headings-fn *create-headings-fn*))
     (let ((div (id container)))
       (when (@ div first-child) (remove-node (@ div first-child)))
       (let ((parent (create-element parent-type div class-name)))
+        (when parent-id (setf (@ parent id) parent-id))
         (setf *file-listing* parent *file-listing-url* url)
-        (when *show-controls* (funcall *create-controls-fn* parent))
-        (funcall *create-headings-fn* parent)
+        (when (and create-controls-fn *show-controls*) (funcall create-controls-fn parent))
+        (when create-headings-fn (funcall create-headings-fn parent))
         (let ((fn
                 (lambda (rows)
                   (setf (@ div rows) rows)
@@ -148,4 +151,4 @@
   (css
    '((".files td" :padding 5px 20px 5px 0px)
      (".files tr" :cursor pointer)
-     (".files tr:hover" :background-color grey))))
+     (".files tr:hover" :background-color "#111"))))

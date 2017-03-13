@@ -77,17 +77,22 @@
                    (:td (@ data width))
                    (:td (@ data height)))
         (funcall *select-row-fn* data))
-    (when *show-description*
+    (when *show-comments*
+      (set-html* (create-element "tr" parent) ((:td :colspan 5) (@ data comment))))
+    (when *show-descriptions*
       (set-html* (create-element "tr" parent) ((:td :colspan 5) (@ data description)))))
 
   (defun create-controls (parent &optional class-prefix)
     (set-html* (create-element "tr" parent "controls")
-               (:td ((:button :style "margin-right:20px;" :onclick "toggleShowDescription()")
-                     (if *show-description* "hide description" "show description"))
+               (:td ((:button :style "margin-right:20px;" :onclick "toggleShowDescriptions()")
+                     (if *show-descriptions* "hide descriptions" "show descriptions"))
                     ((:button :onclick "toggleShowImages()")
-                     (if *show-images* "hide thumbnails" "show thumbnails")))))
+                     (if *show-images* "hide thumbnails" "show thumbnails"))
+                    ((:button :onclick "toggleShowComments()")
+                     (if *show-comments* "hide comments" "show comments")))))
 
-  (defvar *show-description* nil)
+  (defvar *show-descriptions* nil)
+  (defvar *show-comments* nil)
   (defvar *show-images* nil)
   (defvar *show-controls* t)
 
@@ -120,8 +125,12 @@
       (remove-node *file-listing*)
       (render-file-listing container nil :rerender t)))
 
-  (defun toggle-show-description ()
-    (setf *show-description* (not *show-description*))
+  (defun toggle-show-descriptions ()
+    (setf *show-descriptions* (not *show-descriptions*))
+    (rerender-listing))
+
+  (defun toggle-show-comments ()
+    (setf *show-comments* (not *show-comments*))
     (rerender-listing))
 
   (defun toggle-show-images ()

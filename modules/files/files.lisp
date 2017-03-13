@@ -9,15 +9,21 @@
   (run/ss `(pipe (convert ,filename -thumbnail 200 -) (base64))))
 
 (defun create-file-listing (directory)
-  (iter (for file in (directory-files directory))
-    (unless (string= (pathname-name file) ".file-listing")
-      (multiple-value-bind (description mime) (magic file)
-        (collect (nconc (list (cons :name (pathname-name file))
-                              (cons :type (pathname-type file))
-                              (cons :mime mime)
-                              (cons :description description)
-                              (cons :thumbnail (create-image-thumbnail file)))
-                        (additional-file-information (ksymb (string-upcase mime)) file)))))))
+  (let* ((files (directory-files directory))
+         (count (length files)))
+    (iter (for file in files)
+      (for index from 1)
+      (unless (string= (pathname-name file) ".file-listing")
+        (multiple-value-bind (description mime) (magic file)
+          (collect (nconc (list (cons :name (pathname-name file))
+                                (cons :type (pathname-type file))
+                                (cons :mime mime)
+                                (cons :description description)
+                                (cons :comment (when (string-starts-with mime "image/")
+                                                 (image-comment file)))
+                                (cons :thumbnail (create-image-thumbnail file)))
+                          (additional-file-information (ksymb (string-upcase mime)) file)))))
+      (note "[~A/~A] ~A" index count (pathname-name file)))))
 
 (defgeneric additional-file-information (type file)
   (:method (type file) (warn "Unhandled file type ~S." type))
@@ -34,6 +40,8 @@
                                  :if-does-not-exist :create :if-exists :overwrite)
       (json:encode-json (create-file-listing directory) stream)
       (note "Wrote ~S." filename))))
+
+(export 'save-file-listing)
 
 (in-package :story-js)
 
@@ -90,20 +98,22 @@
   (defvar *create-controls-fn* (lambda (parent row) (create-controls parent)))
 
   (defun render-file-listing (container url &key rerender
-                                              (parent-type "table") (class-name "files"))
-    (let* ((div (id container))
-           (parent (create-element parent-type div class-name)))
-      (setf *file-listing* parent *file-listing-url* url)
-      (when *show-controls* (funcall *create-controls-fn* parent))
-      (funcall *create-headings-fn* parent)
-      (let ((fn
-              (lambda (rows)
-                (setf (@ div rows) rows)
-                (loop for row in rows
-                      do (funcall *create-row-fn* parent row)))))
-        (if rerender
-            (funcall fn (@ div rows))
-            (fetch-file-listing url fn)))))
+                                              (parent-type "table") (class-name "files")
+                                              (create-row-fn *create-row-fn*))
+    (let ((div (id container)))
+      (when (@ div first-child) (remove-node (@ div first-child)))
+      (let ((parent (create-element parent-type div class-name)))
+        (setf *file-listing* parent *file-listing-url* url)
+        (when *show-controls* (funcall *create-controls-fn* parent))
+        (funcall *create-headings-fn* parent)
+        (let ((fn
+                (lambda (rows)
+                  (setf (@ div rows) rows)
+                  (loop for row in rows
+                        do (funcall create-row-fn parent row)))))
+          (if (and (@ div rows) rerender)
+              (funcall fn (@ div rows))
+              (fetch-file-listing url fn))))))
 
   (defun rerender-listing ()
     (let ((container (@ *file-listing* parent-node id)))

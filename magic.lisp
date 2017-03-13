@@ -58,6 +58,7 @@
           (%magic-file *magic-mime-cookie* filename)))
 
 (defun magic (el)
+  (unless *magic-cookie* (initialize-magic))
   (typecase el
     (pathname (magic-file (namestring el)))
     (vector (magic-buffer el))))

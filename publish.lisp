@@ -3,7 +3,7 @@
 (defparameter *publish-path* (story-file "build/"))
 
 (defun write-to-file (path text)
-  (with-output-to-file (stream path :if-does-not-exist :create :if-exists :overwrite)
+  (with-output-to-file (stream path :if-does-not-exist :create :if-exists :supersede)
     (write-string text stream)))
 
 (defun rsync (from to)

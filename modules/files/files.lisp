@@ -43,6 +43,28 @@
 
 (export 'save-file-listing)
 
+(defun render-directory-listing (query path)
+  (setf (content-type*) "text/html")
+  (bugout query path)
+  (unless (probe-file (format nil "~A.file-listing" path))
+    (save-file-listing path))
+  (html-to-string
+    (:html
+      (:head
+       (:title (fmt "listing for ~S." query))
+       (:link :rel "import" :href "/polymer/polymer/polymer.html")
+       (:link :rel "import" :href "/polymer/iron-ajax/iron-request.html")
+       (:script :type "text/javascript" :src "/js.js")
+       (:script :type "text/javascript" :src "/webcomponentsjs/webcomponents-lite.js")
+       (:script :type "text/javascript" :src "/polymer/iron-request.js")
+       (:script :type "text/javascript" :src "/files/files.js"))
+      (:body
+       (:div :id "files")))
+    (script*
+      `(render-file-listing "files" ,query))) )
+
+(setf *directory-listing-fn* 'render-directory-listing)
+
 (in-package :story-js)
 
 (defpsmacro on (event-name el &body body)

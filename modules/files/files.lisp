@@ -51,7 +51,7 @@
 
 (define-script files
   (defun fetch-file-listing (url callback)
-    (request (+ "/" url "/.file-listing")
+    (request (+ url ".file-listing")
              (lambda (val) (funcall callback (eval (+ "(" (@ val response) ")"))))))
 
   (defun create-headings (parent)
@@ -60,7 +60,7 @@
                (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")))
 
   (defun select-row (row)
-    (visit-url (+ "/" *file-listing-url* "/" (@ row name) "." (@ row type))))
+    (visit-url (+ *file-listing-url* (@ row name) "." (@ row type))))
 
   (defvar *select-row-fn* (lambda (row) (select-row row)))
 

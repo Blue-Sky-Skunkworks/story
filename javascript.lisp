@@ -27,13 +27,18 @@
      el))
 
 (defpsmacro set-html (el html)
-  `(setf (getprop ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l) ,html))
+  `(let ((myel ,(if (stringp el) `(id ,el) el)))
+     (setf (getprop myel 'inner-h-t-m-l) ,html)
+     myel))
 
 (defpsmacro set-html* (el &rest html)
   (let ((el (if (stringp el) `(id ,el) el)))
     `(let ((node ,el))
        (setf (getprop node 'inner-h-t-m-l) (parenscript:ps-html ,@html))
        node)))
+
+(defpsmacro create-el ((node-type parent &key class) &body html)
+  `(set-html* (create-element ,node-type ,parent ,class) ,@html))
 
 (defpsmacro inner-html (el)
   `(slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l))

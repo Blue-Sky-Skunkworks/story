@@ -62,7 +62,8 @@
     (script*
       `(render-file-listing "files" ,query))) )
 
-(setf *directory-listing-fn* 'render-directory-listing)
+(setf *directory-listing-fn* 'render-directory-listing
+      *file-argument-handler* 'render-file-viewer)
 
 (in-package :story-js)
 
@@ -81,7 +82,9 @@
                (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")))
 
   (defun select-row (row)
-    (visit-url (+ *file-listing-url* (@ row name) "." (@ row type))))
+    (visit-url (+ *file-listing-url* (@ row name)
+                  (if (@ row type) "." "")
+                  (if (@ row type) (@ row type) "") "?view=t")))
 
   (defvar *select-row-fn* (lambda (row) (select-row row)))
 
@@ -94,7 +97,7 @@
                                       ((:img :src (+ "data:" (@ data mime) ";base64,"
                                                      (@ data thumbnail)))))))))
                    ((:td :nowrap t) (@ data name))
-                   (:td (@ data mime))
+                   (:td (@ data type))
                    (:td (@ data size))
                    (:td (@ data width))
                    (:td (@ data height)))

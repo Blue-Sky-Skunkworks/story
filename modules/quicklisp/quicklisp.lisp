@@ -5,7 +5,7 @@
   :stylesheets (("ql.css" quicklisp-css))
   :files ("ql.json")
   :directories ("software")
-  :depends-on (:iron-request))
+  :depends-on (:iron-request :files))
 
 (defun list-quicklisp-packages (&optional uninstalled)
   (let ((all (ql:system-apropos-list "")))

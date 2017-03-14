@@ -10,6 +10,7 @@
   :serial t
   :depends-on ("story-modules" "story-module-images" "story-module-polymer" "cl-json")
   :components ((:static-file "story-module-files.asd")
+               (:file "viewer")
                (:file "files")
                (:file "demo-files")))
 

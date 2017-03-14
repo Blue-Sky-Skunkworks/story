@@ -213,6 +213,9 @@ matches NAME."
 (defun load-dispatches (dispatches)
   (setf *module-dispatches* (append *module-dispatches* (mapcar 'format-dispatch dispatches))))
 
+(defvar *directory-listing-fn* nil)
+(defvar *file-argument-handler* nil)
+
 ;;; serve-all
 (defmethod hunchentoot:acceptor-dispatch-request ((acceptor server) request)
   (iter (for dispatcher in *module-dispatches*)
@@ -252,7 +255,14 @@ matches NAME."
            (when (or (null mismatch) (>= mismatch (length prefix)))
              (return (list prefix dir)))))
        (destructuring-bind (prefix dir) it
-         (handle-static-file (concatenate 'string dir (subseq query (length prefix))))))
+         (let ((path (concatenate 'string dir (subseq query (length prefix))))
+               (params (get-parameters*)))
+           (cond
+             ((and *directory-listing-fn* (char= #\/ (aref path (1- (length path)))))
+              (funcall *directory-listing-fn* query path))
+             ((and *file-argument-handler* (assoc "view" params :test #'string=))
+              (funcall *file-argument-handler* query path params))
+             (t (handle-static-file path))))))
 
       ((iter (for (prefix (file . content-type)) in-hashtable *files*) ; files
              (when (string= prefix query) (return (list file content-type))))

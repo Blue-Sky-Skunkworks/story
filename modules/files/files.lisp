@@ -3,18 +3,22 @@
 (define-story-module files
   :stylesheets (("files.css" files-css))
   :scripts (("files.js" files))
-  :depends-on (:iron-request :images))
+  :depends-on (:iron-request :images :prism))
 
 (defun create-image-thumbnail (filename)
   (run/ss `(pipe (convert ,filename -thumbnail 200 -) (base64))))
 
 (defun create-file-listing (directory)
-  (let* ((files (remove-if #L(string= (pathname-name %) ".file-listing") (directory-files directory)))
+  (let* ((files (nconc
+                 (remove-if #L(string= (pathname-name %) ".file-listing") (directory-files directory))
+                 (subdirectories directory)))
          (count (length files)))
     (iter (for file in files)
       (for index from 1)
       (multiple-value-bind (description mime) (magic file)
-        (collect (nconc (list (cons :name (pathname-name file))
+        (collect (nconc (list (cons :name (if (string= mime "inode/directory")
+                                              (last1 (pathname-directory file))
+                                              (pathname-name file)))
                               (cons :type (pathname-type file))
                               (cons :mime mime)
                               (cons :description description)
@@ -84,7 +88,10 @@
   (defun select-row (row)
     (visit-url (+ *file-listing-url* (@ row name)
                   (if (@ row type) "." "")
-                  (if (@ row type) (@ row type) "") "?view=t")))
+                  (if (@ row type) (@ row type) "")
+                  (if (=== (@ row mime) "inode/directory")
+                      "/"
+                      "?view=t"))))
 
   (defvar *select-row-fn* (lambda (row) (select-row row)))
 

@@ -2,7 +2,7 @@
 
 (define-story-module files
   :stylesheets (("files.css" files-css))
-  :scripts (("files.js" files))
+  :scripts (("files.js" files) "marked.js")
   :depends-on (:iron-request :images :prism))
 
 (defun create-image-thumbnail (filename)
@@ -174,7 +174,10 @@
     (setf *show-images* (not *show-images*))
     (rerender-listing))
 
-  )
+  (defun render-markdown (el query)
+    (request query
+             (lambda (val)
+               (set-html (id el) (marked (@ val response)))))))
 
 (in-package :story-css)
 

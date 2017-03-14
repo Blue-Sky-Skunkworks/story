@@ -45,7 +45,6 @@
 
 (defun render-directory-listing (query path)
   (setf (content-type*) "text/html")
-  (bugout query path)
   (unless (probe-file (format nil "~A.file-listing" path))
     (save-file-listing path))
   (html-to-string

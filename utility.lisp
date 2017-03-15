@@ -193,3 +193,9 @@
                 original-eval-region nil))
         (format t "No longer using a naked repl.~%")))
     (values)))
+
+(in-package :json)
+
+(defmethod encode-json ((p pathname) &optional (stream *json-output*))
+  (write-json-string (namestring p) stream))
+

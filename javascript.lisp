@@ -168,9 +168,7 @@
           ((@ window open) url "_blank"))
 
         (defun id (id &optional (error t))
-          (let ((hit ((@ document get-element-by-id) id)))
-            (if hit
-                (return hit)
-                (if error (console "ERROR: id" id))))))))))
+          (or ((@ document get-element-by-id) id)
+              (when error (console "ERROR: id" id)))))))))
 
 (defun js-file () *js-file*)

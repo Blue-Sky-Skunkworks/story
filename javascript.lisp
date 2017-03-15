@@ -142,11 +142,23 @@
 
         (defvar *trace-level* 0)
 
+        (defun type-of (o)
+          (let ((type (typeof o)))
+            (cond
+              ((and (eql type "object") o (instanceof o *array)) "array")
+              ((eql type "object") nil)
+              (t type))))
+
+        (defun arrayp (o)
+          (eql (type-of o) "array"))
+
         (defun add-class (el name)
           (setf (@ el class-name) (+ (@ el class-name) (if (@ el class-name) " " "") name)))
 
         (setf (@ *string prototype ends-with)
-         (lambda (suffix) (return (not (== ((@ this index-of) suffix (- (@ this length) (@ suffix length))) -1)))))
+         (lambda (suffix) (not (equal ((@ this index-of) suffix
+                                       (- (@ this length) (@ suffix length)))
+                                      -1))))
 
         (defun when-ready (fn)
           ((@ document add-event-listener) "WebComponentsReady"

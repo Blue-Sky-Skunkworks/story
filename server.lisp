@@ -277,23 +277,48 @@ matches NAME."
        (setf (return-code *reply*) +http-not-found+)
        (abort-request-handler)))))
 
+(defun server-info ()
+  (let ((server *server*))
+    (list
+     (cons :port (acceptor-port server))
+     (cons :address (acceptor-address server))
+     (cons :css
+           (iter (for (k v) in-hashtable *css*)
+             (collect k)))
+     (cons :scripts
+           (iter (for (k v) in-hashtable *scripts*)
+             (collect (list k v))))
+     (cons :directories
+           (iter (for (k v) in-hashtable *directories*)
+             (collect (list k v))))
+     (cons :files
+           (iter (for (k (name . type)) in-hashtable *files*)
+             (collect (list k type name))))
+     (cons :imports
+           (iter (for el in (remove-duplicates *imports* :test 'equal :from-end t))
+             (collect el)))
+     (cons :dispatches
+           (iter (for el in *module-dispatches*)
+             (collect el))))))
+
 (defun server ()
   "Describe the server."
-  (let ((server *server*))
-    (print-heading "story server")
-    (format t "port ~S~@[ address ~A~]~%" (acceptor-port server) (acceptor-address server))
-    (format t "~%css:~%")
-    (iter (for (k v) in-hashtable *css*) (format t "  ~36A  ~@[~A~]~%" k (unless (stringp v) v)))
-    (format t "~%scripts:~%")
-    (iter (for (k v) in-hashtable *scripts*) (format t "  ~36A  ~@[~A~]~%" k (typecase v (string nil) (t v))))
-    (format t "~%directories:~%")
-    (iter (for (k v) in-hashtable *directories*) (format t "  ~36A  ~A~%" k v))
-    (format t "~%files:~%")
-    (iter (for (k (name . type)) in-hashtable *files*) (format t "  ~36A  ~16A ~A~%" k type name))
-    (format t "~%imports:~%")
-    (iter (for el in (remove-duplicates *imports* :test 'equal :from-end t)) (format t "  ~A~%" el))
-    (format t "~%dispatches:~%")
-    (iter (for el in *module-dispatches*) (format t "  ~A~%" el))))
+  (print-heading "story server")
+  (let ((info (server-info)))
+    (flet ((val (key) (assoc-value info key)))
+      (format t "port ~S~@[ address ~A~]~%" (val :port) (val :address))
+      (format t "~%css:~%")
+      (iter (for (k v) in (val :css)) (format t "  ~36A  ~@[~A~]~%" k (unless (stringp v) v)))
+      (format t "~%scripts:~%")
+      (iter (for (k v) in (val :scripts)) (format t "  ~36A  ~@[~A~]~%" k (typecase v (string nil) (t v))))
+      (format t "~%directories:~%")
+      (iter (for (k v) in (val :directories)) (format t "  ~36A  ~A~%" k v))
+      (format t "~%files:~%")
+      (iter (for (k type name) in (val :files)) (format t "  ~36A  ~16A ~A~%" k type name))
+      (format t "~%imports:~%")
+      (iter (for el in (val :imports)) (format t "  ~A~%" el))
+      (format t "~%dispatches:~%")
+      (iter (for el in (val :dispatches)) (format t "  ~A~%" el)))))
 
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)

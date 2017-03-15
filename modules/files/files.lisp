@@ -16,16 +16,18 @@
     (iter (for file in files)
       (for index from 1)
       (multiple-value-bind (description mime) (magic file)
-        (collect (nconc (list (cons :name (if (string= mime "inode/directory")
-                                              (last1 (pathname-directory file))
-                                              (pathname-name file)))
-                              (cons :type (pathname-type file))
-                              (cons :mime mime)
-                              (cons :description description)
-                              (cons :thumbnail (create-image-thumbnail file))
-                              (cons :size (ql-util:file-size file)))
-                        (additional-file-information (ksymb (string-upcase mime)) file))))
-      (note "[~A/~A] ~A" index count (pathname-name file)))))
+        (let ((info (nconc (list (cons :name (if (string= mime "inode/directory")
+                                                 (last1 (pathname-directory file))
+                                                 (pathname-name file)))
+                                 (cons :type (pathname-type file))
+                                 (cons :mime mime)
+                                 (cons :description description)
+                                 (cons :thumbnail (create-image-thumbnail file))
+                                 (cons :size (ql-util:file-size file)))
+                           (additional-file-information (ksymb (string-upcase mime)) file))))
+          (collect info)
+          (note "[~A/~A] ~28T ~10A ~@[~A~]" index count (assoc-value info :name)
+                (assoc-value info :comment)))))))
 
 (defgeneric additional-file-information (type file)
   (:method (type file) (warn "Unhandled file type ~S." type))
@@ -85,17 +87,20 @@
                (when *show-images* (ps-html (:th "thumbnail")))
                (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")))
 
+  (defun row-url (row)
+    (+ *file-listing-url* (@ row name)
+       (if (@ row type) "." "")
+       (if (@ row type) (@ row type) "")))
+
   (defun select-row (row)
-    (visit-url (+ *file-listing-url* (@ row name)
-                  (if (@ row type) "." "")
-                  (if (@ row type) (@ row type) "")
-                  (if (=== (@ row mime) "inode/directory")
+    (visit-url (+ (row-url row)
+                  (if (eql (@ row mime) "inode/directory")
                       "/"
                       "?view=t"))))
 
   (defvar *select-row-fn* (lambda (row) (select-row row)))
 
-  (defun create-row (parent data)
+  (defun create-row (parent data &optional index)
     (on "click"
         (set-html* (create-element "tr" parent)
                    (when *show-images*
@@ -135,12 +140,13 @@
   (defvar *create-row-fn* (lambda (parent row) (create-row parent row)))
   (defvar *create-controls-fn* (lambda (parent row) (create-controls parent)))
 
-  (defun render-file-listing (container url &key rerender
+  (defun render-file-listing (container url &key (rerender-from-cache t)
                                               parent-id
                                               (parent-type "table") (class-name "files")
                                               (create-row-fn *create-row-fn*)
                                               (create-controls-fn *create-controls-fn*)
-                                              (create-headings-fn *create-headings-fn*))
+                                              (create-headings-fn *create-headings-fn*)
+                                              continuation)
     (let ((div (id container)))
       (when (@ div first-child) (remove-node (@ div first-child)))
       (let ((parent (create-element parent-type div class-name)))
@@ -152,8 +158,10 @@
                 (lambda (rows)
                   (setf (@ div rows) rows)
                   (loop for row in rows
-                        do (funcall create-row-fn parent row)))))
-          (if (and (@ div rows) rerender)
+                        for index from 0
+                        do (funcall create-row-fn parent row index))
+                  (when continuation (funcall continuation div)))))
+          (if (and (@ div rows) rerender-from-cache)
               (funcall fn (@ div rows))
               (fetch-file-listing url fn))))))
 

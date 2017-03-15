@@ -9,10 +9,18 @@
 (defun parse-jpeg-exif (filename)
   (string-to-table (exif "-m" filename)))
 
+(defun remove-surrounding-brackets (string)
+  (let ((len (1- (length string))))
+    (if (and (char= (aref string 0) #\[)
+             (char= (aref string len) #\]))
+        (subseq string 1 len)
+        string)))
+
 (defun jpeg-comment (filename)
   (let* ((raw (run-program-to-string "exiftool" "-comment" filename))
          (pos (position #\: raw)))
-    (when pos (string-trim '(#\space #\newline #\[ #\]) (subseq raw (1+ pos))))))
+    (when pos (remove-surrounding-brackets
+               (string-trim '(#\space #\newline) (subseq raw (1+ pos)))))))
 
 (defun set-jpeg-comment (filename comment)
   (run-program-to-string "exiftool" (format nil "-comment=\"~A\"" comment) filename))

@@ -48,6 +48,11 @@
 
 (defpsmacro random (max) `(* ((@ *math random)) ,max))
 
+(defpsmacro when-let ((variable initial-form) &body body)
+  `(let ((,variable ,initial-form))
+     (when ,variable
+       ,@body)))
+
 (defun ensure-string (el)
   (if (null el) ""
     (typecase el
@@ -104,20 +109,13 @@
            (console *trace-level* ,sname "returned" rtn)
            (return rtn))))))
 
-(defun mkstr (&rest args)
-  (with-output-to-string (s)
-    (dolist (a args) (when a (princ a s)))))
-
-(defun symb (&rest args)
-  (values (intern (apply #'mkstr args))))
-
 (defun maximize-string-length (els)
   (let ((max 0))
     (loop for string in (mapcar #'princ-to-string els)
           do (let ((len (length string))) (when (> len max) (setf max len))))
     max))
 
-(defmacro/ps define-story-module-parameters (module-name names &body body)
+(defpsmacro define-story-module-parameters (module-name names &body body)
   `(progn
      ,@(loop for name in names
              collect `(defvar ,(symb '* module-name '- (if (consp name) (car name) name) '*)))

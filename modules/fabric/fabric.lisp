@@ -32,10 +32,7 @@
            (bounds ((@ canvas get-bounding-client-rect))))
       (setf (@ fabric-canvas bounds) bounds
             (@ canvas fabric-canvas) fabric-canvas)
-      fabric-canvas))
-
-
-  )
+      fabric-canvas)))
 
 
 

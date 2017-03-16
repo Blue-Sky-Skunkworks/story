@@ -1,3 +1,4 @@
+
 (defsystem :story
   :serial t
   :depends-on ("alexandria" "cl-who" "parenscript" "hunchentoot" "split-sequence" "zpng" "cl-json"
@@ -7,9 +8,9 @@
                (:file "package")
                (:file "magic")
                (:file "configuration")
-               (:file "javascript")
                (:file "sharpl")
                (:file "utility")
+               (:file "javascript")
                (:file "git")
                (:file "element")
                (:file "define-story")

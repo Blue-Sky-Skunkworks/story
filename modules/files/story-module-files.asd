@@ -8,9 +8,11 @@
   :author "unknown"
   :license "unknown"
   :serial t
-  :depends-on ("story-modules" "story-module-images" "story-module-polymer" "cl-json")
+  :depends-on ("story-modules" "story-module-images" "story-module-polymer" "cl-json"
+                               "closure-html" "cxml-stp" "drakma" "trivial-download")
   :components ((:static-file "story-module-files.asd")
                (:file "viewer")
                (:file "files")
+               (:file "html")
                (:file "demo-files")))
 

@@ -85,7 +85,7 @@
 
 (defpsmacro defun-trace (name args &rest body)
   (let* ((sname (ps::symbol-to-js-string name))
-         (tname (ps-gensym name))
+         (tname (ps-gensym (princ-to-string name)))
          (this (ps-gensym "this"))
          (arg-names (loop for arg in args
                           unless (eq arg '&optional)

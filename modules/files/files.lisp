@@ -144,12 +144,15 @@
   (defvar *create-row-fn* (lambda (parent row) (create-row parent row)))
   (defvar *create-controls-fn* (lambda (parent row) (create-controls parent)))
 
+  (defun identity (el) el)
+
   (defun render-file-listing (container url &key (rerender-from-cache t)
                                               parent-id
                                               (parent-type "table") (class-name "files")
                                               (create-row-fn *create-row-fn*)
                                               (create-controls-fn *create-controls-fn*)
                                               (create-headings-fn *create-headings-fn*)
+                                              (row-filter identity)
                                               continuation)
     (let ((div (id container)))
       (when (@ div first-child) (remove-node (@ div first-child)))
@@ -160,7 +163,7 @@
         (when create-headings-fn (funcall create-headings-fn parent))
         (let ((fn
                 (lambda (rows)
-                  (setf (@ div rows) rows)
+                  (setf (@ div rows) (mapcar row-filter rows))
                   (loop for row in rows
                         for index from 0
                         do (funcall create-row-fn parent row index))

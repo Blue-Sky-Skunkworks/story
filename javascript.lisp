@@ -136,11 +136,22 @@
 (defparameter *js-file*
   (concatenate
    'string
+
    (let ((ps:*js-string-delimiter* #\'))
      (ps*
       '(progn
 
         (defvar *trace-level* 0)
+
+        (defun mapcar (fun &rest arrs)
+          (let ((result-array (make-array)))
+            (if (= 1 (length arrs))
+                (dolist (element (aref arrs 0))
+                  ((@ result-array push) (fun element)))
+                (dotimes (i (length (aref arrs 0)))
+                  (let ((args-array (mapcar (lambda (a) (aref a i)) arrs)))
+                    ((@ result-array push) ((@ fun apply) fun args-array)))))
+            result-array))
 
         (defun type-of (o)
           (let ((type (typeof o)))

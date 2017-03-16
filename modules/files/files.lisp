@@ -47,7 +47,7 @@
 (defun save-file-listing (directory)
   (let ((filename (format nil "~A.file-listing" directory)))
     (with-output-to-file (stream filename
-                                 :if-does-not-exist :create :if-exists :overwrite)
+                                 :if-does-not-exist :create :if-exists :supersede)
       (json:encode-json (create-file-listing directory) stream)
       (note "Wrote ~S." filename))))
 

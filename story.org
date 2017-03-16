@@ -159,8 +159,6 @@ Exchanging and persisting data between devices and services
 *** TODO sigma
 *** TODO cytoscape
 *** TODO gun
-** TODO js-git
-** TODO gitlet
 ** TODO image slideshow
 ** TODO image cropper
    icropper
@@ -168,5 +166,10 @@ Exchanging and persisting data between devices and services
    fabric
 ** TODO download D3 repo
 ** TODO research git-core
-
+** TODO git
+*** TODO js-git
+*** TODO gitlet
+*** TODO git-html5.js
+*** TODO octokat.js
+** TODO browserfy
 

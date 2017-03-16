@@ -74,7 +74,9 @@
           (to (if (consp dir) (second dir) dir)))
       (collect
           (list
-           (format nil "~A~A/" base from)
+           (if (string-starts-with from "/")
+               from
+               (format nil "~A~A/" base from))
            (format nil "/~A/" to))))))
 
 (defun localize-files (base files)

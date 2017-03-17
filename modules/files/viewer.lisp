@@ -43,3 +43,4 @@
                  ((member mime '("image/png" "image/jpeg") :test #'string=)
                   (htm (:img :src query)))
                  (t (htm (:span (fmt "Unhandled file type ~S." mime))))))))))))
+

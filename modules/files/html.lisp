@@ -1,5 +1,7 @@
 (defpackage story-parsing
-  (:use common-lisp iterate closure-html cxml-stp drakma trivial-download))
+  (:use common-lisp iterate closure-html drakma trivial-download))
+
+;; TODO evaluate caramel for scraping
 
 (in-package :story-parsing)
 
@@ -19,3 +21,4 @@
                  (equal (local-name a) "title"))
         (return-from page-title (string-value a))))))
 
+(export '(page-links page-title))

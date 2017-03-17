@@ -80,7 +80,9 @@
           (flet ((setpos () (setf (@ editor mouse-down-position) pos)))
             (with-fabric editor
               (cond
-                ((middle-clickp event) (setf (@ editor mode) :panning) (setpos))
+                ((middle-clickp event)
+                 (select-panning)
+                 (setpos))
                 ((eql (@ editor mode) :panning) (setpos))
                 ((eql (@ editor mode) :cropping)
                  (let ((crop (@ editor crop)))

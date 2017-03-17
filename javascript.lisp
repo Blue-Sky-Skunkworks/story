@@ -1,5 +1,12 @@
 (in-package :story-js)
 
+(defun mkstr (&rest args)
+  (with-output-to-string (s)
+    (dolist (a args) (when a (princ a s)))))
+
+(defun symb (&rest args)
+  (values (intern (apply #'mkstr args))))
+
 (defmacro define-script (name &body body)
   `(progn
      (defun ,(intern (symbol-name name) :story-js) () ,(ps* `(progn ,@body)))

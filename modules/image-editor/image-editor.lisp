@@ -17,10 +17,12 @@
 
   (defun update-modeline ()
     (let* ((image (@ *editor* image))
+           (zoom ((@ *editor* get-zoom)))
            (text
              ((@ (array
                   (or (@ *editor* mode) "")
                   (or (@ *editor* loaded-image-url) "")
+                  (or (and (not (= zoom 1)) (+ "[" (round (* zoom 100)) "%]")) "")
                   (or (when-let (crop (@ *editor* crop))
                         (when (@ crop visible)
                           (+ "(" (nround (- (left crop) (left image)))
@@ -76,7 +78,8 @@
                (x (@ event e offset-x))
                (y (@ event e offset-y)))
           ((@ editor zoom-to-point) (create :x x :y y) newzoom)
-          ((@ event e prevent-default))))
+          ((@ event e prevent-default)))
+        (update-modeline))
     (on editor "mouse:down"
         (with-fabric editor
           (cond

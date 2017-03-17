@@ -46,8 +46,6 @@
 (defpsmacro remove-node (el)
   `((@ ,el parent-node remove-child) ,el))
 
-(defpsmacro random (max) `(* ((@ *math random)) ,max))
-
 (defpsmacro when-let ((variable initial-form) &body body)
   `(let ((,variable ,initial-form))
      (when ,variable

@@ -1,5 +1,6 @@
 (defpackage story-parsing
-  (:use common-lisp iterate closure-html drakma trivial-download))
+  (:use common-lisp iterate drakma cxml-stp trivial-download)
+  (:import-from closure-html parse))
 
 ;; TODO evaluate caramel for scraping
 

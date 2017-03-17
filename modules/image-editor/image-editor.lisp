@@ -9,12 +9,6 @@
 (define-script image-editor-js
   (defvar *editor*)
 
-  (defun nround (x n)
-    (if n
-        (let ((n ((@ *math pow) 10 n)))
-          (/ ((@ *math round) (* x n)) n))
-        ((@ *math round) x)))
-
   (defun update-modeline ()
     (let* ((image (@ *editor* image))
            (zoom ((@ *editor* get-zoom)))
@@ -25,10 +19,10 @@
                   (or (and (not (= zoom 1)) (+ "[" (round (* zoom 100)) "%]")) "")
                   (or (when-let (crop (@ *editor* crop))
                         (when (@ crop visible)
-                          (+ "(" (nround (- (left crop) (left image)))
-                             "+" (width crop)
-                             "," (nround (- (top crop) (top image)))
-                             "+" (height crop) ")")))
+                          (+ "(" (round (- (left crop) (left image)))
+                             "+" (round (width crop))
+                             "," (round (- (top crop) (top image)))
+                             "+" (round (height crop)) ")")))
                       ""))
                  join) " ")))
       (set-html (@ *editor* modeline) text)))

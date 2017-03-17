@@ -37,7 +37,7 @@
                       stroke-dash-array (array 2 -2)
                       visible false
                       border-color "white"
-                      corner-color "white"
+                      corner-color "blue"
                       corner-size 20
                       has-rotating-point false)))
       (setf (@ *editor* crop) crop)
@@ -57,8 +57,16 @@
 
   (defun select-panning ()
     (setf (@ *editor* mode) :panning
+          (@ *editor* default-cursor) "move")
+    (update-modeline))
+
+  (defun end-mode ()
+    (setf (@ *editor* mode) nil
           (@ *editor* default-cursor) "default")
     (update-modeline))
+
+  (defun middle-clickp (event)
+    (= (@ event e button) 1))
 
   (defun initialize-image-editor (canvas-id &optional controls-id modeline-id)
     (when controls-id
@@ -72,6 +80,10 @@
     (on *editor* "mouse:down"
         (with-fabric *editor*
           (cond
+            ((middle-clickp event)
+             (setf
+              (@ *editor* mode) :panning
+              (@ *editor* mouse-down-event) (@ event e)))
             ((eql (@ *editor* mode) :panning)
              (setf (@ *editor* mouse-down-event) (@ event e)))
             ((eql (@ *editor* mode) :cropping)
@@ -87,25 +99,22 @@
                        (@ crop visible) t)
                  (setf (@ *editor* mouse-down-event) (@ event e))
                  (bring-to-front crop)))))))
-    (on *editor* "mouse:up" (setf (@ *editor* mouse-down-event) nil))
+    (on *editor* "mouse:up" (end-mode))
     (on *editor* "mouse:move"
         (when (and (@ *editor* mode) (@ *editor* mouse-down-event))
-          (cond
-            ((eql (@ *editor* mode) :panning)
-             (let* ((mde (@ *editor* mouse-down-event))
-                    (image (@ *editor* image))
-                    (dx (- (@ event e page-x) (@ mde page-x)))
-                    (dy (- (@ event e page-y) (@ mde page-y))))
-               (setf
-                (@ image left) (+ (@ image left) dx)
-                (@ image top) (+ (@ image top) dy)
-                (@ *editor* mouse-down-event) (@ event e))))
-            ((eql (@ *editor* mode) :cropping)
-             (let ((crop (@ *editor* crop))
-                   (mde (@ *editor* mouse-down-event)))
-               (setf (width crop) (- (@ event e page-x) (@ mde page-x))
-                     (height crop) (- (@ event e page-y) (@ mde page-y)))
-               ((@ crop set-coords)))))
+          (let ((mode (@ *editor* mode))
+                (mde (@ *editor* mouse-down-event)))
+           (cond
+             ((eql mode :panning)
+              (let* ((dx (- (@ event e page-x) (@ mde page-x)))
+                     (dy (- (@ event e page-y) (@ mde page-y))))
+                ((@ *editor* relative-pan) (create :x dx :y dy))
+                (setf (@ *editor* mouse-down-event) (@ event e))))
+             ((eql mode :cropping)
+              (let ((crop (@ *editor* crop)))
+                (setf (width crop) (- (@ event e page-x) (@ mde page-x))
+                      (height crop) (- (@ event e page-y) (@ mde page-y)))
+                ((@ crop set-coords))))))
           (update-modeline)
           ((@ *editor* render-all)))))
 

@@ -8,7 +8,7 @@
 (defpsmacro rect (&rest args) `(new ((@ fabric *rect) (create ,@args))))
 (defpsmacro text (text &rest args) `(new ((@ fabric *text) ,text (create ,@args))))
 (defpsmacro on (el event-name &body body)
-  `((@ ,el on) ,event-name (lambda (event) ,@body)))
+  `((@ ,el on) ,event-name (lambda (event) (let ((e (@ event e))) ,@body))))
 (defpsmacro add (&rest els) `(progn ,@(loop for el in els collect `((@ *fabric-canvas* add) ,el))))
 (defpsmacro left (el) `(@ ,el left))
 (defpsmacro top (el) `(@ ,el top))

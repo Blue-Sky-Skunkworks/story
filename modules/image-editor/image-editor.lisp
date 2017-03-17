@@ -65,7 +65,7 @@
   (defun end-mode ()
     (setf (@ *editor* mode) nil
           (@ *editor* default-cursor) "default"
-          (@ *editor* mouse-down-event) nil)
+          (@ *editor* mouse-down-position) nil)
     (update-modeline))
 
   (defun middle-clickp (event)
@@ -82,41 +82,38 @@
           ((@ e prevent-default)))
         (update-modeline))
     (on editor "mouse:down"
-        (with-fabric editor
-          (cond
-            ((middle-clickp event)
-             (setf (@ editor mode) :panning
-                   (@ editor mouse-down-event) e))
-            ((eql (@ editor mode) :panning)
-             (setf (@ editor mouse-down-event) e))
-            ((eql (@ editor mode) :cropping)
-             (let ((left (- (@ e page-x) (left (@ editor bounds))))
-                   (top (- (@ e page-y) (top (@ editor bounds))))
-                   (crop (@ editor crop)))
-               (when (or (not (@ crop visible))
-                         (not ((@ crop contains-point) (create :x left :y top))))
-                 (setf (width crop) 2
-                       (height crop) 2
-                       (left crop) left
-                       (top crop) top
-                       (@ crop visible) t)
-                 (setf (@ editor mouse-down-event) e)
-                 (bring-to-front crop)))))))
+        (let ((pos ((@ editor get-pointer) e)))
+          (flet ((setpos () (setf (@ editor mouse-down-position) pos)))
+            (with-fabric editor
+              (cond
+                ((middle-clickp event) (setf (@ editor mode) :panning) (setpos))
+                ((eql (@ editor mode) :panning) (setpos))
+                ((eql (@ editor mode) :cropping)
+                 (let ((crop (@ editor crop)))
+                   (when (or (not (@ crop visible))
+                             (not ((@ crop contains-point) pos)))
+                     (setf (width crop) 2
+                           (height crop) 2
+                           (left crop) (@ pos x)
+                           (top crop) (@ pos y)
+                           (@ crop visible) t)
+                     (setpos)
+                     (bring-to-front crop)))))))))
     (on editor "mouse:up" (end-mode))
     (on editor "mouse:move"
-        (when (and (@ editor mode) (@ editor mouse-down-event))
+        (when (and (@ editor mode) (@ editor mouse-down-position))
           (let ((mode (@ editor mode))
-                (mde (@ editor mouse-down-event)))
+                (mdpos (@ editor mouse-down-position))
+                (pos ((@ editor get-pointer) e)))
             (cond
               ((eql mode :panning)
-               (let* ((dx (- (@ e page-x) (@ mde page-x)))
-                      (dy (- (@ e page-y) (@ mde page-y))))
-                 ((@ editor relative-pan) (create :x dx :y dy))
-                 (setf (@ editor mouse-down-event) e)))
+               (let* ((dx (- (@ pos x) (@ mdpos x)))
+                      (dy (- (@ pos y) (@ mdpos y))))
+                 ((@ editor relative-pan) (create :x dx :y dy))))
               ((eql mode :cropping)
                (let ((crop (@ editor crop)))
-                 (setf (width crop) (- (@ e page-x) (@ mde page-x))
-                       (height crop) (- (@ e page-y) (@ mde page-y)))
+                 (setf (width crop) (- (@ pos x) (@ mdpos x))
+                       (height crop) (- (@ pos y) (@ mdpos y)))
                  ((@ crop set-coords))))))
           (update-modeline)
           ((@ editor render-all)))))

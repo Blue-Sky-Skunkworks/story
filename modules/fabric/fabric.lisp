@@ -28,10 +28,8 @@
 
   (defun initialize-fabric (canvas-id)
     (let* ((canvas (id canvas-id))
-           (fabric-canvas (new ((@ fabric *canvas) canvas-id (create 'fire-middle-click t))))
-           (bounds ((@ canvas get-bounding-client-rect))))
-      (setf (@ fabric-canvas bounds) bounds
-            (@ canvas fabric-canvas) fabric-canvas)
+           (fabric-canvas (new ((@ fabric *canvas) canvas-id (create 'fire-middle-click t)))))
+      (setf (@ canvas fabric-canvas) fabric-canvas)
       fabric-canvas)))
 
 

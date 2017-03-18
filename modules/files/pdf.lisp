@@ -8,7 +8,7 @@
 
 (defmethod additional-file-information ((type (eql :application/pdf)) file)
   (list (cons :info (pdf-info file))
-        (cons :thumbnail (create-image-thumbnail (extract-pdf-page file 1)))))
+        (cons :thumbnail (create-image-thumbnail (f "~A[0]" file)))))
 
 (defun extract-pdf-page (file page &optional (destination (story-file "modules/files/tmp-pdf-pages/")))
   (ensure-directories-exist destination)

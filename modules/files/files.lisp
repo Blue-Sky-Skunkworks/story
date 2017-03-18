@@ -3,7 +3,7 @@
 (define-story-module files
   :stylesheets (("files.css" files-css))
   :scripts (("files.js" files) "marked.js")
-  :depends-on (:iron-request :images :prism :packery))
+  :depends-on (:iron-request :images :prism))
 
 (defun create-image-thumbnail (filename)
   (run/ss `(pipe (convert ,filename -thumbnail 200 "png:-") (base64))))
@@ -74,11 +74,7 @@
       (:body
        (:div :id "files")))
     (script*
-      `(render-file-listing "files" ,query :parent-id "file-grid"
-                                           :continuation
-                                           (lambda (el)
-                                             ;;(pack "file-grid")
-                                                           )))) )
+      `(render-file-listing "files" ,query))))
 
 (setf *directory-listing-fn* 'render-directory-listing
       *file-argument-handler* 'render-file-viewer)
@@ -116,21 +112,21 @@
 
   (defun create-row (parent data &optional index)
     (on "click"
-        (create-el ("tr" parent)
-                   (when *show-images*
-                     (ps-html (:td (when (@ data thumbnail)
-                                     (ps-html
-                                      ((:img :src (+ "data:" (@ data mime) ";base64,"
-                                                     (@ data thumbnail)))))))))
-                   ((:td :nowrap t) (@ data name))
-                   (:td (@ data type))
-                   (:td (@ data size))
-                   (:td (@ data width))
-                   (:td (@ data height))
-                   (when *show-comments*
-                     (ps-html (:td (@ data comment))))
-                   (when *show-descriptions*
-                     (ps-html (:td (@ data description)))))
+        (create-el
+         ("tr" parent)
+         (when *show-images*
+           (ps-html (:td (when (@ data thumbnail)
+                           (ps-html
+                            ((:img :src (+ "data:image/png;base64," (@ data thumbnail)))))))))
+         ((:td :nowrap t) (@ data name))
+         (:td (@ data type))
+         (:td (@ data size))
+         (:td (@ data width))
+         (:td (@ data height))
+         (when *show-comments*
+           (ps-html (:td (@ data comment))))
+         (when *show-descriptions*
+           (ps-html (:td (@ data description)))))
         (funcall *select-row-fn* data)))
 
   (defun create-grid-el (parent data &optional index)
@@ -139,8 +135,7 @@
                    (when *show-images*
                      (when (@ data thumbnail)
                        (ps-html
-                        ((:img :src (+ "data:" (@ data mime) ";base64,"
-                                       (@ data thumbnail)))))))
+                        ((:img :src (+ "data:image/png;base64," (@ data thumbnail)))))))
                    ((:div :class "name") (@ data name))
                    (when *show-comments*
                      (ps-html
@@ -208,7 +203,7 @@
   (defun rerender-listing ()
     (let ((container (@ *file-listing* parent-node id)))
       (remove-node *file-listing*)
-      (render-file-listing container nil :rerender t)))
+      (render-file-listing container *file-listing-url* :rerender t)))
 
   (defun toggle-show-descriptions ()
     (setf *show-descriptions* (not *show-descriptions*))

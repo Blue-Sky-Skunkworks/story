@@ -27,10 +27,7 @@
                (:script :type "text/javascript" :src "/prism/prism.js"))
               (:body
                (cond
-                 (hex
-                  (htm
-                   (:pre
-                    (esc (run/s `(hexdump "-C" ,path))))))
+                 (hex (htm (:pre (esc (run/s `(hexdump "-C" ,path))))))
                  ((member mime '("text/plain" "text/x-lisp") :test #'string=)
                   (cond
                     ((member type '("css" "js") :test #'string=)

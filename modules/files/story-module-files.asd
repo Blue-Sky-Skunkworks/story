@@ -14,8 +14,8 @@
                                "closure-html" "cxml-stp" "drakma" "trivial-download")
   :components ((:static-file "story-module-files.asd")
                (:file "html")
-               (:file "viewer")
                (:file "files")
                (:file "pdf")
+               (:file "viewer")
                (:file "demo-files")))
 

@@ -284,7 +284,7 @@ matches NAME."
      (cons :address (acceptor-address server))
      (cons :css
            (iter (for (k v) in-hashtable *css*)
-             (collect k)))
+             (collect (list k v))))
      (cons :scripts
            (iter (for (k v) in-hashtable *scripts*)
              (collect (list k v))))

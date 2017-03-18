@@ -5,8 +5,8 @@
   :scripts (("files.js" files) "marked.js")
   :depends-on (:iron-request :images :prism))
 
-(defun create-image-thumbnail (filename)
-  (run/ss `(pipe (convert ,filename -thumbnail 200 "png:-") (base64))))
+(defun create-image-thumbnail (filename &optional (width 200) (type "png"))
+  (run/ss `(pipe (convert ,filename -thumbnail ,width ,(f "~A:-" type)) (base64))))
 
 (defun create-file-listing (directory)
   (let* ((files (nconc

@@ -16,3 +16,12 @@
     (run `(pdfimages "-png" "-f" ,page "-l" ,page ,file ,name))
     (f "~A-000.png" name)))
 
+(defun render-pdf-info (stream file)
+  (html
+    (:h1 (esc (pathname-name file)))
+    (:img :src (f "data:image/png;base64,~A" (create-image-thumbnail (f "~A[0]" file) 400)))
+    (:img :src (f "data:image/png;base64,~A" (create-image-thumbnail (f "~A[1]" file) 400)))
+    (:img :src (f "data:image/png;base64,~A" (create-image-thumbnail (f "~A[2]" file) 400)))
+    (:table
+     (iter (for (k . v) in (pdf-info file))
+       (htm (:tr (:th (esc k)) (:td (esc v))))))))

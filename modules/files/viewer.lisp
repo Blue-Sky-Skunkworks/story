@@ -39,5 +39,7 @@
                     (t (htm (:pre (esc (slurp-file path)))))))
                  ((member mime '("image/png" "image/jpeg") :test #'string=)
                   (htm (:img :src query)))
+                 ((string= mime "application/pdf")
+                  (render-pdf-info stream path))
                  (t (htm (:span (fmt "Unhandled file type ~S." mime))))))))))))
 

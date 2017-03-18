@@ -7,7 +7,7 @@
     (write-string text stream)))
 
 (defun rsync (from to)
-  (run-program-to-string "rsync" "-a" "--no-l" "-L" from to))
+  (run `(rsync -a --no-l -L ,from ,to)))
 
 (defmacro with-cd-excursion (path &body body)
   (let ((pwd (gensym)))

@@ -3,12 +3,8 @@
 (defparameter *repository* (story-file))
 
 (defun git (command &key (repository *repository*))
-  (split-sequence:split-sequence
-   #\newline
-   (apply #'run-program-to-string "git"
-          (format nil "--git-dir=~A.git" (ensure-trailing-slash repository))
-          command)
-   :remove-empty-subseqs t))
+  (run/lines `(git ,(format nil "--git-dir=~A.git" (ensure-trailing-slash repository))
+                   ,@command)))
 
 (defun git-latest-commit (&key (branch "master") (repository *repository*) )
   (car (git `("log" "-1" "--pretty=format:%H" ,branch) :repository repository)))

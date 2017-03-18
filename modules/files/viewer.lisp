@@ -1,7 +1,7 @@
 (in-package :story)
 
 (defun file-mime (path)
-  (run-program-to-string "file" "-i" "-b" path))
+  (string-right-trim '(#\newline) (run/s `(file -i -b ,path))))
 
 (defun render-file-viewer (query path params)
   (setf (content-type*) "text/html")
@@ -30,7 +30,7 @@
                  (hex
                   (htm
                    (:pre
-                    (esc (run-program-to-string "hexdump" "-C" path)))))
+                    (esc (run/s `(hexdump "-C" ,path))))))
                  ((member mime '("text/plain" "text/x-lisp") :test #'string=)
                   (cond
                     ((member type '("css" "js") :test #'string=)

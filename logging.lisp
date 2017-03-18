@@ -29,17 +29,17 @@
             (format stream "~3D" return-code)))
         (short-user-agent)
         (short-content-type*)
-        (or (and (content-length*) (format nil "~7D" (content-length*)))
+        (or (and (content-length*) (f "~7D" (content-length*)))
             (if (eql return-code +http-not-modified+)
                 "       "
                 (red "none" :effect :bright)))
-        (format nil "~36A"
-                (let ((referer (referer))
-                      (server-prefix (format nil "http://localhost:~D" *web-port*)))
-                  (cond
-                    ((null referer) "-")
-                    ((string-starts-with referer server-prefix) (subseq referer (length server-prefix)))
-                    (t referer))))
+        (f "~36A"
+           (let ((referer (referer))
+                 (server-prefix (f "http://localhost:~D" *web-port*)))
+             (cond
+               ((null referer) "-")
+               ((string-starts-with referer server-prefix) (subseq referer (length server-prefix)))
+               (t referer))))
         (with-output-to-string (stream)
           (with-color ((if (member return-code '(200 304) :test 'eql) :white :red) :stream stream :effect :bright)
             (format stream "~@[~A ~]~A~@[?~A~]~@[ ~A~]"

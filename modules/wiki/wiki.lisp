@@ -8,7 +8,7 @@
 (defvar *wiki-directory* (story-modules-file "wiki/sample-wiki/"))
 
 (defun wiki-page-filename (name)
-  (format nil "~A~A.md" *wiki-directory* (substitute #\- #\space name)))
+  (f "~A~A.md" *wiki-directory* (substitute #\- #\space name)))
 
 (defun wiki-page-exists (name)
   (probe-file (wiki-page-filename name)))
@@ -34,7 +34,7 @@
     (labels ((recur (el &optional ignore)
                (setf (gethash el hash) t)
                (cons
-                (if (wiki-page-exists el) el (format nil "* ~A" el))
+                (if (wiki-page-exists el) el (f "* ~A" el))
                 (let ((links (list-wiki-links el)))
                   (iter (for link in links)
                         (unless (or
@@ -56,8 +56,8 @@
         (html
           (:a
            :class (concatenate 'string "ilink" (when missing " wiki-missing"))
-           :onclick (format nil "selectIlink(\"~A\");" name)
-           (:span :style (format nil "display:inline-block;width:~Apx;" (* (max 0 (1- level)) 20)))
+           :onclick (f "selectIlink(\"~A\");" name)
+           (:span :style (f "display:inline-block;width:~Apx;" (* (max 0 (1- level)) 20)))
            (esc name))
           (:br)))))
 

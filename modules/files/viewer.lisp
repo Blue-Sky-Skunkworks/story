@@ -34,7 +34,7 @@
                  ((member mime '("text/plain" "text/x-lisp") :test #'string=)
                   (cond
                     ((member type '("css" "js") :test #'string=)
-                     (htm (:pre (:code :class (format nil "language-~A" type)
+                     (htm (:pre (:code :class (f "language-~A" type)
                                        (esc (slurp-file path))))))
                     ((string= type "md")
                      (htm (:div :id "md"))

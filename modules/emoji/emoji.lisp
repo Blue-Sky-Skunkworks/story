@@ -54,9 +54,9 @@
       (let ((char (code-char code)))
         (appending
          (nconc
-          (list (format nil "~C " char))
-          (when with-hex (list (format nil "~(~X~)" code)))
-          (list (as-string (print-with-ellipses (subseq (format nil "~(~S~)" char) 2) :max max-text-size)))))))
+          (list (f "~C " char))
+          (when with-hex (list (f "~(~X~)" code)))
+          (list (as-string (print-with-ellipses (subseq (f "~(~S~)" char) 2) :max max-text-size)))))))
     (* columns (if with-hex 3 2)))))
 
 (defun save-emoji-table ()
@@ -64,7 +64,7 @@
     (show-emoji-table :with-hex t)))
 
 (defmacro emoji (name)
-  `(html (:i :class "emoji" :style ,(format nil "background-image:url(\"/emoji/~(~X~).svg\");" (emoji-code name)))))
+  `(html (:i :class "emoji" :style ,(f "background-image:url(\"/emoji/~(~X~).svg\");" (emoji-code name)))))
 
 (in-package :story-css)
 

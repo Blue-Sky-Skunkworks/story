@@ -29,7 +29,7 @@
                                       extends dispatches suffixes prefixes files)
   (let* ((kname (ksymb (string-upcase name)))
          (mname (or extends name))
-         (base (format nil "~A~(~A~)/" (story-modules-file) mname)))
+         (base (f "~A~(~A~)/" (story-modules-file) mname)))
     `(progn
        (setf (gethash ,kname *story-modules*)
              (make-instance 'module :name ,kname :stylesheets ',stylesheets
@@ -42,7 +42,7 @@
          ,@(when extends `((,(symb 'stage-story-module- extends))))
          ,@(when depends-on (iter (for el in (ensure-list depends-on)) (collect `(,(symb 'stage-story-module- el)))))
          ,@(when stylesheets `((load-stylesheets ',(localize-stylesheets base stylesheets))))
-         ,@(when scripts `((load-scripts ',(localize-scripts base (format nil "/~(~A~)/" mname) scripts))))
+         ,@(when scripts `((load-scripts ',(localize-scripts base (f "/~(~A~)/" mname) scripts))))
          ,@(when directories `((load-directories ',(localize-directories base directories))))
          ,@(when imports `((load-imports ',(localize-imports base imports production-import-fix))))
          ,@(when dispatches `((load-dispatches ',dispatches)))
@@ -54,7 +54,7 @@
   (let ((type (pathname-type path)))
     (cond
       ((not (equalp type "css"))
-       (format nil "~A~@[~A~]css" (subseq path 0 (- (length path) (length type)))
+       (f "~A~@[~A~]css" (subseq path 0 (- (length path) (length type)))
                (when (null type) ".")))
       (t path))))
 
@@ -65,8 +65,8 @@
           (list
            (if fn
                (intern (symbol-name fn) :story-css)
-               (format nil "~A~A" base css))
-           (format nil "/~A" (ensure-css-extension css)))))))
+               (f "~A~A" base css))
+           (f "/~A" (ensure-css-extension css)))))))
 
 (defun localize-directories (base directories)
   (iter (for dir in directories)
@@ -76,14 +76,14 @@
           (list
            (if (string-starts-with from "/")
                from
-               (format nil "~A~A/" base from))
-           (format nil "/~A/" to))))))
+               (f "~A~A/" base from))
+           (f "/~A/" to))))))
 
 (defun localize-files (base files)
   (iter (for file in files)
     (let* ((from (if (consp file) (first file) file))
            (fn (when (consp file) (second file)))
-           (path (or fn (format nil "~A~A" base from)))
+           (path (or fn (f "~A~A" base from)))
            (mime (if fn
                      (or (third file) (mimes:mime-lookup from))
                      (second (multiple-value-list (magic (pathname path)))))))
@@ -91,7 +91,7 @@
           (collect
               (list
                path
-               (format nil "/~A" from)
+               (f "/~A" from)
                mime))
           (warn "Missing file ~S." path)))))
 
@@ -103,8 +103,8 @@
            (list
             (if fn
                 (intern (symbol-name fn) :story-css)
-                (format nil "~Aimports/~A.html" base name))
-            (format nil "/~A.html" name))
+                (f "~Aimports/~A.html" base name))
+            (f "/~A.html" name))
            (when fix (list fix)))))))
 
 (defun localize-scripts (base prefix scripts)
@@ -114,15 +114,15 @@
            (fn (when (consp el) (second el))))
       (when direct (setf script (subseq script 1)))
       (unless (pathname-type script)
-        (setf script (format nil "~A.js" script)))
+        (setf script (f "~A.js" script)))
       (collect
           (list
            (if fn
                (intern (symbol-name fn) :story-js)
-               (format nil "~A~A" base script))
+               (f "~A~A" base script))
            (if direct
-               (format nil "/~A" script)
-               (format nil "~A~A" prefix script)))))))
+               (f "/~A" script)
+               (f "~A~A" prefix script)))))))
 
 (defun story-module-depends-on-modules (module-name)
   (iter (for name in (asdf:system-depends-on (asdf:find-system module-name)))
@@ -156,7 +156,7 @@
 (defun stage-story-module (name &key (demo nil))
   (load-story-module name)
   (funcall (symb-in :story 'stage-story-module- (string-upcase name)))
-  (when demo (story (format nil "demo-~A" name))))
+  (when demo (story (f "demo-~A" name))))
 
 (defun load-all-story-modules ()
   (mapc #'load-story-module (all-story-modules)))

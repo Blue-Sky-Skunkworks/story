@@ -3,7 +3,7 @@
 (defparameter *repository* (story-file))
 
 (defun git (command &key (repository *repository*))
-  (run/lines `(git ,(format nil "--git-dir=~A.git" (ensure-trailing-slash repository))
+  (run/lines `(git ,(f "--git-dir=~A.git" (ensure-trailing-slash repository))
                    ,@command)))
 
 (defun git-latest-commit (&key (branch "master") (repository *repository*) )

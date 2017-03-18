@@ -23,16 +23,16 @@
                (string-trim '(#\space #\newline) (subseq raw (1+ pos)))))))
 
 (defun set-jpeg-comment (filename comment)
-  (run/s `(exiftool ,(format nil "-comment=\"~A\"" comment) ,filename)))
+  (run/s `(exiftool ,(f "-comment=\"~A\"" comment) ,filename)))
 
 (defun set-jpeg-credit (filename credit)
-  (run/s `(exiftool ,(format nil "-credit=\"~A\"" credit) ,filename)))
+  (run/s `(exiftool ,(f "-credit=\"~A\"" credit) ,filename)))
 
 (defun clean-jpeg-exif (filename)
   (iter (for id in '(#x927C ;MakerNote
                      ))
     (note "~A"
-          (exif (format nil "-t0x~X" id) "--ifd=EXIF" "--remove" "-o" filename filename))))
+          (exif (f "-t0x~X" id) "--ifd=EXIF" "--remove" "-o" filename filename))))
 
 (defun jpeg-image-size (filename)
   (if (probe-file filename)

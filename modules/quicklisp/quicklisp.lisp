@@ -27,7 +27,7 @@
      (cons :requires (ql-dist:required-systems system)))))
 
 (defun pathname-fullname (file)
-  (format nil "~A~@[.~A~]" (pathname-name file) (pathname-type file)))
+  (f "~A~@[.~A~]" (pathname-name file) (pathname-type file)))
 
 (defun find-readme (base)
   (iter (for file in (directory-files base))

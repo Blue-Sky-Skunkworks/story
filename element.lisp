@@ -84,16 +84,16 @@
                     (path
                       (if (starts-with-char script #\/)
                           (subseq script 1)
-                          (format nil "~(~A~)/~A" (or (extends module) name)
-                                  (if (null (pathname-type script))
-                                      (format nil "~A.js" script)
-                                      script)))))
+                          (f "~(~A~)/~A" (or (extends module) name)
+                             (if (null (pathname-type script))
+                                 (f "~A.js" script)
+                                 script)))))
                (collect path)))
            into rtn)))
       (finally (return
                  (append
                   (if include-js (cons "js.js" rtn) rtn)
-                  (mapcar (lambda (el) (if (consp el) (car el) el))
+                  (mapcar #L(if (consp %) (car %) %)
                           (slot-value story 'scripts))))))))
 
 (defmethod imports ((story story))
@@ -103,9 +103,9 @@
       (when-let (els (imports module))
         (appending
          (iter (for el in els)
-           (collect (format nil "~(~A~)/~A.html" (or (extends module) name) (carr el))))
+           (collect (f "~(~A~)/~A.html" (or (extends module) name) (carr el))))
          into rtn)))
-    (finally (return (append rtn (mapcar (lambda (el) (format nil "~A.html" (carr el)))
+    (finally (return (append rtn (mapcar #L(f "~A.html" (carr %))
                                          (slot-value story 'imports)))))))
 
 (defmethod suffixes ((story story))
@@ -115,7 +115,7 @@
       (when-let (els (suffixes module))
         (appending
          (iter (for el in els)
-           (collect (format nil "modules/~(~A~)/~A" (or (extends module) name) el))) into rtn)))
+           (collect (f "modules/~(~A~)/~A" (or (extends module) name) el))) into rtn)))
     (finally (append rtn (slot-value story 'suffixes)))))
 
 (defmethod prefixes ((story story))
@@ -125,7 +125,7 @@
       (when-let (els (prefixes module))
         (appending
          (iter (for el in els)
-           (collect (format nil "modules/~(~A~)/~A" (or (extends module) name) el))) into rtn)))
+           (collect (f "modules/~(~A~)/~A" (or (extends module) name) el))) into rtn)))
     (finally (return (append rtn (slot-value story 'prefixes))))))
 
 (defmethod script-init ((story story))

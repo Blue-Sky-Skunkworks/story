@@ -58,7 +58,7 @@ matches NAME."
     (multiple-value-bind (ms me rs re) (scan "/[^/]+?/\.\./" raw)
       (declare (ignore rs re))
       (cond
-        (ms (format nil "~A/~A" (subseq raw 0 ms) (subseq raw me)))
+        (ms (f "~A/~A" (subseq raw 0 ms) (subseq raw me)))
         (t raw)))))
 
 (defvar *current-imports* nil)
@@ -168,7 +168,7 @@ matches NAME."
     (let ((all (minimize-script
                 (apply #'concatenate 'string
                        (iter (for script in scripts)
-                         (let ((val (gethash (format nil "/~A" script) *scripts*)))
+                         (let ((val (gethash (f "/~A" script) *scripts*)))
                            (collect (typecase val
                                       (pathname (slurp-file val))
                                       (string val)
@@ -181,7 +181,7 @@ matches NAME."
                       (iter (for stylesheet in stylesheets)
                         (collect (prepare-css-for-production
                                   (directory-namestring stylesheet)
-                                  (or (gethash (format nil "/~A" (ensure-css-extension stylesheet)) *css*)
+                                  (or (gethash (f "/~A" (ensure-css-extension stylesheet)) *css*)
                                       (warn "Missing stylesheet ~S." stylesheet))))))))
       (setf *css* (make-hash-table :test 'equal)
             (gethash "/css-all.css" *css*) all)))
@@ -338,6 +338,6 @@ matches NAME."
       (note "Skipping url ~S." path)
       (progn
        (when-let (pos (position #\/ path))
-         (when-let (hit (gethash (format nil "/~A/" (subseq path 0 pos)) *directories*))
+         (when-let (hit (gethash (f "/~A/" (subseq path 0 pos)) *directories*))
            (return-from local-path-from-server (concatenate 'string hit (subseq path (1+ pos))))))
        (warn "Missing local path ~S." path))))

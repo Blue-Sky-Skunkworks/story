@@ -11,6 +11,8 @@
 (defun story-file (&optional  base)
   (concatenate 'string (asdf-base-path :story) base))
 
+(defmacro f (&rest args) `(format nil ,@ args))
+
 (defmacro vertical-break (&optional (height "20px"))
   `(html (:div :style ,(format nil "height:~A;" height))))
 

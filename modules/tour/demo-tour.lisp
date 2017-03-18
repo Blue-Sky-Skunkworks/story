@@ -9,7 +9,7 @@
                                e-resize s-resize w-resize ne-resize nw-resize
                                se-resize ew-resize ns-resize nesw-resize
                                nwse-resize zoom-in zoom-out))
-          (htm (:span :class "cursor pack" :style (format nil "cursor:~(~A~);" cursor)
+          (htm (:span :class "cursor pack" :style (f "cursor:~(~A~);" cursor)
                       (fmt "~(~A~)" cursor)))))
   (script (pack "cursors" :gutter 2)))
 

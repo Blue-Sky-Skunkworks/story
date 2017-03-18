@@ -9,5 +9,5 @@
          (show-image-gallery
           (ps:array
            ,@(with-words (word "Photoswipe is working!")
-                         (collect `(create :src ,(format nil "/sample-images/~A.png" word) :w 400 :h 200))))))
+                         (collect `(create :src ,(f "/sample-images/~A.png" word) :w 400 :h 200))))))
        (show-photoswipe-demo))))

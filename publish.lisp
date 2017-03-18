@@ -25,7 +25,7 @@
       (note "adding")
       (git `("add" "-A" "."))
       (note "committing")
-      (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(format nil "\"story push from '~A' ~A\"" (hostname) (now)))))
+      (format t "~{;;   ~A~^~%~}" (git `("commit" "-a" "-m" ,(f "\"story push from '~A' ~A\"" (hostname) (now)))))
       (note "pushing")
       (format t "~{;;   ~A~^~%~}" (git `("push" "origin"))))))
 
@@ -82,7 +82,7 @@
         (rsync name (path k)))
        (format t "~%pages:~%")
       (iter (for page in (children story))
-        (let ((base (format nil "/~A" (slot-value page 'path))))
+        (let ((base (f "/~A" (slot-value page 'path))))
           (format t "  ~A~%" base)
           (write-to-file (path base)
                          (with-output-to-string (stream)

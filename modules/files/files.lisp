@@ -46,7 +46,7 @@
              (when-let (comment (image-comment file)) (list (cons :comment comment)))))))
 
 (defun save-file-listing (directory)
-  (let ((filename (format nil "~A.file-listing" directory)))
+  (let ((filename (f "~A.file-listing" directory)))
     (with-output-to-file (stream filename
                                  :if-does-not-exist :create :if-exists :supersede)
       (json:encode-json (create-file-listing directory) stream)
@@ -56,7 +56,7 @@
 
 (defun render-directory-listing (query path)
   (setf (content-type*) "text/html")
-  (unless (probe-file (format nil "~A.file-listing" path))
+  (unless (probe-file (f "~A.file-listing" path))
     (save-file-listing path))
   (html-to-string
     (:html

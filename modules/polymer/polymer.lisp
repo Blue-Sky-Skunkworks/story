@@ -24,7 +24,7 @@
        (define-story-module ,name
          :extends :polymer
          :depends-on ,depends-on
-         :imports (,(format nil "~(~A/~A~)" name name))
+         :imports (,(f "~(~A/~A~)" name name))
          :init ,init)
        ,@(when helpers `((define-polymer-macros ,(symb module) ,(symb rest)))))))
 
@@ -37,7 +37,7 @@
      ,@(iter (for name in names)
          (collect
              `(define-story-module ,(symb 'iron-icons- name)
-                :extends :polymer :imports (,(format nil "iron-icons/~(~A~)-icons" name)))))))
+                :extends :polymer :imports (,(f "iron-icons/~(~A~)-icons" name)))))))
 (define-iron-icons communication device editor hardware image maps notification places social)
 
 (define-polymer-module iron-icon)
@@ -92,7 +92,7 @@
      ,@ (iter (for name in names)
               (collect `(define-story-module ,(symb name '-animation)
                             :extends :polymer
-                            :imports (,(format nil "neon-animation/animations/~(~A~)-animation" name)))))))
+                            :imports (,(f "neon-animation/animations/~(~A~)-animation" name)))))))
 
 (define-neon-animations fade-in fade-out scale-down scale-up slide-down slide-up
                         slide-from-top slide-from-bottom slide-left slide-right

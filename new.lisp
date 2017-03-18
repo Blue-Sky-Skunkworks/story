@@ -6,7 +6,7 @@
   "Create a skeletion story called NAME."
   (let* ((name (string-downcase name))
          (story-dir (concatenate 'string (namestring *story-directory*) name "/"))
-         (asdf-name (format nil "~A.asd" name)))
+         (asdf-name (f "~A.asd" name)))
     (assert (string/= name "foo"))
     (when (probe-file story-dir)
       (error "Story ~S already exists." name))

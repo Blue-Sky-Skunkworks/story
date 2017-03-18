@@ -15,7 +15,7 @@
         (iter (for (name story) in-hashtable *stories*)
               (for index from 1)
               (princ
-               (let ((line (format nil "~A. ~A ~30T~A~%" index name (title story))))
+               (let ((line (f "~A. ~A ~30T~A~%" index name (title story))))
                  (if (eq story *story*)
                      (white line :effect :bright)
                      line)))
@@ -38,7 +38,7 @@
   (with-output-to-string (*standard-output*)
     (indent-text
      (remove-trailing-newline
-      (word-wrap (format nil (format nil "~~{~A~~^, ~~}" printer) els) 100)) indent :skip-first t)))
+      (word-wrap (f (f "~~{~A~~^, ~~}" printer) els) 100)) indent :skip-first t)))
 
 (defun describe-story (&optional (all nil))
   "Describe the story or stories."

@@ -10,7 +10,7 @@
 
 (defun list-bower-systems ()
   (iter (for (name) in (assoc-value (load-bower) :dependencies))
-        (collect (list name (format nil "~Abower_components/~(~A~)/" (story-file) name)))))
+        (collect (list name (f "~Abower_components/~(~A~)/" (story-file) name)))))
 
 (defun list-bower-documentation ()
   (labels ((recur (base &optional first)

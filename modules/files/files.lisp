@@ -6,7 +6,7 @@
   :depends-on (:iron-request :images :prism :packery))
 
 (defun create-image-thumbnail (filename)
-  (run/ss `(pipe (convert ,filename -thumbnail 200 -) (base64))))
+  (run/ss `(pipe (convert ,filename -thumbnail 200 "png:-") (base64))))
 
 (defun create-file-listing (directory)
   (let* ((files (nconc

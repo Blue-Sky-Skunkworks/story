@@ -3,7 +3,7 @@
 (define-story-module files
   :stylesheets (("files.css" files-css))
   :scripts (("files.js" files) "marked.js")
-  :depends-on (:iron-request :images :prism))
+  :depends-on (:iron-request :images :prism :packery))
 
 (defun create-image-thumbnail (filename)
   (run/ss `(pipe (convert ,filename -thumbnail 200 -) (base64))))
@@ -67,11 +67,18 @@
        (:script :type "text/javascript" :src "/js.js")
        (:script :type "text/javascript" :src "/webcomponentsjs/webcomponents-lite.js")
        (:script :type "text/javascript" :src "/polymer/iron-request.js")
-       (:script :type "text/javascript" :src "/files/files.js"))
+       (:script :type "text/javascript" :src "/files/files.js")
+       (:script :type "text/javascript" :src "/packery/packery.pkgd.min.js")
+       (:script :type "text/javascript" :src "/packery/packery.js")
+       (:link :rel "stylesheet" :type "text/css" :href "/files.css"))
       (:body
        (:div :id "files")))
     (script*
-      `(render-file-listing "files" ,query))) )
+      `(render-file-listing "files" ,query :parent-id "file-grid"
+                                           :continuation
+                                           (lambda (el)
+                                             ;;(pack "file-grid")
+                                                           )))) )
 
 (setf *directory-listing-fn* 'render-directory-listing
       *file-argument-handler* 'render-file-viewer)
@@ -88,9 +95,11 @@
              (lambda (val) (funcall callback (eval (+ "(" (@ val response) ")"))))))
 
   (defun create-headings (parent)
-    (set-html* (create-element "tr" parent)
+    (create-el ("tr" parent)
                (when *show-images* (ps-html (:th "thumbnail")))
-               (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")))
+               (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")
+               (when *show-comments* (ps-html (:th "comment")))
+               (when *show-descriptions* (ps-html (:th "description")))))
 
   (defun row-url (row)
     (+ *file-listing-url* (@ row name)
@@ -107,7 +116,7 @@
 
   (defun create-row (parent data &optional index)
     (on "click"
-        (set-html* (create-element "tr" parent)
+        (create-el ("tr" parent)
                    (when *show-images*
                      (ps-html (:td (when (@ data thumbnail)
                                      (ps-html
@@ -117,16 +126,35 @@
                    (:td (@ data type))
                    (:td (@ data size))
                    (:td (@ data width))
-                   (:td (@ data height)))
-        (funcall *select-row-fn* data))
-    (when *show-comments*
-      (set-html* (create-element "tr" parent) ((:td :colspan 5) (@ data comment))))
-    (when *show-descriptions*
-      (set-html* (create-element "tr" parent) ((:td :colspan 5) (@ data description)))))
+                   (:td (@ data height))
+                   (when *show-comments*
+                     (ps-html (:td (@ data comment))))
+                   (when *show-descriptions*
+                     (ps-html (:td (@ data description)))))
+        (funcall *select-row-fn* data)))
+
+  (defun create-grid-el (parent data &optional index)
+    (on "click"
+        (create-el ("div" parent :class "grid-el pack")
+                   (when *show-images*
+                     (when (@ data thumbnail)
+                       (ps-html
+                        ((:img :src (+ "data:" (@ data mime) ";base64,"
+                                       (@ data thumbnail)))))))
+                   ((:div :class "name") (@ data name))
+                   (when *show-comments*
+                     (ps-html
+                      ((:div :class "comment") (@ data comment))))
+                   (when *show-descriptions*
+                     (ps-html
+                      ((:div :class "desc") (@ data description)))))
+        (funcall *select-row-fn* data)))
 
   (defun create-controls (parent &optional class-prefix)
     (set-html* (create-element "tr" parent "controls")
                ((:td :colspan 5)
+                ((:button :style "margin-right:20px;" :onclick "toggleShowAsGrid()")
+                 (if *show-as-grid* "show as list" "show as grid"))
                 ((:button :style "margin-right:20px;" :onclick "toggleShowImages()")
                  (if *show-images* "hide thumbnails" "show thumbnails"))
                 ((:button :style "margin-right:20px;" :onclick "toggleShowComments()")
@@ -137,12 +165,14 @@
   (defvar *show-descriptions* nil)
   (defvar *show-comments* t)
   (defvar *show-images* t)
+  (defvar *show-as-grid* t)
   (defvar *show-controls* t)
 
   (defvar *file-listing*)
   (defvar *file-listing-url*)
   (defvar *create-headings-fn* (lambda (parent) (create-headings parent)))
   (defvar *create-row-fn* (lambda (parent row) (create-row parent row)))
+  (defvar *create-grid-el-fn* (lambda (parent row) (create-grid-el parent row)))
   (defvar *create-controls-fn* (lambda (parent row) (create-controls parent)))
 
   (defun identity (el) el)
@@ -151,23 +181,25 @@
                                               parent-id
                                               (parent-type "table") (class-name "files")
                                               (create-row-fn *create-row-fn*)
+                                              (create-grid-el-fn *create-grid-el-fn*)
                                               (create-controls-fn *create-controls-fn*)
                                               (create-headings-fn *create-headings-fn*)
                                               (row-filter identity)
                                               continuation)
     (let ((div (id container)))
       (when (@ div first-child) (remove-node (@ div first-child)))
-      (let ((parent (create-element parent-type div class-name)))
+      (let ((parent (create-element (if *show-as-grid* "div" parent-type) div class-name)))
         (when parent-id (setf (@ parent id) parent-id))
         (setf *file-listing* parent *file-listing-url* url)
         (when (and create-controls-fn *show-controls*) (funcall create-controls-fn parent))
-        (when create-headings-fn (funcall create-headings-fn parent))
+        (when (and (not *show-as-grid*) create-headings-fn) (funcall create-headings-fn parent))
         (let ((fn
                 (lambda (rows)
                   (setf (@ div rows) (mapcar row-filter rows))
                   (loop for row in rows
                         for index from 0
-                        do (funcall create-row-fn parent row index))
+                        do (funcall (if *show-as-grid* create-grid-el-fn create-row-fn)
+                                    parent row index))
                   (when continuation (funcall continuation div)))))
           (if (and (@ div rows) rerender-from-cache)
               (funcall fn (@ div rows))
@@ -190,6 +222,10 @@
     (setf *show-images* (not *show-images*))
     (rerender-listing))
 
+  (defun toggle-show-as-grid ()
+    (setf *show-as-grid* (not *show-as-grid*))
+    (rerender-listing))
+
   (defun render-markdown (el query)
     (request query
              (lambda (val)
@@ -201,4 +237,9 @@
   (css
    '((".files td" :padding 5px 20px 5px 0px)
      (".files tr" :cursor pointer)
-     (".files tr:hover" :background-color "#888"))))
+     (".files tr:hover" :background-color "#888")
+     ("div.grid-el" :width 200 :background-color "#DDD" :color "#222"
+                    :margin 10px :padding 20px :display "inline-block")
+     ("div.grid-el .name" :margin "10px 0 10px 0")
+     ("div.grid-el .comment" :margin "10px 0 10px 0")
+     ("div.grid-el .desc" :margin "10px 0 10px 0"))))

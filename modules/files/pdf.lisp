@@ -15,3 +15,4 @@
   (let ((name (f "~A~A-p~A" destination (pathname-name file) page)))
     (run `(pdfimages "-png" "-f" ,page "-l" ,page ,file ,name))
     (f "~A-000.png" name)))
+

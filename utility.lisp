@@ -56,10 +56,6 @@
       (write-string string stream)
       (write-char slash-character stream))))
 
-(defun run-program-to-string (program &rest args)
-  (with-output-to-string (str)
-    (run-program (format nil "~A ~{~A~^ ~}" program args) :output str)))
-
 (defun string-to-table (string)
   (mapcar #L(split-sequence #\tab %)
           (split-sequence #\newline string :remove-empty-subseqs t)))
@@ -164,6 +160,11 @@
              (iter (for child in (cdr el))
                    (recur child (1+ level)))))
     (recur tree 0)))
+
+(defun split-on-first-occurance (string char &optional (fn #'identity))
+  (if-let ((pos (position char string)))
+    (cons (funcall fn (subseq string 0 pos)) (funcall fn (subseq string (1+ pos))))
+    string))
 
 (defun first-char-p (char string)
   (char= (char string 0) char))

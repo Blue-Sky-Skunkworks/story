@@ -4,7 +4,7 @@
   :init ((reset-image-processors)))
 
 (defun exif (&rest args)
-  (apply #'run-program-to-string "exif" args))
+  (run/s `("exif" ,@args)))
 
 (defun parse-jpeg-exif (filename)
   (string-to-table (exif "-m" filename)))
@@ -17,16 +17,16 @@
         string)))
 
 (defun jpeg-comment (filename)
-  (let* ((raw (run-program-to-string "exiftool" "-comment" filename))
+  (let* ((raw (run/s `(exiftool -comment ,filename)))
          (pos (position #\: raw)))
     (when pos (remove-surrounding-brackets
                (string-trim '(#\space #\newline) (subseq raw (1+ pos)))))))
 
 (defun set-jpeg-comment (filename comment)
-  (run-program-to-string "exiftool" (format nil "-comment=\"~A\"" comment) filename))
+  (run/s `(exiftool ,(format nil "-comment=\"~A\"" comment) ,filename)))
 
 (defun set-jpeg-credit (filename credit)
-  (run-program-to-string "exiftool" (format nil "-credit=\"~A\"" credit) filename))
+  (run/s `(exiftool ,(format nil "-credit=\"~A\"" credit) ,filename)))
 
 (defun clean-jpeg-exif (filename)
   (iter (for id in '(#x927C ;MakerNote
@@ -37,7 +37,10 @@
 (defun jpeg-image-size (filename)
   (if (probe-file filename)
       (values-list (mapcar #'parse-integer
-                           (split-sequence #\x (third (split-sequence #\space (run-program-to-string "identify" filename))))))
+                           (split-sequence
+                            #\x
+                            (third (split-sequence #\space
+                                                   (run/s `(identify ,filename)))))))
       (warn "Missing ~S." filename)))
 
 (defmacro image (&rest args)
@@ -67,7 +70,8 @@
 (defun png-image-size (filename)
   (if (probe-file filename)
       (values-list (mapcar #'parse-integer
-                           (split-sequence #\x (third (split-sequence #\space (run-program-to-string "identify" filename))))))
+                           (split-sequence #\x (third (split-sequence #\space
+                                                                      (run/s `(identify ,filename)))))))
       (warn "Missing ~S." filename)))
 
 (defun png-comment (filename)

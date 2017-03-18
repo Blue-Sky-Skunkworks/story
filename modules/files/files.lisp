@@ -201,4 +201,4 @@
   (css
    '((".files td" :padding 5px 20px 5px 0px)
      (".files tr" :cursor pointer)
-     (".files tr:hover" :background-color "#111"))))
+     (".files tr:hover" :background-color "#888"))))

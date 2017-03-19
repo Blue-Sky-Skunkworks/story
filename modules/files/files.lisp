@@ -8,6 +8,11 @@
 (defun file-icon (mime)
   (when-let (name (string-case (mime :default nil)
                                         ;(("image/png" "image/jpeg") )
+                    ("application/pdf" "closed-book")
+                    ("text/html" "page-facing-up")
+                    ("text/plain" "page-facing-up")
+                    ("image/png" "camera")
+                    ("image/jpeg" "camera")
                     ("inode/directory" "file-folder")))
     (f "~(~X~)" (emoji-code name))))
 
@@ -142,12 +147,14 @@
   (defun create-grid-el (parent data &optional index)
     (on "click"
         (create-el ("div" parent :class "grid-el pack")
-                   (when (@ data icon) (file-icon (@ data icon)))
                    (when *show-images*
                      (when (@ data thumbnail)
                        (ps-html
                         ((:img :src (+ "data:image/png;base64," (@ data thumbnail)))))))
-                   ((:div :class "name") (@ data name))
+                   ((:div :class "name")
+                    (when (@ data icon) (file-icon (@ data icon)))
+                    " "
+                    (@ data name))
                    (when *show-comments*
                      (ps-html
                       ((:div :class "comment") (@ data comment))))

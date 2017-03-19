@@ -7,12 +7,12 @@
 
 (defun file-icon (mime)
   (when-let (name (string-case (mime :default nil)
-                                        ;(("image/png" "image/jpeg") )
                     ("application/pdf" "closed-book")
+                    ("application/gzip" "compression")
                     ("text/html" "page-facing-up")
                     ("text/plain" "page-facing-up")
-                    ("image/png" "camera")
-                    ("image/jpeg" "camera")
+                    ("image/png" "frame-with-picture")
+                    ("image/jpeg" "frame-with-picture")
                     ("inode/directory" "file-folder")))
     (f "~(~X~)" (emoji-code name))))
 

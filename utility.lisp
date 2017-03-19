@@ -202,3 +202,4 @@
 (defmethod encode-json ((p pathname) &optional (stream *json-output*))
   (write-json-string (namestring p) stream))
 
+(defmacro ql (name) `(ql:quickload ',name))

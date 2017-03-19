@@ -9,7 +9,8 @@
 (defparameter *emoji-include-regional-indicator-range* nil)
 
 (defun normalize-unicode-name (name) (substitute #\- #\_ (string-downcase name)))
-(defun normalize-unicode-code (code) (normalize-unicode-name (subseq (prin1-to-string (code-char code)) 2)))
+(defun normalize-unicode-code (code) (normalize-unicode-name
+                                      (subseq (prin1-to-string (code-char code)) 2)))
 
 (defun emoji-code (name)
   (or (gethash (normalize-unicode-name name) *emoji*)
@@ -80,3 +81,6 @@
                :background-repeat no-repeat
                :background-position "center center"
                :background-size "3em 3em"))))
+
+
+

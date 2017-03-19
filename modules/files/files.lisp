@@ -3,10 +3,13 @@
 (define-story-module files
   :stylesheets (("files.css" files-css))
   :scripts (("files.js" files) "marked.js")
-  :depends-on (:iron-request :images :prism))
+  :depends-on (:iron-request :images :prism :emoji))
 
-(defun create-image-thumbnail (filename &optional (width 200) (type "png"))
-  (run/ss `(pipe (convert ,filename -thumbnail ,width ,(f "~A:-" type)) (base64))))
+(defun file-icon (mime)
+  (when-let (name (string-case (mime :default nil)
+                                        ;(("image/png" "image/jpeg") )
+                    ("inode/directory" "file-folder")))
+    (f "~(~X~)" (emoji-code name))))
 
 (defun create-file-listing (directory)
   (let* ((files (nconc
@@ -22,7 +25,8 @@
                                  (cons :type (pathname-type file))
                                  (cons :mime mime)
                                  (cons :description description)
-                                 (cons :size (ql-util:file-size file)))
+                                 (cons :size (ql-util:file-size file))
+                                 (cons :icon (file-icon mime)))
                            (additional-file-information (ksymb (string-upcase mime)) file))))
           (collect info)
           (note "[~A/~A] ~28T ~10A ~@[~A~]" index count (assoc-value info :name)
@@ -92,6 +96,7 @@
 
   (defun create-headings (parent)
     (create-el ("tr" parent)
+               (:th)
                (when *show-images* (ps-html (:th "thumbnail")))
                (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")
                (when *show-comments* (ps-html (:th "comment")))
@@ -110,10 +115,15 @@
 
   (defvar *select-row-fn* (lambda (row) (select-row row)))
 
+  (defun file-icon (icon)
+    (ps-html ((:i :class "emoji"
+                  :style (+ "background-image:url('/emoji/" icon ".svg');")))))
+
   (defun create-row (parent data &optional index)
     (on "click"
         (create-el
          ("tr" parent)
+         (:td (when (@ data icon) (file-icon (@ data icon))))
          (when *show-images*
            (ps-html (:td (when (@ data thumbnail)
                            (ps-html
@@ -132,6 +142,7 @@
   (defun create-grid-el (parent data &optional index)
     (on "click"
         (create-el ("div" parent :class "grid-el pack")
+                   (when (@ data icon) (file-icon (@ data icon)))
                    (when *show-images*
                      (when (@ data thumbnail)
                        (ps-html

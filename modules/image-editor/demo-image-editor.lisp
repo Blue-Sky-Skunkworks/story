@@ -1,6 +1,5 @@
 (in-package :story)
 
-
 (define-demo image-editor ((:image-editor)
                            :directories (("modules/demo-images" "samples")
                                          ("/home/student/p/guests/signs/" "signs"))

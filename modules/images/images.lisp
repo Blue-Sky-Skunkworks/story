@@ -3,6 +3,9 @@
 (define-story-module images
   :init ((reset-image-processors)))
 
+(defun create-image-thumbnail (filename &optional (width 200) (type "png"))
+  (run/ss `(pipe (convert ,filename -thumbnail ,width ,(f "~A:-" type)) (base64))))
+
 (defun exif (&rest args)
   (run/s `("exif" ,@args)))
 

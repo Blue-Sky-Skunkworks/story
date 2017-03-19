@@ -60,11 +60,13 @@
     (* columns (if with-hex 3 2)))))
 
 (defun save-emoji-table ()
-  (with-output-to-file (*standard-output* (story-modules-file "emoji/emoji-table.txt") :if-exists :supersede :if-does-not-exist :create)
+  (with-output-to-file (*standard-output* (story-modules-file "emoji/emoji-table.txt")
+                                          :if-exists :supersede :if-does-not-exist :create)
     (show-emoji-table :with-hex t)))
 
 (defmacro emoji (name)
-  `(html (:i :class "emoji" :style ,(f "background-image:url(\"/emoji/~(~X~).svg\");" (emoji-code name)))))
+  `(html (:i :class "emoji"
+             :style ,(f "background-image:url(\"/emoji/~(~X~).svg\");" (emoji-code name)))))
 
 (in-package :story-css)
 

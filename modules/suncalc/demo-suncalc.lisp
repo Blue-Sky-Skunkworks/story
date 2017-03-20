@@ -9,16 +9,15 @@
   (script
     (defun ptime (name time)
       (let ((pos (sun-position time)))
-        (parenscript:ps-html
+        (parenscript:who-ps-html
          (:tr (:th name)
-              ((:td :style "padding-left:20px;") (format-time time))
-              ((:td :style "padding-left:20px;") (round (rad-to-deg (@ pos altitude))))
-              ((:td :style "padding-left:20px;") (round (rad-to-deg (@ pos azimuth))))
-              ))))
+              (:td :style "padding-left:20px;" (format-time time))
+              (:td :style "padding-left:20px;" (round (rad-to-deg (@ pos altitude))))
+              (:td :style "padding-left:20px;" (round (rad-to-deg (@ pos azimuth))))))))
     (defun pmtime (name time)
       (let ((pos (moon-position time))
             (ill (moon-illumination time)))
-        (parenscript:ps-html
+        (parenscript:who-ps-html
          (:tr (:th name)
               (:td (format-time time))
               (:td (round (rad-to-deg (@ pos altitude))))

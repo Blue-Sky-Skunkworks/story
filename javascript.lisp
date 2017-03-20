@@ -41,7 +41,7 @@
 (defpsmacro set-html* (el &rest html)
   (let ((el (if (stringp el) `(id ,el) el)))
     `(let ((node ,el))
-       (setf (getprop node 'inner-h-t-m-l) (parenscript:ps-html ,@html))
+       (setf (getprop node 'inner-h-t-m-l) (parenscript:who-ps-html ,@html))
        node)))
 
 (defpsmacro create-el ((node-type parent &key class) &body html)
@@ -49,6 +49,9 @@
 
 (defpsmacro inner-html (el)
   `(slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l))
+
+(defpsmacro htm (&rest html-forms)
+  `(who-ps-html ,@html-forms))
 
 (defpsmacro remove-node (el)
   `((@ ,el parent-node remove-child) ,el))

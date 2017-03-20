@@ -23,15 +23,14 @@
       (setf (@ card row) row
             (@ card row url) (row-url row)
             (@ card index) index)
-      (on "click"
-          (set-html* card
-                     ((:div :class "card-content photo")
-                      (when (@ row thumbnail)
-                        (ps-html ((:img :src (+ "data:" (@ row mime) ";base64," (@ row thumbnail))))))
-                      (when (@ row comment)
-                        (ps-html ((:div :class "attr")
-                                  ((:div :class "desc") (trim-comment (@ row comment))))))))
-          (select-photo (@ parent parent-node) card row))))
+      (set-html* card
+                 (:div :class "card-content photo"
+                  (when (@ row thumbnail)
+                    (htm (:img :src (+ "data:" (@ row mime) ";base64," (@ row thumbnail)))))
+                  (when (@ row comment)
+                    (htm (:div :class "attr"
+                               (:div :class "desc" (trim-comment (@ row comment))))))))
+      (on "click" card (select-photo (@ parent parent-node) card row))))
 
   (defun create-image-array (rows)
     (loop for row in rows

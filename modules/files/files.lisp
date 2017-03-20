@@ -95,17 +95,19 @@
          (lambda (event) ,@body)))
 
 (define-script files
+  (defun fetch-json (url callback)
+    (request url (lambda (val) (funcall callback (eval (+ "(" (@ val response) ")"))))))
+
   (defun fetch-file-listing (url callback)
-    (request (+ url ".file-listing")
-             (lambda (val) (funcall callback (eval (+ "(" (@ val response) ")"))))))
+    (fetch-json (+ url ".file-listing") callback))
 
   (defun create-headings (parent)
     (create-el ("tr" parent)
                (:th)
-               (when *show-images* (ps-html (:th "thumbnail")))
+               (when *show-images* (htm (:th "thumbnail")))
                (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")
-               (when *show-comments* (ps-html (:th "comment")))
-               (when *show-descriptions* (ps-html (:th "description")))))
+               (when *show-comments* (htm (:th "comment")))
+               (when *show-descriptions* (htm (:th "description")))))
 
   (defun row-url (row)
     (+ *file-listing-url* (@ row name)
@@ -121,8 +123,8 @@
   (defvar *select-row-fn* (lambda (row) (select-row row)))
 
   (defun file-icon (icon)
-    (ps-html ((:i :class "emoji"
-                  :style (+ "background-image:url('/emoji/" icon ".svg');")))))
+    (htm (:i :class "emoji"
+             :style (+ "background-image:url('/emoji/" icon ".svg');"))))
 
   (defun create-row (parent data &optional index)
     (on "click"
@@ -130,18 +132,15 @@
          ("tr" parent)
          (:td (when (@ data icon) (file-icon (@ data icon))))
          (when *show-images*
-           (ps-html (:td (when (@ data thumbnail)
-                           (ps-html
-                            ((:img :src (+ "data:image/png;base64," (@ data thumbnail)))))))))
-         ((:td :nowrap t) (@ data name))
+           (htm (:td (when (@ data thumbnail)
+                       (htm (:img :src (+ "data:image/png;base64," (@ data thumbnail))))))))
+         (:td :nowrap t (@ data name))
          (:td (@ data type))
          (:td (@ data size))
          (:td (@ data width))
          (:td (@ data height))
-         (when *show-comments*
-           (ps-html (:td (@ data comment))))
-         (when *show-descriptions*
-           (ps-html (:td (@ data description)))))
+         (when *show-comments* (htm (:td (@ data comment))))
+         (when *show-descriptions* (htm (:td (@ data description)))))
         (funcall *select-row-fn* data)))
 
   (defun create-grid-el (parent data &optional index)
@@ -149,31 +148,28 @@
         (create-el ("div" parent :class "grid-el pack")
                    (when *show-images*
                      (when (@ data thumbnail)
-                       (ps-html
-                        ((:img :src (+ "data:image/png;base64," (@ data thumbnail)))))))
-                   ((:div :class "name")
-                    (when (@ data icon) (file-icon (@ data icon)))
-                    " "
-                    (@ data name))
+                       (htm (:img :src (+ "data:image/png;base64," (@ data thumbnail))))))
+                   (:div :class "name"
+                         (when (@ data icon) (file-icon (@ data icon)))
+                         " "
+                         (@ data name))
                    (when *show-comments*
-                     (ps-html
-                      ((:div :class "comment") (@ data comment))))
+                     (htm (:div :class "comment" (@ data comment))))
                    (when *show-descriptions*
-                     (ps-html
-                      ((:div :class "desc") (@ data description)))))
+                     (htm (:div :class "desc" (@ data description)))))
         (funcall *select-row-fn* data)))
 
   (defun create-controls (parent &optional class-prefix)
     (set-html* (create-element "tr" parent "controls")
-               ((:td :colspan 5)
-                ((:button :style "margin-right:20px;" :onclick "toggleShowAsGrid()")
-                 (if *show-as-grid* "show as list" "show as grid"))
-                ((:button :style "margin-right:20px;" :onclick "toggleShowImages()")
-                 (if *show-images* "hide thumbnails" "show thumbnails"))
-                ((:button :style "margin-right:20px;" :onclick "toggleShowComments()")
-                 (if *show-comments* "hide comments" "show comments"))
-                ((:button :onclick "toggleShowDescriptions()")
-                 (if *show-descriptions* "hide descriptions" "show descriptions")))))
+               (:td :colspan 5
+                    (:button :style "margin-right:20px;" :onclick "toggleShowAsGrid()"
+                      (if *show-as-grid* "show as list" "show as grid"))
+                    (:button :style "margin-right:20px;" :onclick "toggleShowImages()"
+                      (if *show-images* "hide thumbnails" "show thumbnails"))
+                    (:button :style "margin-right:20px;" :onclick "toggleShowComments()"
+                      (if *show-comments* "hide comments" "show comments"))
+                    (:button :onclick "toggleShowDescriptions()"
+                      (if *show-descriptions* "hide descriptions" "show descriptions")))))
 
   (defvar *show-descriptions* nil)
   (defvar *show-comments* t)

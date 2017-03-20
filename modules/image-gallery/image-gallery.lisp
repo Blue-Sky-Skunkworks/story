@@ -38,6 +38,7 @@
                           :title (@ row comment))))
 
   (defun render-image-gallery (container url &optional continuation)
+    (setf *show-as-grid* nil)
     (let ((parent-id (+ container "-image-gallery")))
       (render-file-listing
        container url

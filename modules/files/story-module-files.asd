@@ -15,6 +15,7 @@
                (:file "html")
                (:file "files")
                (:file "pdf")
+               (:file "compression")
                (:file "viewer")
                (:file "demo-files")))
 

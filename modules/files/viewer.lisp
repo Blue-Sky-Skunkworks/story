@@ -17,6 +17,7 @@
               (:head
                (:title (fmt "viewing of ~S." query))
                (:link :rel "stylesheet" :type "text/css" :href "/themes/prism.css")
+               (:link :rel "stylesheet" :type "text/css" :href "/emoji.css")
                (:link :rel "import" :href "/polymer/polymer/polymer.html")
                (:link :rel "import" :href "/polymer/iron-ajax/iron-request.html")
                (:script :type "text/javascript" :src "/js.js")
@@ -39,7 +40,7 @@
                     (t (htm (:pre (esc (slurp-file path)))))))
                  ((member mime '("image/png" "image/jpeg") :test #'string=)
                   (htm (:img :src query)))
-                 ((string= mime "application/pdf")
-                  (render-pdf-info stream path))
+                 ((string= mime "application/pdf") (render-pdf-info stream path))
+                 ((string= mime "application/gzip") (render-gzip-info stream path))
                  (t (htm (:span (fmt "Unhandled file type ~S." mime))))))))))))
 

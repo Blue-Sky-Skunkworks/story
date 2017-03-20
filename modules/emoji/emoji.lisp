@@ -65,9 +65,10 @@
                                           :if-exists :supersede :if-does-not-exist :create)
     (show-emoji-table :with-hex t)))
 
-(defmacro emoji (name)
+(defmacro emoji (name &optional direct)
   `(html (:i :class "emoji"
-             :style ,(f "background-image:url(\"/emoji/~(~X~).svg\");" (emoji-code name)))))
+             :style (f "background-image:url(\"/emoji/~(~X~).svg\");"
+                       ,(if direct name `(emoji-code ,name))))))
 
 (in-package :story-css)
 

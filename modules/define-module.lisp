@@ -44,7 +44,7 @@
          ,@(when stylesheets `((load-stylesheets ',(localize-stylesheets base stylesheets))))
          ,@(when scripts `((load-scripts ',(localize-scripts base (f "/~(~A~)/" mname) scripts))))
          ,@(when directories `((load-directories ',(localize-directories base directories))))
-         ,@(when imports `((load-imports ',(localize-imports base imports production-import-fix))))
+         ,@(when imports `((load-imports ',(localize-imports base (f "/~(~A~)/" mname) imports production-import-fix))))
          ,@(when dispatches `((load-dispatches ',dispatches)))
          ,@(when files `((load-files ',(localize-files base files))))
          ,@init
@@ -95,16 +95,16 @@
                mime))
           (warn "Missing file ~S." path)))))
 
-(defun localize-imports (base imports &optional fix)
+(defun localize-imports (base prefix imports &optional fix)
   (iter (for el in imports)
     (destructuring-bind (name &optional fn) (ensure-list el)
       (collect
           (nconc
            (list
             (if fn
-                (intern (symbol-name fn) :story-css)
+                fn ;; (intern (symbol-name fn) :story-css)
                 (f "~Aimports/~A.html" base name))
-            (f "/~A.html" name))
+            (f "~A~A.html" prefix name))
            (when fix (list fix)))))))
 
 (defun localize-scripts (base prefix scripts)

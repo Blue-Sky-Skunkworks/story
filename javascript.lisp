@@ -1,5 +1,7 @@
 (in-package :story-js)
 
+(import '(story::html-to-string))
+
 (defun mkstr (&rest args)
   (with-output-to-string (s)
     (dolist (a args) (when a (princ a s)))))

@@ -97,7 +97,7 @@
   (:google-map :latitude "46.8787" :longitude "-113.9966"))
 
 (define-demo templates ((:templates)
-                        :imports (("/foo-template" foo-frame-template)))
+                        :imports (("foo-template" foo-frame-template)))
   (:foo-frame)
   (:foo-frame :title "WooHoo!"))
 

@@ -141,7 +141,7 @@
     (when (modules story)
       (mapc #'stage-story-module (modules story))
       (load-directories (localize-directories base (slot-value story 'directories)))
-      (load-imports (localize-imports base (slot-value story 'imports)))
+      (load-imports (localize-imports base "/" (slot-value story 'imports)))
       (load-dispatches (slot-value story 'dispatches))
       (load-stylesheets (localize-stylesheets base (slot-value story' stylesheets)))
       (load-scripts (localize-scripts base "/" (slot-value story' scripts)))

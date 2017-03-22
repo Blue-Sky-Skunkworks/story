@@ -1,6 +1,6 @@
 
 (defpackage story-js
-  (:use common-lisp parenscript)
+  (:use common-lisp parenscript cl-who)
   (:export js-file id set-html set-html* console))
 
 (defpackage story-css

@@ -46,8 +46,13 @@
        (setf (getprop node 'inner-h-t-m-l) (parenscript:who-ps-html ,@html))
        node)))
 
-(defpsmacro create-el ((node-type parent &key class) &body html)
+(defpsmacro create-el-html* ((node-type parent &key class) &body html)
   `(set-html* (create-element ,node-type ,parent ,class) ,@html))
+
+(defpsmacro create-html (parent &body html)
+  `(let ((el (create-element "div")))
+     (set-html* el ,@html)
+     ((@ ,parent append-child) (@ el first-child))))
 
 (defpsmacro inner-html (el)
   `(slot-value ,(if (stringp el) `(id ,el) el) 'inner-h-t-m-l))
@@ -150,6 +155,13 @@
       '(progn
 
         (defvar *trace-level* 0)
+
+        (defun create-el (tag props &optional parent)
+          (let ((el ((@ document create-element) tag)))
+            (for-in (n props)
+                    (setf (getprop el n) (getprop props n)))
+            (when parent ((@ parent append-child) el))
+            el))
 
         (defun mapcar (fun &rest arrs)
           (let ((result-array (make-array)))

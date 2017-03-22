@@ -79,10 +79,10 @@
   (defun create-table (parent rows &key rowclick class-name (fn (lambda (el) el)))
     (let ((table (create-element "table" parent class-name) raw))
       (loop for row in rows
-            do (let ((tr (create-el ("tr" table)))
+            do (let ((tr (create-el-html* ("tr" table)))
                      (data (funcall fn row)))
                  (loop for col in data
-                       do (create-el ("td" tr) col))
+                       do (create-el-html* ("td" tr) col))
                  (when rowclick
                    (setf (@ tr onclick)
                          (let ((r row))
@@ -93,7 +93,7 @@
       (fetch-quicklisp-listing
        url
        (lambda (listing)
-         (create-el ("h1" parent) (@ listing version))
+         (create-el-html* ("h1" parent) (@ listing version))
          (create-table parent (@ listing packages)
                        :class-name "quicklisp"
                        :rowclick

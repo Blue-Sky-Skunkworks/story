@@ -15,7 +15,7 @@
          (:script
            (str ,(ps* `(*polymer (create is ,sname properties (create ,@props))))))))))
 
-
+(export 'define-template)
 
 
 

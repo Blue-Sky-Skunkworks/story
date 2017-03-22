@@ -24,12 +24,12 @@
        (let* ((div (id container))
               (parent (create-element "table" div "debugging-info")))
          (for-in (slot info)
-                 (create-el ("tr" parent)
-                            (:td slot)
-                            (:td
-                             (let ((data (getprop info slot)))
-                               (if (arrayp data)
-                                   ((@ data join) "<br>")
-                                   data))))))))))
+                 (create-el-html* ("tr" parent)
+                                  (:td slot)
+                                  (:td
+                                   (let ((data (getprop info slot)))
+                                     (if (arrayp data)
+                                         ((@ data join) "<br>")
+                                         data))))))))))
 
 

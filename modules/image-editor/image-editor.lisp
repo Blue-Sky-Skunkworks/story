@@ -42,9 +42,9 @@
       crop))
 
   (defun create-controls (parent)
-    (create-el ("div" parent)
-               ((:paper-icon-button :icon "image:crop" :onclick "selectCropping()"))
-               ((:paper-icon-button :icon "pan-tool" :onclick "selectPanning()"))))
+    (create-el-html* ("div" parent)
+                     ((:paper-icon-button :icon "image:crop" :onclick "selectCropping()"))
+                     ((:paper-icon-button :icon "pan-tool" :onclick "selectPanning()"))))
 
   (defun select-cropping ()
     (setf (@ *editor* mode) :cropping

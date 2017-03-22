@@ -102,7 +102,7 @@
     (fetch-json (+ url ".file-listing") callback))
 
   (defun create-headings (parent)
-    (create-el ("tr" parent)
+    (create-el-html* ("tr" parent)
                (:th)
                (when *show-images* (htm (:th "thumbnail")))
                (:th "name") (:th "type") (:th "size") (:th "width") (:th "height")
@@ -145,7 +145,7 @@
 
   (defun create-grid-el (parent data &optional index)
     (on "click"
-        (create-el ("div" parent :class "grid-el pack")
+        (create-el-html* ("div" parent :class "grid-el pack")
                    (when *show-images*
                      (when (@ data thumbnail)
                        (htm (:img :src (+ "data:image/png;base64," (@ data thumbnail))))))

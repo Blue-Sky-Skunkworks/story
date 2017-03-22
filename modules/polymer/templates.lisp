@@ -6,14 +6,14 @@
                      appending `(,name (create type ,(string-capitalize type)
                                                ,@(when value `(value ,value)))))))
     `(defun ,(symb name '-template) ()
-         (html-to-string
-           (:dom-module :id ,sname
-                        (:template
-                         ,@(when style
-                             `((:style (str (cl-css:css ',style)))))
-                         ,@content))
-           (:script
-             (str ,(ps* `(*polymer (create is ,sname properties (create ,@props))))))))))
+       (html-to-string
+         (:dom-module :id ,sname
+                      (:template
+                       ,@(when style
+                           `((:style (str (cl-css:css ',style)))))
+                       ,@content))
+         (:script
+           (str ,(ps* `(*polymer (create is ,sname properties (create ,@props))))))))))
 
 
 

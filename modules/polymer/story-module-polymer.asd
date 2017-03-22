@@ -11,4 +11,5 @@
   :depends-on ("story-modules" "story-module-images")
   :components ((:static-file "story-module-polymer.asd")
                (:file "polymer")
+               (:file "templates")
                (:file "demo-polymer")))

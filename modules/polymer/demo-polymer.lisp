@@ -95,3 +95,13 @@
 
 (define-demo google-map ((:google-map))
   (:google-map :latitude "46.8787" :longitude "-113.9966"))
+
+(define-demo templates ((:templates)
+                        :imports (("/foo-template" foo-frame-template)))
+  (:foo-frame)
+  (:foo-frame :title "WooHoo!"))
+
+(define-template foo-frame
+    :style ((":host" :display inline-block :background-color red :padding 20px :margin 10px))
+  :properties (("title" string "nameme"))
+  :content ((:span "This is {{title}}.")))

@@ -8,9 +8,9 @@
 
 (define-script packery
   (defun pack (container-id &key (item "pack") (gutter 20))
-    (let ((container (id container-id)))
-      (if (@ container pack)
-          ((@ container pack layout))
-          (setf (@ container pack) (new (*packery container
-                                                  (create :item-selector (+ "." item)
-                                                          :gutter gutter))))))))
+    (let ((container (if (stringp container-id) (id container-id) container-id)))
+      (if (@ container pack-object)
+          ((@ container pack-object layout))
+          (setf (@ container pack-object) (new (*packery container
+                                                         (create :item-selector (+ "." item)
+                                                                 :gutter gutter))))))))

@@ -19,6 +19,7 @@
 (defmacro dom-repeat (&body body) `(html (:template :is "dom-repeat" ,@body)))
 
 (define-template template-grid
+  :style ((":host" :display block))
   :properties (("source" string)
                ("renderer" object))
   :content
@@ -33,10 +34,11 @@
    (lambda (resp)
      (let ((renderer (or (@ this renderer) (@ this default-grid-renderer))))
        (when (stringp renderer) (setf renderer (function-from-string renderer)))
-       (loop for el in (@ resp detail response)
-             do ((@ this append-child) (funcall renderer el)))))))
+       (loop for data in (@ resp detail response)
+             do (let ((el (funcall renderer data)))
+                  ((@ this append-child) el)))))))
 
-(export '(define-template dom-repeat template-grid))
+(export '(define-template dom-repeat template-grid template-grid-template))
 
 
 

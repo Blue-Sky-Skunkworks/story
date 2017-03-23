@@ -180,16 +180,27 @@
               ((eql type "object") nil)
               (t type))))
 
-        (defun arrayp (o)
-          (eql (type-of o) "array"))
+        (defun arrayp (o) (eql (type-of o) "array"))
+        (defun stringp (o) (eql (type-of o) "string"))
+        (defun functionp (o) (eql (type-of o) "function"))
+
+        (defun function-from-string (name)
+          (let ((el (eval name)))
+            (and (functionp el) el)))
 
         (defun add-class (el name)
           (setf (@ el class-name) (+ (@ el class-name) (if (@ el class-name) " " "") name)))
 
-        (setf (@ *string prototype ends-with)
-         (lambda (suffix) (not (equal ((@ this index-of) suffix
-                                       (- (@ this length) (@ suffix length)))
-                                      -1))))
+        (unless (@ *string prototype ends-with)
+          (setf (@ *string prototype ends-with)
+                (lambda (suffix) (not (equal ((@ this index-of) suffix
+                                              (- (@ this length) (@ suffix length)))
+                                             -1)))))
+
+        (unless (@ *string prototype starts-with)
+          (setf (@ *string prototype starts-with)
+                (lambda (prefix &optional (position 0))
+                  (eql ((@ this substr) position (@ prefix length)) prefix))))
 
         (defun when-ready (fn)
           ((@ document add-event-listener) "WebComponentsReady"

@@ -173,3 +173,9 @@ Exchanging and persisting data between devices and services
 *** TODO octokat.js
 ** TODO browserfy
 ** TODO espeak for Lakhota
+** TODO MathJax
+** TODO dates
+*** TODO fecha
+*** TODO moment.js
+** TODO vaadin
+

@@ -15,7 +15,9 @@
          (:script
            (str ,(ps* `(*polymer (create is ,sname properties (create ,@props))))))))))
 
-(export 'define-template)
+(defmacro dom-repeat (&body body) `(html (:template :is "dom-repeat" ,@body)))
+
+(export '(define-template dom-repeat))
 
 
 

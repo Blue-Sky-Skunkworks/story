@@ -55,6 +55,7 @@
     (format stream "~(~A~)=~S " k v))
   (format stream "></iron-image>"))
 
+(define-polymer-module iron-ajax)
 (define-story-module iron-request :extends :polymer
   :imports ("iron-ajax/iron-request")
   :scripts (("iron-request.js" iron-request)))

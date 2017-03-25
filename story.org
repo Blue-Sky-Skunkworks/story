@@ -178,4 +178,5 @@ Exchanging and persisting data between devices and services
 *** TODO fecha
 *** TODO moment.js
 ** TODO vaadin
-
+** TODO use trivial-thumbnail
+** TODO migrate to wu-sugar

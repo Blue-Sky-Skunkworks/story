@@ -75,20 +75,13 @@
       (string el)
       (t (princ-to-string el)))))
 
-(defun string-starts-with (string prefix &key (test #'char=))
-  "Returns true if STRING starts with PREFIX."
-  (let ((prefix (ensure-string prefix))
-        (string (ensure-string string)))
-    (let ((mismatch (mismatch prefix string :test test)))
-      (or (not mismatch) (= mismatch (length prefix))))))
-
 (defun this-swap (from to)
   (cond
     ((eql from 'this) to)
     (t
      (let ((sfrom (symbol-name from))
            (sto (symbol-name to)))
-       (and (string-starts-with sfrom "THIS.")
+       (and (story::starts-with-p sfrom "THIS.")
             (intern (concatenate 'string sto "." (subseq sfrom 5))))))))
 
 (defun subthis (this tree)

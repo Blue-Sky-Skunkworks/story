@@ -38,7 +38,7 @@
                  (server-prefix (f "http://localhost:~D" *web-port*)))
              (cond
                ((null referer) "-")
-               ((string-starts-with referer server-prefix) (subseq referer (length server-prefix)))
+               ((starts-with-p referer server-prefix) (subseq referer (length server-prefix)))
                (t referer))))
         (with-output-to-string (stream)
           (with-color ((if (member return-code '(200 304) :test 'eql) :white :red) :stream stream :effect :bright)

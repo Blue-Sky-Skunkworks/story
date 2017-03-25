@@ -194,9 +194,25 @@
         (format t "No longer using a naked repl.~%")))
     (values)))
 
+(defmacro ql (name) `(ql:quickload ',name))
+
+(defun starts-with-p (seq subseq)
+  (let ((subseq-len (length subseq)))
+    (if (<= subseq-len (length seq))
+	(search subseq seq :end2 subseq-len)
+	nil)))
+
+(defun ends-with-p (seq subseq)
+  (let ((seq-len (length seq))
+	(subseq-len (length subseq)))
+    (if (<= (length subseq) (length seq))
+	(search subseq seq :from-end t :start2 (- seq-len subseq-len))
+	nil)))
+
 (in-package :json)
 
 (defmethod encode-json ((p pathname) &optional (stream *json-output*))
   (write-json-string (namestring p) stream))
 
-(defmacro ql (name) `(ql:quickload ',name))
+
+

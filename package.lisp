@@ -22,7 +22,9 @@
    html script script*
    vertical-break comment
    parenscript ps ps* @ new create
-   note starts-with-char use-naked-repl
+   note use-naked-repl
+   starts-with-char starts-with-p ends-with-p
+   symb ksymb mkstr
    publish create-story stories describe-story render-current-story slurp-file
    bugout))
 

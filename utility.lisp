@@ -122,9 +122,6 @@
       (format nil "~A~A" (uiop/os:getenv "HOME") (subseq path 1))
       path))
 
-(defun starts-with-char (string char)
-  (char= char (char string 0)))
-
 (defmacro vertical-break (&optional (height "20px"))
   `(html (:div :style ,(format nil "height:~A;" height))))
 
@@ -168,12 +165,12 @@
     (cons (funcall fn (subseq string 0 pos)) (funcall fn (subseq string (1+ pos))))
     string))
 
-(defun first-char-p (char string)
-  (char= (char string 0) char))
+(defun starts-with-char (string char)
+  (char= char (char string 0)))
 
 (let (original-eval-region)
   (defun naked-eval-region (string)
-    (if (and (plusp (length string)) (first-char-p #\( string))
+    (if (and (plusp (length string)) (starts-with-char string #\())
       (funcall original-eval-region string)
       (let ((first-word
               (if-let (pos (position #\space string))

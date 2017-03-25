@@ -24,7 +24,7 @@
    parenscript ps ps* @ new create
    note use-naked-repl
    starts-with-char starts-with-p ends-with-p
-   symb ksymb mkstr
+   symb ksymb mkstr asdf-base-path
    publish create-story stories describe-story render-current-story slurp-file
    bugout))
 

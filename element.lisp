@@ -31,7 +31,9 @@
    (dispatches :reader dispatches :initarg :dispatches)
    (files :reader files :initarg :files)
    (suffixes :reader suffixes :initarg :suffixes)
-   (prefixes :reader prefixes :initarg :prefixes)))
+   (prefixes :reader prefixes :initarg :prefixes)
+   (sockets :reader sockets :initarg :sockets)))
+
 
 ;;; story
 

@@ -9,7 +9,8 @@
 
 (defpackage story
   (:use common-lisp cl-who iterate hunchentoot local-time split-sequence
-        cffi printv cl-ascii-art inferior-shell string-case)
+        cffi printv cl-ascii-art inferior-shell string-case hunchensocket)
+  (:import-from sb-int named-lambda)
   (:import-from story-js id set-html set-html* console)
   (:import-from parenscript ps ps* defpsmacro @ new create)
   (:import-from ppcre scan do-scans create-scanner)

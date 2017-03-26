@@ -2,9 +2,15 @@
 
 (defparameter *web-port* 3300)
 (defvar *server* nil)
+(defvar *websocket-server* nil)
+(defparameter *websocket-port* 12345)
+(defvar *websocket-handlers* nil)
 
-(defclass server (hunchentoot:acceptor)
+(defclass server (acceptor)
   ((css :reader css)))
+
+(defclass websocket-server (websocket-acceptor)
+  ())
 
 (defun create-exact-dispatcher (name handler)
   "Creates a request dispatch function which will dispatch to the
@@ -22,25 +28,28 @@ matches NAME."
 (defun format-dispatch (dispatch)
   (if (consp dispatch)
       (ecase (first dispatch)
-        (:prefix (hunchentoot:create-prefix-dispatcher (second dispatch) (third dispatch)))
+        (:prefix (create-prefix-dispatcher (second dispatch) (third dispatch)))
         (:exact (create-exact-dispatcher (second dispatch) (third dispatch)))
-        (:regex (hunchentoot:create-regex-dispatcher (second dispatch) (third dispatch)))
-        (:folder (hunchentoot:create-folder-dispatcher-and-handler (second dispatch) (string-or-val (third dispatch))))
-        (:static (hunchentoot:create-static-file-dispatcher-and-handler (second dispatch) (third dispatch) (fourth dispatch))))
+        (:regex (create-regex-dispatcher (second dispatch) (third dispatch)))
+        (:folder (create-folder-dispatcher-and-handler (second dispatch) (string-or-val (third dispatch))))
+        (:static (create-static-file-dispatcher-and-handler (second dispatch) (third dispatch) (fourth dispatch))))
       dispatch))
 
 (defun start-server ()
   (when *server*
     (warn "Server already started. Restarting")
-    (hunchentoot:stop *server*))
-  (note "starting story server on port ~S" *web-port*)
+    (stop *server*)
+    (stop *websocket-server*))
+  (note "starting story server on port ~S with sockets on ~S" *web-port* *websocket-port*)
   (reset-server)
   (setf *server*
         (make-instance 'server
                        :port *web-port*
                        :access-log-destination sb-sys:*stdout*
                        :message-log-destination sb-sys:*stdout*))
-  (hunchentoot:start *server*))
+  (start *server*)
+  (setf *websocket-server* (make-instance 'websocket-acceptor :port *websocket-port*))
+  (start *websocket-server*))
 
 (defvar *imports*)
 (defvar *import-fns*)
@@ -217,7 +226,7 @@ matches NAME."
 (defvar *file-argument-handler* nil)
 
 ;;; serve-all
-(defmethod hunchentoot:acceptor-dispatch-request ((acceptor server) request)
+(defmethod acceptor-dispatch-request ((acceptor server) request)
   (iter (for dispatcher in *module-dispatches*)
     (when-let (action (funcall dispatcher *request*))
       (when-let (rtn (funcall action))
@@ -299,7 +308,10 @@ matches NAME."
              (collect el)))
      (cons :dispatches
            (iter (for el in *module-dispatches*)
-             (collect el))))))
+             (collect el)))
+     (cons :sockets
+           (iter (for (k . v) in *websocket-handlers*)
+             (collect (list k v)))))))
 
 (defun server ()
   "Describe the server."
@@ -310,7 +322,8 @@ matches NAME."
       (format t "~%css:~%")
       (iter (for (k v) in (val :css)) (format t "  ~36A  ~@[~A~]~%" k (unless (stringp v) v)))
       (format t "~%scripts:~%")
-      (iter (for (k v) in (val :scripts)) (format t "  ~36A  ~@[~A~]~%" k (typecase v (string nil) (t v))))
+      (iter (for (k v) in (val :scripts)) (format t "  ~36A  ~@[~A~]~%" k
+                                                  (typecase v (string nil) (t v))))
       (format t "~%directories:~%")
       (iter (for (k v) in (val :directories)) (format t "  ~36A  ~A~%" k v))
       (format t "~%files:~%")
@@ -318,7 +331,9 @@ matches NAME."
       (format t "~%imports:~%")
       (iter (for (k v) in (val :imports)) (format t "  ~36A  ~A~%" v k))
       (format t "~%dispatches:~%")
-      (iter (for el in (val :dispatches)) (format t "  ~A~%" el)))))
+      (iter (for el in (val :dispatches)) (format t "  ~A~%" el))
+      (format t "~%sockets:~%")
+      (iter (for (k v) in (val :sockets)) (format t "  ~36A  ~A~%" k v)))))
 
 (defun reset-server ()
   (setf *css* (make-hash-table :test 'equal)
@@ -328,10 +343,11 @@ matches NAME."
         *import-fns* (make-hash-table :test 'equal)
         *imports* nil
         *all-imports* ""
-        *module-dispatches* nil)
+        *module-dispatches* nil
+        *websocket-handlers* nil
+        *websocket-dispatch-table* nil)
   ;(reset-image-processors)
   )
-
 
 (defun local-path-from-server (path)
   (if (scan "https?://" path)
@@ -341,3 +357,18 @@ matches NAME."
          (when-let (hit (gethash (f "/~A/" (subseq path 0 pos)) *directories*))
            (return-from local-path-from-server (concatenate 'string hit (subseq path (1+ pos))))))
        (warn "Missing local path ~S." path))))
+
+(defun register-websocket-handler (prefix fn)
+  (if-let (existing (assoc prefix *websocket-handlers* :test 'string=))
+    (progn
+      (note "Reseting socket handler ~S." prefix)
+      (setf *websocket-dispatch-table* (delete (cdr existing) *websocket-dispatch-table*)))
+    (let ((fn (named-lambda websocket-handler (request)
+                (when (string= (script-name request) prefix)
+                  (funcall fn request)))))
+      (push (cons prefix fn) *websocket-handlers*)
+      (push fn *websocket-dispatch-table*))))
+
+(defun load-sockets (sockets)
+  (iter (for (name fn) in sockets) (register-websocket-handler name fn)))
+

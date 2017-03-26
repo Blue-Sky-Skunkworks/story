@@ -3,7 +3,7 @@
 (define-story-module files
   :stylesheets (("files.css" files-css))
   :scripts (("files.js" files) "marked.js")
-  :depends-on (:iron-request :images :prism :emoji))
+  :depends-on (:iron-request :images :prism :emoji :packery))
 
 (defun file-icon (mime)
   (when-let (name (string-case (mime :default nil)
@@ -79,6 +79,7 @@
        (:script :type "text/javascript" :src "/files/files.js")
        (:script :type "text/javascript" :src "/packery/packery.pkgd.min.js")
        (:script :type "text/javascript" :src "/packery/packery.js")
+       (:link :rel "stylesheet" :type "text/css" :href "/emoji.css")
        (:link :rel "stylesheet" :type "text/css" :href "/files.css"))
       (:body
        (:div :id "files")))
@@ -128,7 +129,7 @@
 
   (defun create-row (parent data &optional index)
     (on "click"
-        (create-el
+        (create-el-html*
          ("tr" parent)
          (:td (when (@ data icon) (file-icon (@ data icon))))
          (when *show-images*

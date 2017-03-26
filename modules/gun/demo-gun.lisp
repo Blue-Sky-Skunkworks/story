@@ -5,14 +5,7 @@
     (defvar *gun*)
 
     (defun initialize-gun ()
-      (setf *gun* (*gun))
-      (console "gun initialized"))
+      (setf *gun* (*gun)))
 
-    (defun add-gun (k v)
-      ((@ ((@ *gun* get) k) put) v))
-
-    (initialize-gun)
-
-    )
-  )
+    (initialize-gun)))
 

@@ -74,7 +74,7 @@
           (to (if (consp dir) (second dir) dir)))
       (collect
           (list
-           (if (string-starts-with from "/")
+           (if (starts-with-p from "/")
                from
                (f "~A~A/" base from))
            (f "/~A/" to))))))

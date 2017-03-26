@@ -3,17 +3,17 @@
 (define-story-module files
   :stylesheets (("files.css" files-css))
   :scripts (("files.js" files) "marked.js")
-  :depends-on (:iron-request :images :prism :emoji :packery))
+  :depends-on (:iron-request :images :prism :emoji))
 
 (defun file-icon (mime)
-  (when-let (name (string-case (mime :default nil)
-                    ("application/pdf" "closed-book")
-                    ("application/gzip" "compression")
-                    ("text/html" "page-facing-up")
-                    ("text/plain" "page-facing-up")
-                    ("image/png" "frame-with-picture")
-                    ("image/jpeg" "frame-with-picture")
-                    ("inode/directory" "file-folder")))
+  (let ((name (string-case (mime :default "black-question-mark-ornament")
+                ("application/pdf" "closed-book")
+                ("application/gzip" "compression")
+                ("text/html" "page-facing-up")
+                ("text/plain" "page-facing-up")
+                ("image/png" "frame-with-picture")
+                ("image/jpeg" "frame-with-picture")
+                ("inode/directory" "file-folder"))))
     (f "~(~X~)" (emoji-code name))))
 
 (defun create-file-listing (directory)
@@ -77,8 +77,6 @@
        (:script :type "text/javascript" :src "/webcomponentsjs/webcomponents-lite.js")
        (:script :type "text/javascript" :src "/polymer/iron-request.js")
        (:script :type "text/javascript" :src "/files/files.js")
-       (:script :type "text/javascript" :src "/packery/packery.pkgd.min.js")
-       (:script :type "text/javascript" :src "/packery/packery.js")
        (:link :rel "stylesheet" :type "text/css" :href "/emoji.css")
        (:link :rel "stylesheet" :type "text/css" :href "/files.css"))
       (:body
@@ -146,7 +144,7 @@
 
   (defun create-grid-el (parent data &optional index)
     (on "click"
-        (create-el-html* ("div" parent :class "grid-el pack")
+        (create-el-html* ("div" parent :class "grid-el")
                    (when *show-images*
                      (when (@ data thumbnail)
                        (htm (:img :src (+ "data:image/png;base64," (@ data thumbnail))))))

@@ -16,7 +16,8 @@
     (nreverse rtn)))
 
 (defun page-title (raw)
-  (let ((doc (parse raw (make-builder))))
+  (let ((doc (or (ignore-errors (parse raw (make-builder)))
+                 (return-from page-title "ERROR"))))
     (stp:do-recursively (a doc)
       (when (and (typep a 'element)
                  (equal (local-name a) "title"))

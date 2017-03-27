@@ -14,7 +14,8 @@
                        ,@content))
          (:script
            (str ,(ps* `(*polymer (create is ,sname properties (create ,@props)
-                                         ,@methods)))))))))
+                                         ,@(iter (for (name args . body) in methods)
+                                             (appending (list name `(lambda ,args ,@body)))))))))))))
 
 (defmacro dom-repeat (&body body) `(html (:template :is "dom-repeat" ,@body)))
 
@@ -25,13 +26,12 @@
   :content
   ((ajax :auto t :url "{{source}}" :handle-as "json" :on-response "handleResponse"))
   :methods
-  (default-grid-renderer
-   (lambda (el)
+  ((default-grid-renderer (el)
      (story-js::set-html (create-el "table")
                          (ps:loop :for n :of el
                             collect (htm (:tr (:th n) (:td (aref el n)))))))
-   handle-response
-   (lambda (resp)
+
+   (handle-response (resp)
      (let ((renderer (or (@ this renderer) (@ this default-grid-renderer))))
        (when (stringp renderer) (setf renderer (function-from-string renderer)))
        (loop for data in (@ resp detail response)

@@ -1,7 +1,7 @@
 (in-package :story)
 
 (defun story-modules-file (&optional base)
-  (concatenate 'string (asdf-base-path :story-modules) base))
+  (directory-namestring (asdf:system-relative-pathname :story-modules base)))
 
 (defun copy-and-replace (read-file write-file &rest replacements)
   "Copy READ-FILE to WRITE-FILE swapping FROM,TO pairs in REPLACEMENTS."

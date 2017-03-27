@@ -11,7 +11,7 @@
     (when (probe-file story-dir)
       (error "Story ~S already exists." name))
     (ensure-directories-exist story-dir)
-    (flet ((from (name) (concatenate 'string (asdf-base-path :story) "base/" name))
+    (flet ((from (name) (concatenate 'string (story-file "base/") name))
            (to (name) (concatenate 'string story-dir name)))
       (copy-and-replace (from "system.asd") (to asdf-name) "FOO" name)
       (copy-and-replace (from "initialize.lisp") (to "initialize.lisp") "FOO" name "Foo" (string-capitalize name))

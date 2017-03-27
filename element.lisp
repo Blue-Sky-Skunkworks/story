@@ -139,7 +139,7 @@
 
 (defun setup-server (story)
   (reset-server)
-  (let ((base (asdf-base-path (story-package story))))
+  (let ((base (asdf:system-source-directory (story-package story))))
     (when (modules story)
       (mapc #'stage-story-module (modules story))
       (load-directories (localize-directories base (slot-value story 'directories)))

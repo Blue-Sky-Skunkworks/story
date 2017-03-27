@@ -5,11 +5,8 @@
 (defmacro html (&body body) `(with-html-output (stream nil) ,@body))
 (defmacro html-to-string (&body body) `(with-html-output-to-string (stream nil) ,@body))
 
-(defun asdf-base-path (name)
-  (directory-namestring (asdf:component-pathname (asdf:find-system name))))
-
-(defun story-file (&optional  base)
-  (concatenate 'string (asdf-base-path :story) base))
+(defun story-file (&optional base)
+  (directory-namestring (asdf:system-relative-pathname :story base)))
 
 (defmacro f (&rest args) `(format nil ,@ args))
 

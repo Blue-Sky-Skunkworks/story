@@ -13,6 +13,7 @@
                                "cl-json" "closure-html" "cxml-stp" "drakma" "trivial-download")
   :components ((:static-file "story-module-files.asd")
                (:file "html")
+               (:file "info")
                (:file "files")
                (:file "pdf")
                (:file "compression")

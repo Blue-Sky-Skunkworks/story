@@ -21,13 +21,20 @@
          (let ((stream *standard-output*))
            ,@body)))))
 
-(define-debugger-command help ()
+(define-debugger-command help (&optional command)
   "Show the debugger help."
   (html
     (:h2 "Help")
-    (:table
-     (iter (for (name . fn) in *debugger-commands*)
-       (htm (:tr (:th (esc name)) (:td (esc (documentation fn 'function)))))))))
+    (if command
+        (let ((fn (or (assoc-value *debugger-commands* command :test 'string-equal)
+                      (error "Unknown command ~S." command))))
+          (htm (:h3 (esc (string-downcase command)) " "
+                    (esc (string-downcase (princ-to-string (sb-introspect:function-lambda-list fn)))))
+               (:div (esc (documentation fn 'function)))))
+        (htm
+         (:table
+          (iter (for (name . fn) in *debugger-commands*)
+            (htm (:tr (:th (esc name)) (:td (esc (documentation fn 'function)))))))))))
 
 (defclass debugger (websocket-resource) ())
 

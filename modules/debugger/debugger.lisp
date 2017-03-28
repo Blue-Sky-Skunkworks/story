@@ -60,8 +60,8 @@
            (rtn (with-output-to-string (*standard-output*)
                   (if fn
                       (handler-case
-                          (prog1
-                              (apply fn args)
+                          (progn
+                            (apply fn args)
                             (setf class :result))
                         (error (c)
                           (debugger-error-handler c)))
@@ -101,8 +101,10 @@
              (let* ((url (+ "ws://localhost:" (@ this port) (@ this socket)))
                     (ws (new (*web-socket url))))
                (setf (@ this websocket) ws
+                     (@ this commands) (create)
                      (@ ws root) this
                      (@ ws onmessage) (@ this handle-message))
+               ((@ this add-command) "clear" "clearRepl")
                (console "debugger connected to" url)))
    (insert (el)
             (with-content (repl)
@@ -118,19 +120,25 @@
                  (loop for child in (child-nodes workspace)
                        do (unless (eql (@ child id) "repl")
                             (remove-child workspace child)))))
+   (add-command (command fn)
+                (setf (aref (@ this commands) command) fn))
    (handle-command (full-command)
-                   (let* ((pos ((@ full-command index-of) " "))
-                          (command (if (< 0 pos) ((@ full-command substr) 0 pos) full-command)))
-                     (cond
-                       ((or (eql command "clear") (eql command "c")) ((@ this clear-repl)) t)
-                       (t nil))))
+                   (with-content (repl)
+                     (let* ((pos ((@ full-command index-of) " "))
+                            (command (if (< 0 pos) ((@ full-command substr) 0 pos) full-command)))
+                       (let ((fn (aref (@ this commands) command)))
+                         (when fn
+                           (funcall (aref this fn))
+                           (setf (@ repl command-handled) t))))))
    (handle-keydown (event)
       (with-content (workspace repl)
         (when (= (@ event key-code) 13)
           (let ((value (@ repl value)))
             (when (< 0 (@ value length))
               ((@ this insert) (story-js::create-el-html* ("div" nil :class "entry") value))
-              (setf (@ repl value) "")
-              (unless ((@ this handle-command) value)
+              (setf (@ repl value) ""
+                    (@ repl command-handled) nil)
+              ((@ this handle-command) value)
+              (unless (@ repl command-handled)
                 ((@ this websocket send) value)))))))))
 

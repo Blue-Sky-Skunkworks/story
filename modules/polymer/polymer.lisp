@@ -105,8 +105,16 @@
 (defmacro map-marker (&body body) `(html (:google-map-marker ,@body)))
 (export '(google-map map-marker))
 
-
-
+(ps:defpsmacro dom (el) `((@ *polymer dom) ,el))
+(ps:defpsmacro parent-node (node) `(@ (dom ,node) parent-node))
+(ps:defpsmacro insert-before (parent node before-node)
+  `((@ (dom ,parent) insert-before) ,node ,before-node))
+(ps:defpsmacro remove-child (parent node)
+  `((@ (dom ,parent) remove-child) ,node))
+(ps:defpsmacro child-nodes (parent)
+  `(@ (dom ,parent) child-nodes))
+(ps:defpsmacro with-content (ids &body body)
+  `(with-slots ,ids (@ this $) ,@body))
 
 (in-package :story-js)
 

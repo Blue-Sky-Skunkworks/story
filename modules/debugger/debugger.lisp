@@ -83,18 +83,6 @@
   (declare (ignore request))
   (or *debugger* (setf *debugger* (make-instance 'debugger))))
 
-(ps:defpsmacro dom (el) `((@ *polymer dom) ,el))
-(ps:defpsmacro parent-node (node) `(@ (dom ,node) parent-node))
-(ps:defpsmacro insert-before (parent node before-node)
-  `((@ (dom ,parent) insert-before) ,node ,before-node))
-(ps:defpsmacro remove-child (parent node)
-  `((@ (dom ,parent) remove-child) ,node))
-(ps:defpsmacro child-nodes (parent)
-  `(@ (dom ,parent) child-nodes))
-(ps:defpsmacro with-content (ids &body body)
-  `(with-slots ,ids (@ this $) ,@body))
-
-
 (define-template debugger-interface
   :properties (("socket" string "/debugger")
                ("port" number *websocket-port*))

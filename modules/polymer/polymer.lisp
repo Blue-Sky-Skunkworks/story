@@ -1,6 +1,6 @@
 (in-package :story)
 
-(defmacro  define-polymer-macros (prefix &rest names)
+(defmacro define-polymer-macros (prefix &rest names)
   `(progn
      ,@(iter (for name in names)
              (appending
@@ -104,6 +104,8 @@
 (defmacro google-map (&body body) `(html (:google-map ,@body)))
 (defmacro map-marker (&body body) `(html (:google-map-marker ,@body)))
 (export '(google-map map-marker))
+
+
 
 
 (in-package :story-js)

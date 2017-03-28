@@ -4,7 +4,7 @@
   (let ((sname (format nil "~(~A~)" name))
         (props (loop for (name type value) in properties
                      appending `(,name (create type ,(string-capitalize type)
-                                               ,@(when value `(value ,value)))))))
+                                               ,@(when value `(value ,(if (symbolp value) (symbol-value value) value))))))))
     `(defun ,(symb name '-template) ()
        (html-to-string
          (:dom-module :id ,sname

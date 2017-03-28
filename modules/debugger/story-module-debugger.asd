@@ -1,4 +1,4 @@
-(defsystem "story-module-debugging"
+(defsystem "story-module-debugger"
   :defsystem-depends-on ("story-module-system")
   :class :story-module-system
   :category "none"
@@ -9,7 +9,7 @@
   :license "unknown"
   :serial t
   :depends-on ("story-modules")
-  :components ((:static-file "story-module-debugging.asd")
-               (:file "debugging")
-               (:file "demo-debugging")))
+  :components ((:static-file "story-module-debugger.asd")
+               (:file "debugger")
+               (:file "demo-debugger")))
 

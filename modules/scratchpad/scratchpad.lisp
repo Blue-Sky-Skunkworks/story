@@ -3,7 +3,7 @@
 (define-story-module scratchpad
   :dispatches ((:prefix "/scratchpad/pad.html" scratchpad-renderer))
   :imports (("scratchpad" scratch-pad-template))
-  :sockets (("/scratchpad" scratchpad-handler))
+  :sockets (("/scratchpad" scratchpad-socket-handler))
   :depends-on (:files :polymer))
 
 (defvar *scratchpad* nil)
@@ -17,7 +17,7 @@
   (setf (slot-value sp 'text) message)
   (send-text-message client "reload"))
 
-(defun scratchpad-handler (request)
+(defun scratchpad-socket-handler (request)
   (declare (ignore request))
   (or *scratchpad* (setf *scratchpad* (make-instance 'scratchpad))))
 
@@ -28,14 +28,14 @@
   :properties (("name" string "pad")
                ("path" string "/scratchpad/")
                ("socket" string "/scratchpad")
-               ("port" number 12345))
+               ("port" number *websocket-port*))
   :content ((:textarea :id "editor" :style "width:400px;height:300px;")
             (:iframe :id "frame" :style "width:400px;height:300px;" :src "{{path}}{{name}}.html"))
   :methods ((attached ()
              (setf (@ this websocket)
                    (new (*web-socket (+ "ws://localhost:" (@ this port) (@ this socket)))))
              (let ((parent this))
-               (with-slots (editor frame) (@ this $)
+               (with-content (editor frame)
                  (setf (@ editor onkeyup)
                        (lambda ()
                          (when (@ parent save-timer) (clear-timeout (@ parent save-timer)))

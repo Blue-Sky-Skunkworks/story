@@ -10,7 +10,8 @@
 (defparameter *debugger-commands* '(("server" . server)
                                     ("hilbert" . cl-ascii-art:hilbert-space-filling-curve)
                                     ("unicode" . cl-ascii-art:show-unicode-characters)
-                                    ("clear" . "Clear the REPL.")))
+                                    ("clear" . "Clear the debugger.")
+                                    ("fullscreen" . "Toggle full screen mode.")))
 
 (defmacro define-debugger-command (name args documentation &body body)
   (let ((fn-name (symb 'debugger-command- name))
@@ -86,8 +87,8 @@
 (define-template debugger-interface
   :properties (("socket" string "/debugger")
                ("port" number *websocket-port*))
-  :style (("#workspace" :width 500px :height 400px :border "1px solid blue"
-                        :overflow-y auto :padding 10px :margin 10px)
+  :style (("#workspace" :background white
+                        :border "2px solid #007" :overflow-y auto :padding 10px :margin 10px)
           (".entry" :padding 10px :background "#BBB")
           (".result" :padding 10px :background "#DDD"
                      :font-family monospace :white-space pre
@@ -105,10 +106,19 @@
                      (@ ws root) this
                      (@ ws onmessage) (@ this handle-message))
                ((@ this add-command) "clear" "clearRepl")
+               ((@ this add-command) "fullscreen" "toggleFullscreen")
                (console "debugger connected to" url)))
    (insert (el)
             (with-content (repl)
               (insert-before (parent-node repl) el repl)))
+   (toggle-fullscreen ()
+                      (with-content (workspace)
+                        (with-slots (s-position s-top s-right s-bottom s-left) workspace
+                          (with-slots (position top right bottom left) (@ workspace style)
+                            (if (@ workspace fullscreen)
+                                (setf position s-position top s-top right s-right bottom s-bottom left s-left)
+                                (setf s-position position position "absolute" s-top top top 0 s-right right right 0 s-bottom bottom bottom 0 s-left left left 0))))
+                        (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
    (handle-message (event)
                    (let ((rtn ((@ *J-s-o-n parse) (@ event data))))
                      (with-slots (class message) rtn

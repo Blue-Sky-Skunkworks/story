@@ -82,8 +82,13 @@
 (ps:defpsmacro parent-node (node) `(@ (dom ,node) parent-node))
 (ps:defpsmacro insert-before (parent node before-node)
   `((@ (dom ,parent) insert-before) ,node ,before-node))
+(ps:defpsmacro remove-child (parent node)
+  `((@ (dom ,parent) remove-child) ,node))
+(ps:defpsmacro child-nodes (parent)
+  `(@ (dom ,parent) child-nodes))
 (ps:defpsmacro with-content (ids &body body)
   `(with-slots ,ids (@ this $) ,@body))
+
 
 (define-template debugger-interface
   :properties (("socket" string "/debugger")
@@ -115,7 +120,17 @@
                        ((@ this root insert)
                         (story-js::create-el-html* ("div" nil :class class) message))
                        ((@ this root $ repl scroll-into-view)))))
-   (handle-command (command) (console command))
+   (clear-repl ()
+               (with-content (workspace)
+                 (loop for child in (child-nodes workspace)
+                       do (unless (eql (@ child id) "repl")
+                            (remove-child workspace child)))))
+   (handle-command (full-command)
+                   (let* ((pos ((@ full-command index-of) " "))
+                          (command (if (< 0 pos) ((@ full-command substr) 0 pos) full-command)))
+                     (cond
+                       ((eql command "clear") ((@ this clear-repl)) t)
+                       (t nil))))
    (handle-keydown (event)
       (with-content (workspace repl)
         (when (= (@ event key-code) 13)

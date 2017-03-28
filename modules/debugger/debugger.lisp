@@ -9,7 +9,8 @@
 
 (defparameter *debugger-commands* '(("server" . server)
                                     ("hilbert" . cl-ascii-art:hilbert-space-filling-curve)
-                                    ("unicode" . cl-ascii-art:show-unicode-characters)))
+                                    ("unicode" . cl-ascii-art:show-unicode-characters)
+                                    ("clear" . "Clear the REPL.")))
 
 (defmacro define-debugger-command (name args documentation &body body)
   (let ((fn-name (symb 'debugger-command- name))
@@ -29,12 +30,16 @@
         (let ((fn (or (assoc-value *debugger-commands* command :test 'string-equal)
                       (error "Unknown command ~S." command))))
           (htm (:h3 (esc (string-downcase command)) " "
-                    (esc (string-downcase (princ-to-string (sb-introspect:function-lambda-list fn)))))
+                    (when-let ((arglist (sb-introspect:function-lambda-list fn)))
+                      (esc (string-downcase (princ-to-string arglist)))))
                (:div (esc (documentation fn 'function)))))
         (htm
          (:table
           (iter (for (name . fn) in *debugger-commands*)
-            (htm (:tr (:th (esc name)) (:td (esc (documentation fn 'function)))))))))))
+            (htm (:tr (:th (esc name)) (:td
+                                        (if (stringp fn)
+                                            (esc fn)
+                                            (esc (documentation fn 'function))))))))))))
 
 (defclass debugger (websocket-resource) ())
 
@@ -129,14 +134,15 @@
                    (let* ((pos ((@ full-command index-of) " "))
                           (command (if (< 0 pos) ((@ full-command substr) 0 pos) full-command)))
                      (cond
-                       ((eql command "clear") ((@ this clear-repl)) t)
+                       ((or (eql command "clear") (eql command "c")) ((@ this clear-repl)) t)
                        (t nil))))
    (handle-keydown (event)
       (with-content (workspace repl)
         (when (= (@ event key-code) 13)
           (let ((value (@ repl value)))
-            ((@ this insert) (story-js::create-el-html* ("div" nil :class "entry") value))
-            (setf (@ repl value) "")
-            (unless ((@ this handle-command) value)
-              ((@ this websocket send) value))))))))
+            (when (< 0 (@ value length))
+              ((@ this insert) (story-js::create-el-html* ("div" nil :class "entry") value))
+              (setf (@ repl value) "")
+              (unless ((@ this handle-command) value)
+                ((@ this websocket send) value)))))))))
 

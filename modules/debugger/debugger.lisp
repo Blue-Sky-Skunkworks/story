@@ -138,7 +138,7 @@
                            (funcall (aref this fn) args)
                            t)))))
    (handle-keydown (event)
-                   (console (@ event key) )
+                   ;; (console (@ event key))
                    (with-content (workspace repl)
                      (cond
                        ((eql (@ event key) "Enter")

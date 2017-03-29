@@ -17,7 +17,7 @@
            ,@body)))))
 
 (define-debugger-command help (&optional command)
-  "Show the debugger help."
+    "Show the debugger help."
   (html
     (:h2 "Help")
     (if command
@@ -30,10 +30,12 @@
         (htm
          (:table
           (iter (for (name . fn) in *debugger-commands*)
-            (htm (:tr (:th (esc name)) (:td
-                                        (if (stringp fn)
-                                            (esc fn)
-                                            (esc (documentation fn 'function))))))))))))
+            (htm (:tr (:th :style "text-align:right;padding-right:10px;"
+                           (esc name))
+                      (:td
+                       (if (stringp fn)
+                           (esc fn)
+                           (esc (documentation fn 'function))))))))))))
 
 (define-debugger-command server ()
   "Describe the server."

@@ -59,7 +59,8 @@
                      :font-family monospace :white-space pre
                      :margin 0px)
           (".result h2" :margin-top 0px)
-          (".error" :padding 10px :background "#C00" :color white))
+          (".error" :padding 10px :background "#C00" :color white)
+          (".description th" :text-align left))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
@@ -69,28 +70,40 @@
                (setf (@ this websocket) ws
                      (@ this commands) (create)
                      (@ ws root) this
-                     (@ ws onmessage) (@ this handle-message))
+                     (@ ws onmessage) (@ this handle-message)
+                     (@ this history) (make-array))
                ((@ this add-command) "clear" "clearRepl")
                ((@ this add-command) "fullscreen" "toggleFullscreen")
+               ((@ this add-command) "describe" "describe")
                ((@ this $ repl focus))
                (console "debugger connected to" url)))
    (insert (el)
-            (with-content (repl)
-              (insert-before (parent-node repl) el repl)))
+           (with-content (repl)
+             (insert-before (parent-node repl) el repl)
+             (flush-dom)
+             ((@ repl scroll-into-view))))
    (toggle-fullscreen ()
                       (with-content (workspace)
-                        (with-slots (s-position s-top s-right s-bottom s-left) workspace
-                          (with-slots (position top right bottom left) (@ workspace style)
+                        (with-slots (s-position s-top s-right s-bottom s-left s-padding s-margin
+                                     s-border)
+                            workspace
+                          (with-slots (position top right bottom left padding margin border)
+                              (@ workspace style)
                             (if (@ workspace fullscreen)
-                                (setf position s-position top s-top right s-right bottom s-bottom left s-left)
-                                (setf s-position position position "absolute" s-top top top 0 s-right right right 0 s-bottom bottom bottom 0 s-left left left 0))))
+                                (setf position s-position top s-top right s-right bottom
+                                      s-bottom left s-left margin s-margin padding s-padding
+                                      border s-border)
+                                (setf s-position position position "absolute" s-top top top 0
+                                      s-right right right 0 s-bottom bottom bottom 0
+                                      s-left left left 0 s-margin margin margin 0
+                                      s-padding padding padding 10
+                                      s-border border border 0))))
                         (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
    (handle-message (event)
                    (let ((rtn ((@ *J-s-o-n parse) (@ event data))))
                      (with-slots (class message) rtn
                        ((@ this root insert)
-                        (story-js::create-el-html* ("div" nil :class class) message))
-                       ((@ this root $ repl scroll-into-view)))))
+                        (story-js::create-el-html* ("div" nil :class class) message)))))
    (clear-repl ()
                (with-content (workspace)
                  (loop for child in (child-nodes workspace)
@@ -98,21 +111,57 @@
                             (remove-child workspace child)))))
    (add-command (command fn)
                 (setf (aref (@ this commands) command) fn))
+   (insert-error (text)
+                 ((@ this insert) (story-js::create-el-html*
+                                   ("div" nil :class "error") (+ "ERROR: " text))))
+   (describe (args)
+             (let* ((el (if ((@ args starts-with) "#")
+                            (or (id ((@ args substr) 1))
+                                (progn
+                                  ((@ this insert-error) (+ "ID \"" args "\" does not exist."))
+                                  nil))
+                            (eval args)))
+                    (table (story-js::create-element "table" nil "description")))
+               (loop for key of el
+                     do (story-js::create-el-html* ("tr" table)
+                                                   (:th key)
+                                                   (:td (aref el key))))
+               ((@ this insert) table)))
    (handle-command (full-command)
+                   ((@ this history push) full-command)
                    (with-content (repl)
                      (let* ((pos ((@ full-command index-of) " "))
-                            (command (if (< 0 pos) ((@ full-command substr) 0 pos) full-command)))
+                            (command (if (plusp pos) ((@ full-command substr) 0 pos) full-command))
+                            (args (when (plusp pos) ((@ full-command substr) (1+ pos)))))
                        (let ((fn (aref (@ this commands) command)))
                          (when fn
-                           (funcall (aref this fn))
+                           (funcall (aref this fn) args)
                            t)))))
    (handle-keydown (event)
-      (with-content (workspace repl)
-        (when (= (@ event key-code) 13)
-          (let ((value (@ repl value)))
-            (when (< 0 (@ value length))
-              ((@ this insert) (story-js::create-el-html* ("div" nil :class "entry") value))
-              (setf (@ repl value) "")
-              (unless ((@ this handle-command) value)
-                ((@ this websocket send) value)))))))))
+                   (console (@ event key) )
+                   (with-content (workspace repl)
+                     (cond
+                       ((eql (@ event key) "Enter")
+                        (let ((value (@ repl value)))
+                          (when (plusp (@ value length))
+                            ((@ this insert) (story-js::create-el-html*
+                                              ("div" nil :class "entry") value))
+                            (setf (@ repl value) "")
+                            (unless ((@ this handle-command) value)
+                              ((@ this websocket send) value)))))
+                       ((eql (@ event key) "ArrowUp")
+                        (with-slots (history history-index) this
+                          (when (and (plusp (length history))
+                                     (< history-index (length history)))
+                            (setf history-index (+ history-index 1)
+                                  (@ repl value) (aref history (- (length history) history-index))))))
+                       ((eql (@ event key) "ArrowDown")
+                        (with-slots (history history-index) this
+                          (when (plusp history-index)
+                            (let ((next (if (= history-index 1)
+                                            ""
+                                            (aref history (- (length history) history-index -1)))))
+                              (setf (@ repl value) next
+                                    history-index (- history-index 1))))))
+                       (t (setf (@ this history-index) 0) nil))))))
 

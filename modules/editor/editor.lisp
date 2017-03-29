@@ -2,4 +2,5 @@
 
 (define-story-module editor
   :scripts ("ace/ace.js")
-  :directories ("ace"))
+  :directories ("ace")
+  :depends-on (:polymer :files))

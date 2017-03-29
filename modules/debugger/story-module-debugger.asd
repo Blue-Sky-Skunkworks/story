@@ -11,5 +11,6 @@
   :depends-on ("story-modules")
   :components ((:static-file "story-module-debugger.asd")
                (:file "debugger")
+               (:file "commands")
                (:file "demo-debugger")))
 

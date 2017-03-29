@@ -7,41 +7,6 @@
 
 (defvar *debugger* nil)
 
-(defparameter *debugger-commands* '(("server" . server)
-                                    ("hilbert" . cl-ascii-art:hilbert-space-filling-curve)
-                                    ("unicode" . cl-ascii-art:show-unicode-characters)
-                                    ("clear" . "Clear the debugger.")
-                                    ("fullscreen" . "Toggle full screen mode.")))
-
-(defmacro define-debugger-command (name args documentation &body body)
-  (let ((fn-name (symb 'debugger-command- name))
-        (cmd (string-downcase name)))
-    `(progn
-       (pushnew (cons ,cmd ',fn-name) *debugger-commands* :key 'car :test #'string=)
-       (defun ,fn-name ,args
-         ,documentation
-         (let ((stream *standard-output*))
-           ,@body)))))
-
-(define-debugger-command help (&optional command)
-  "Show the debugger help."
-  (html
-    (:h2 "Help")
-    (if command
-        (let ((fn (or (assoc-value *debugger-commands* command :test 'string-equal)
-                      (error "Unknown command ~S." command))))
-          (htm (:h3 (esc (string-downcase command)) " "
-                    (when-let ((arglist (sb-introspect:function-lambda-list fn)))
-                      (esc (string-downcase (princ-to-string arglist)))))
-               (:div (esc (documentation fn 'function)))))
-        (htm
-         (:table
-          (iter (for (name . fn) in *debugger-commands*)
-            (htm (:tr (:th (esc name)) (:td
-                                        (if (stringp fn)
-                                            (esc fn)
-                                            (esc (documentation fn 'function))))))))))))
-
 (defclass debugger (websocket-resource) ())
 
 (defmethod text-message-received ((db debugger) client message)
@@ -107,6 +72,7 @@
                      (@ ws onmessage) (@ this handle-message))
                ((@ this add-command) "clear" "clearRepl")
                ((@ this add-command) "fullscreen" "toggleFullscreen")
+               ((@ this $ repl focus))
                (console "debugger connected to" url)))
    (insert (el)
             (with-content (repl)

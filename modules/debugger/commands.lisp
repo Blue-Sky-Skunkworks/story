@@ -13,6 +13,7 @@
        (defun ,fn-name ,args
          ,documentation
          (let ((stream *standard-output*))
+           (declare (ignorable stream))
            ,@body)))))
 
 (define-debugger-command help (&optional command)
@@ -58,3 +59,8 @@
         (iter (for el in (val :dispatches)) (format t "  ~A~%" el))
         (:h3 "sockets")
         (iter (for (k v) in (val :sockets)) (format t "  ~36A  ~A~%" k v))))))
+
+(define-debugger-command tao ()
+    "The Tao Te Ching."
+    (run '(fortune "tao")) (values))
+

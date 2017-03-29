@@ -105,16 +105,14 @@
                        (let ((fn (aref (@ this commands) command)))
                          (when fn
                            (funcall (aref this fn))
-                           (setf (@ repl command-handled) t))))))
+                           t)))))
    (handle-keydown (event)
       (with-content (workspace repl)
         (when (= (@ event key-code) 13)
           (let ((value (@ repl value)))
             (when (< 0 (@ value length))
               ((@ this insert) (story-js::create-el-html* ("div" nil :class "entry") value))
-              (setf (@ repl value) ""
-                    (@ repl command-handled) nil)
-              ((@ this handle-command) value)
-              (unless (@ repl command-handled)
+              (setf (@ repl value) "")
+              (unless ((@ this handle-command) value)
                 ((@ this websocket send) value)))))))))
 

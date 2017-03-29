@@ -30,10 +30,11 @@
   `((@ console log) ,@rest))
 
 (defpsmacro create-element (node-type &optional parent class-name)
-  `(let ((el ((@ document create-element) ,node-type)))
-     ,@(when parent `(((@ ,parent append-child) el)))
-     ,@(when class-name `((add-class el ,class-name)))
-     el))
+  (let ((el (gensym)))
+    `(let ((,el ((@ document create-element) ,node-type)))
+       ,@(when parent `(((@ ,parent append-child) ,el)))
+       ,@(when class-name `((add-class ,el ,class-name)))
+       ,el)))
 
 (defpsmacro set-html (el html)
   `(let ((myel ,(if (stringp el) `(id ,el) el)))

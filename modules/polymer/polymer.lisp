@@ -115,6 +115,7 @@
   `(@ (dom ,parent) child-nodes))
 (ps:defpsmacro with-content (ids &body body)
   `(with-slots ,ids (@ this $) ,@body))
+(ps:defpsmacro flush-dom () `((@ *polymer dom flush)))
 
 (in-package :story-js)
 

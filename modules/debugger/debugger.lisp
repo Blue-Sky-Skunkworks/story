@@ -3,7 +3,7 @@
 (define-story-module debugger
   :imports (("debugger" debugger-interface-template))
   :sockets (("/debugger" debugger-socket-handler))
-  :depends-on (:polymer :paper-input))
+  :depends-on (:polymer :paper-input :files :packery))
 
 (defvar *debugger* nil)
 

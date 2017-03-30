@@ -213,7 +213,7 @@
                                          (on-keypress "handlePresentKeys")
                                          (presenting element)
                                          (tab-index 1)))
-                          (new (*text element)))))
+                          ((@ *object prototype to-string call) element))))
                 ((eql type "string") (+ "\"" element "\""))
                 (t type))))))
 

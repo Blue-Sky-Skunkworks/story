@@ -60,9 +60,10 @@
                      :margin 0px)
           (".result h2" :margin-top 0px)
           (".error" :padding 10px :background "#C00" :color white)
-          (".description th" :text-align left))
+          (".description th" :text-align left)
+          ("span.desc" :color blue))
   :content ((:div :id "workspace"
-                  (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
+              (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
   ((attached ()
              (let* ((url (+ "ws://localhost:" (@ this port) (@ this socket)))
@@ -88,10 +89,12 @@
                     (setf (aref (@ this aliases) from) to)
                     ((@ this insert-text) (+ "Alias for \"" from "\" set.")))
                   ((@ this insert-error) "Missing TO in alias FROM TO."))
-              (let ((table (story-js::create-element "table")))
+              (let ((table (dom :table)))
                 (loop for (k v) of (@ this aliases)
-                      do (story-js::create-el-html* ("tr" table)
-                                                    (:th k) (:td v)))
+                      do (append-child table
+                                       (dom :tr
+                                            (dom :th k)
+                                            (dom :td v))))
                 ((@ this insert) table))))
    (alias-of (string) (or (aref (@ this aliases) string) string))
    (insert (el)
@@ -100,10 +103,9 @@
              (flush-dom)
              ((@ repl scroll-into-view))))
    (insert-text (text &key class-name)
-                ((@ this insert) (story-js::create-el-html*
-                                  ("div" nil :class class-name) text)))
+                ((@ this insert) (dom (:div class-name) text)))
    (insert-error (text)
-                 ((@ this insert-text) (+ "ERROR: " text) :class "error"))
+                 ((@ this insert-text) (+ "ERROR: " text) :class-name "error"))
    (toggle-fullscreen ()
                       (with-content (workspace)
                         (with-slots (s-position s-top s-right s-bottom s-left s-padding s-margin
@@ -125,7 +127,7 @@
                    (let ((rtn ((@ *J-s-o-n parse) (@ event data))))
                      (with-slots (class message) rtn
                        ((@ this root insert)
-                        (story-js::create-el-html* ("div" nil :class class) message)))))
+                        (dom ("div" class message))))))
    (clear-repl ()
                (with-content (workspace)
                  (loop for child in (child-nodes workspace)
@@ -135,27 +137,25 @@
                 (setf (aref (@ this commands) command) fn))
    (evaluate (&rest args)
              (let ((rtn (eval ((@ args join) " "))))
-               ((@ this insert) (story-js::create-el-html ("div" nil :class "result")
-                                                          ((@ this present) rtn)))))
-   (describe (args)
+               ((@ this insert) (dom (:div "result") ((@ this present) rtn)))))
+   (describe (arg)
              (let* ((obj this)
-                    (el (if ((@ args starts-with) "#")
-                            (or (id ((@ args substr) 1))
+                    (el (if ((@ arg starts-with) "#")
+                            (or (id ((@ arg substr) 1))
                                 (progn
-                                  ((@ this insert-error) (+ "ID \"" args "\" does not exist."))
+                                  ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
                                   nil))
-                            (eval args))))
-               ((@ this insert)
-                (story-js::create-el-html*
-                 ("div" nil :class "result description")
-                 (:h2 ((@ *object prototype to-string call) el))
-                 (:table
-                  ((@ (loop for key of el
-                            collect
-                               (htm
-                                (:tr
-                                 (:th key)
-                                 (:td ((@ obj present) (aref el key)))))) join) ""))))))
+                            (eval arg))))
+               (when el
+                 ((@ this insert)
+                  (dom (:div "result description")
+                       (dom :h2 ((@ *object prototype to-string call) el))
+                       (dom :table
+                            (loop for key of el
+                                  collect
+                                     (dom :tr
+                                          (dom :th key)
+                                          (dom :td ((@ obj present) (aref el key)))))))))))
    (handle-command (full-command)
                    ((@ this history push) full-command)
                    (with-content (repl)
@@ -176,8 +176,7 @@
                        ((eql (@ event key) "Enter")
                         (let ((value (@ repl value)))
                           (when (plusp (@ value length))
-                            ((@ this insert) (story-js::create-el-html*
-                                              ("div" nil :class "entry") value))
+                            ((@ this insert) (dom ("div" "entry") value))
                             (setf (@ repl value) "")
                             (let ((remote-command ((@ this handle-command) value)))
                               (when remote-command
@@ -203,7 +202,12 @@
                 ((eql type "number") element)
                 ((eql type "boolean") element)
                 ((eql type "function") type)
-                ((eql type "object") element)
-                ((eql type "string") element)
+                ((eql type "object")
+                 (if (eql element nil)
+                     "null"
+                     (dom (:span "desc")
+                          ;; :onclick (+ "describe('" link "');")
+                          (new (*text element)))))
+                ((eql type "string") (+ "\"" element "\""))
                 (t type))))))
 

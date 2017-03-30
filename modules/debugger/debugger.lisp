@@ -133,18 +133,24 @@
    (add-command (command fn)
                 (setf (aref (@ this commands) command) fn))
    (describe (args)
-             (let* ((el (if ((@ args starts-with) "#")
+             (let* ((obj this)
+                    (el (if ((@ args starts-with) "#")
                             (or (id ((@ args substr) 1))
                                 (progn
                                   ((@ this insert-error) (+ "ID \"" args "\" does not exist."))
                                   nil))
-                            (eval args)))
-                    (table (story-js::create-element "table" nil "description")))
-               (loop for key of el
-                     do (story-js::create-el-html* ("tr" table)
-                                                   (:th key)
-                                                   (:td (aref el key))))
-               ((@ this insert) table)))
+                            (eval args))))
+               ((@ this insert)
+                (story-js::create-el-html*
+                 ("div" nil :class "result description")
+                 (:h2 ((@ *object prototype to-string call) el))
+                 (:table
+                  ((@ (loop for key of el
+                            collect
+                               (htm
+                                (:tr
+                                 (:th key)
+                                 (:td ((@ obj present) (aref el key)))))) join) ""))))))
    (handle-command (full-command)
                    ((@ this history push) full-command)
                    (with-content (repl)
@@ -156,8 +162,8 @@
                              (progn
                                (apply (aref this fn) (and args ((@ args split) " ")))
                                nil)
-                           (+ ((@ this alias-of) command)
-                              (if args (+ " " args) "")))))))
+                             (+ ((@ this alias-of) command)
+                                (if args (+ " " args) "")))))))
    (handle-keydown (event)
                    ;; (console (@ event key))
                    (with-content (workspace repl)
@@ -185,5 +191,14 @@
                                             (aref history (- (length history) history-index -1)))))
                               (setf (@ repl value) next
                                     history-index (- history-index 1))))))
-                       (t (setf (@ this history-index) 0) nil))))))
+                       (t (setf (@ this history-index) 0) nil))))
+   (present (element)
+            (let ((type (type-of element)))
+              (cond
+                ((eql type "number") element)
+                ((eql type "boolean") element)
+                ((eql type "function") type)
+                ((eql type "object") element)
+                ((eql type "string") element)
+                (t type))))))
 

@@ -171,7 +171,7 @@
           (let ((type (typeof o)))
             (cond
               ((and (eql type "object") o (instanceof o *array)) "array")
-              ((eql type "object") nil)
+              ; ((eql type "object") nil)
               (t type))))
 
         (defun arrayp (o) (eql (type-of o) "array"))

@@ -52,12 +52,13 @@
          ,@(when children
              (loop for child in children
                    collect `(let ((,ch ,child))
-                              (if (arrayp ,ch)
-                                  (loop for c in ,ch
-                                        do ((@ ,el append-child)
-                                            (if (and c (@ c node-type)) c (new (*text c)))))
-                                  ((@ ,el append-child)
-                                   (if (and ,ch (@ ,ch node-type)) ,ch (new (*text ,ch))))))))
+                              (when ,ch
+                                (if (arrayp ,ch)
+                                    (loop for c in ,ch
+                                          do ((@ ,el append-child)
+                                              (if (and c (@ c node-type)) c (new (*text c)))))
+                                    ((@ ,el append-child)
+                                     (if (and ,ch (@ ,ch node-type)) ,ch (new (*text ,ch)))))))))
          ,el))))
 
 (defpsmacro set-html (el html)

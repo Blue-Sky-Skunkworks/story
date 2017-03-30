@@ -224,5 +224,7 @@
                                          (presenting element) (tab-index 1)))
                           ((@ *object prototype to-string call) element))))
                 ((eql type "string") (+ "\"" element "\""))
-                (t type))))))
+                ((eql type "array") (+ "[" ((@ element to-string)) "]"))
+                ((eql type "undefined") type)
+                (t (+ "UNHANDLED: " type)))))))
 

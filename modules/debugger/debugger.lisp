@@ -54,7 +54,7 @@
                ("port" number *websocket-port*))
   :style (("#workspace" :background white
                         :border "2px solid #007" :overflow-y auto :padding 10px :margin 10px)
-          (".entry" :padding 10px :background "#BBB")
+          (".entry" :padding 10px :background "#BBB" :font-family monospace)
           (".result" :padding 10px :background "#DDD"
                      :font-family monospace :white-space pre
                      :margin 0px)

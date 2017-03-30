@@ -127,7 +127,7 @@
                    (let ((rtn ((@ *J-s-o-n parse) (@ event data))))
                      (with-slots (class message) rtn
                        ((@ this root insert)
-                        (dom ("div" class message))))))
+                        (dom ("div" class nil message))))))
    (clear-repl ()
                (with-content (workspace)
                  (loop for child in (child-nodes workspace)
@@ -138,24 +138,26 @@
    (evaluate (&rest args)
              (let ((rtn (eval ((@ args join) " "))))
                ((@ this insert) (dom (:div "result") ((@ this present) rtn)))))
+   (_describe (el)
+              (when el
+                (let ((obj this))
+                  ((@ this insert)
+                   (dom (:div "result description")
+                        (dom :h2 ((@ *object prototype to-string call) el))
+                        (dom :table
+                             (loop for key of el
+                                   collect
+                                      (dom :tr
+                                           (dom :th key)
+                                           (dom :td ((@ obj present) (aref el key)))))))))))
    (describe (arg)
-             (let* ((obj this)
-                    (el (if ((@ arg starts-with) "#")
-                            (or (id ((@ arg substr) 1))
-                                (progn
-                                  ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
-                                  nil))
-                            (eval arg))))
-               (when el
-                 ((@ this insert)
-                  (dom (:div "result description")
-                       (dom :h2 ((@ *object prototype to-string call) el))
-                       (dom :table
-                            (loop for key of el
-                                  collect
-                                     (dom :tr
-                                          (dom :th key)
-                                          (dom :td ((@ obj present) (aref el key)))))))))))
+             ((@ this _describe)
+              (if ((@ arg starts-with) "#")
+                  (or (id ((@ arg substr) 1))
+                      (progn
+                        ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
+                        nil))
+                  (eval arg))))
    (handle-command (full-command)
                    ((@ this history push) full-command)
                    (with-content (repl)
@@ -196,6 +198,10 @@
                               (setf (@ repl value) next
                                     history-index (- history-index 1))))))
                        (t (setf (@ this history-index) 0) nil))))
+   (handle-present-tap (event) ((@ this _describe) (@ event target presenting)))
+   (handle-present-keys (event)
+                        (when (eql (@ event key) "Enter")
+                          ((@ this _describe) (@ event target presenting))))
    (present (element)
             (let ((type (type-of element)))
               (cond
@@ -205,8 +211,10 @@
                 ((eql type "object")
                  (if (eql element nil)
                      "null"
-                     (dom (:span "desc")
-                          ;; :onclick (+ "describe('" link "');")
+                     (dom (:span "desc" ((on-tap "handlePresentTap")
+                                         (on-keypress "handlePresentKeys")
+                                         (presenting element)
+                                         (tab-index 1)))
                           (new (*text element)))))
                 ((eql type "string") (+ "\"" element "\""))
                 (t type))))))

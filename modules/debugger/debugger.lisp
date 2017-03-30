@@ -172,32 +172,30 @@
                              (+ ((@ this alias-of) command)
                                 (if args (+ " " args) "")))))))
    (handle-keydown (event)
-                   ;; (console (@ event key))
                    (with-content (workspace repl)
-                     (cond
-                       ((eql (@ event key) "Enter")
-                        (let ((value (@ repl value)))
-                          (when (plusp (@ value length))
-                            ((@ this insert) (dom ("div" "entry") value))
-                            (setf (@ repl value) "")
-                            (let ((remote-command ((@ this handle-command) value)))
-                              (when remote-command
-                                ((@ this websocket send) remote-command))))))
-                       ((eql (@ event key) "ArrowUp")
-                        (with-slots (history history-index) this
+                     (with-slots (history history-index) this
+                       (cond
+                         ((eql (@ event key) "Enter")
+                          (let ((value (@ repl value)))
+                            (when (plusp (@ value length))
+                              ((@ this insert) (dom ("div" "entry") value))
+                              (setf (@ repl value) "")
+                              (let ((remote-command ((@ this handle-command) value)))
+                                (when remote-command
+                                  ((@ this websocket send) remote-command))))))
+                         ((eql (@ event key) "ArrowUp")
                           (when (and (plusp (length history))
                                      (< history-index (length history)))
                             (setf history-index (+ history-index 1)
-                                  (@ repl value) (aref history (- (length history) history-index))))))
-                       ((eql (@ event key) "ArrowDown")
-                        (with-slots (history history-index) this
+                                  (@ repl value) (aref history (- (length history) history-index)))))
+                         ((eql (@ event key) "ArrowDown")
                           (when (plusp history-index)
                             (let ((next (if (= history-index 1)
                                             ""
                                             (aref history (- (length history) history-index -1)))))
                               (setf (@ repl value) next
-                                    history-index (- history-index 1))))))
-                       (t (setf (@ this history-index) 0) nil))))
+                                    history-index (- history-index 1)))))
+                         (t (setf (@ this history-index) 0) nil)))))
    (handle-present-tap (event) ((@ this _describe) (@ event target presenting)))
    (handle-present-keys (event)
                         (when (eql (@ event key) "Enter")

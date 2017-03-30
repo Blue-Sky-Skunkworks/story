@@ -60,7 +60,7 @@
                      :margin 0px)
           (".result h2" :margin-top 0px)
           (".error" :padding 10px :background "#C00" :color white)
-          (".description th" :text-align left :padding-right 10px)
+          (".description th" :text-align left :font-family monospace :padding-right 10px)
           ("span.desc" :color blue))
   :content ((:div :id "workspace"
               (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
@@ -139,17 +139,20 @@
              (let ((rtn (eval ((@ args join) " "))))
                ((@ this insert) (dom (:div "result") ((@ this present) rtn)))))
    (_describe (el)
+              (console :describe el)
               (when el
                 (let ((obj this))
                   ((@ this insert)
                    (dom (:div "result description")
-                        (dom :h2 ((@ *object prototype to-string call) el))
+                        (dom :h2 ((@ obj present) el))
                         (dom :table
                              (loop for key of el
                                    collect
                                       (dom :tr
                                            (dom :th key)
-                                           (dom :td ((@ obj present) (aref el key)))))))))))
+                                           (dom :td ((@ obj present) (aref el key))))))
+                        (when (functionp el)
+                          (dom :pre ((@ el to-string)))))))))
    (describe (arg)
              ((@ this _describe)
               (if ((@ arg starts-with) "#")
@@ -205,14 +208,15 @@
               (cond
                 ((eql type "number") element)
                 ((eql type "boolean") element)
-                ((eql type "function") type)
+                ((eql type "function") type
+                 (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+                                     (presenting element) (tab-index 1)))
+                      (+ "[function" (if (@ element name) (+ " " (@ element name)) "") "]")))
                 ((eql type "object")
                  (if (eql element nil)
                      "null"
-                     (dom (:span "desc" ((on-tap "handlePresentTap")
-                                         (on-keypress "handlePresentKeys")
-                                         (presenting element)
-                                         (tab-index 1)))
+                     (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+                                         (presenting element) (tab-index 1)))
                           ((@ *object prototype to-string call) element))))
                 ((eql type "string") (+ "\"" element "\""))
                 (t type))))))

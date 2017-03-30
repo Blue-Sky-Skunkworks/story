@@ -171,7 +171,7 @@
                             (let ((remote-command ((@ this handle-command) value)))
                               (when remote-command
                                 ((@ this websocket send) remote-command))))))
-                       ((eql (@ event key) "ArrowUp" k)
+                       ((eql (@ event key) "ArrowUp")
                         (with-slots (history history-index) this
                           (when (and (plusp (length history))
                                      (< history-index (length history)))

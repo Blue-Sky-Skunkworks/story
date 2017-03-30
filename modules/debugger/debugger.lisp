@@ -152,9 +152,12 @@
                             (command (if (plusp pos) ((@ full-command substr) 0 pos) full-command))
                             (args (when (plusp pos) ((@ full-command substr) (1+ pos)))))
                        (let ((fn (aref (@ this commands) ((@ this alias-of) command))))
-                         (when fn
-                           (apply (aref this fn) (and args ((@ args split) " ")))
-                           t)))))
+                         (if fn
+                             (progn
+                               (apply (aref this fn) (and args ((@ args split) " ")))
+                               nil)
+                           (+ ((@ this alias-of) command)
+                              (if args (+ " " args) "")))))))
    (handle-keydown (event)
                    ;; (console (@ event key))
                    (with-content (workspace repl)
@@ -165,9 +168,10 @@
                             ((@ this insert) (story-js::create-el-html*
                                               ("div" nil :class "entry") value))
                             (setf (@ repl value) "")
-                            (unless ((@ this handle-command) value)
-                              ((@ this websocket send) value)))))
-                       ((eql (@ event key) "ArrowUp")
+                            (let ((remote-command ((@ this handle-command) value)))
+                              (when remote-command
+                                ((@ this websocket send) remote-command))))))
+                       ((eql (@ event key) "ArrowUp" k)
                         (with-slots (history history-index) this
                           (when (and (plusp (length history))
                                      (< history-index (length history)))

@@ -63,5 +63,11 @@
 
 (define-debugger-command tao ()
     "The Tao Te Ching."
-    (run '(fortune "tao")) (values))
+  (let ((rtn (run/lines '(fortune "tao"))))
+    (html
+      (:h2 (esc (first rtn)))
+      (:div :style "font-family:sans-serif;padding:20px;"
+        (iter (for line in (subseq rtn 2 (- (length rtn) 2)))
+          (html (esc line) (:br))))
+      (:div :style "font-family:sans-serif;padding-left:100px;" (esc (last1 rtn))))))
 

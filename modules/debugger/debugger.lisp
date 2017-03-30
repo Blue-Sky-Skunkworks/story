@@ -3,7 +3,7 @@
 (define-story-module debugger
   :imports (("debugger" debugger-interface-template))
   :sockets (("/debugger" debugger-socket-handler))
-  :depends-on (:polymer :paper-input :files :packery))
+  :depends-on (:polymer :paper-input :files :packery :prism))
 
 (defvar *debugger* nil)
 
@@ -152,7 +152,11 @@
                                            (dom :th key)
                                            (dom :td ((@ obj present) (aref el key))))))
                         (when (functionp el)
-                          (dom :pre ((@ el to-string)))))))))
+                          (let ((pre
+                                  (dom :pre
+                                       (dom (:code "language-js") ((@ el to-string))))))
+                            ((@ *prism highlight-element) (@ pre first-child))
+                            pre)))))))
    (describe (arg)
              ((@ this _describe)
               (if ((@ arg starts-with) "#")

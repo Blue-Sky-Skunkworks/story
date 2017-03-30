@@ -180,3 +180,6 @@ Exchanging and persisting data between devices and services
 ** TODO vaadin
 ** TODO use trivial-thumbnail
 ** TODO migrate to wu-sugar
+** http://my-mind.github.io/
+** https://libraries.io/npm/gacha
+** https://github.com/LucianBuzzo/dungeon-factory

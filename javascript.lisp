@@ -36,6 +36,18 @@
        ,@(when class-name `((add-class ,el ,class-name)))
        ,el)))
 
+(defpsmacro dom (node-type &optional class-name &rest children)
+  (let ((el (gensym))
+        (ch (gensym)))
+    `(let ((,el ((@ document create-element) ,node-type)))
+       ,@(when class-name `((add-class ,el ,class-name)))
+       ,@(when children (loop for child in children
+                              collect `(let ((,ch ,child))
+                                         ((@ ,el append-child) (if (@ ,ch node-type)
+                                                                   ,ch
+                                                                   (new (*text ,ch)))))))
+       ,el)))
+
 (defpsmacro set-html (el html)
   `(let ((myel ,(if (stringp el) `(id ,el) el)))
      (setf (getprop myel 'inner-h-t-m-l) ,html)

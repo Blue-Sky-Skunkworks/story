@@ -1,7 +1,7 @@
 
 (defpackage story-js
   (:use common-lisp parenscript cl-who)
-  (:export js-file id set-html set-html* console))
+  (:export js-file id set-html set-html* console dom))
 
 (defpackage story-css
   (:use common-lisp iterate cl-who cl-css)

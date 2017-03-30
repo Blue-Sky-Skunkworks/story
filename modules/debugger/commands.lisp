@@ -2,6 +2,7 @@
 
 (defparameter *debugger-commands* '(("hilbert" . cl-ascii-art:hilbert-space-filling-curve)
                                     ("unicode" . cl-ascii-art:show-unicode-characters)
+                                    ("alias" . "List and set the command aliases.")
                                     ("clear" . "Clear the debugger.")
                                     ("fullscreen" . "Toggle full screen mode.")))
 

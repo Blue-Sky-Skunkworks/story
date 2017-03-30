@@ -60,7 +60,7 @@
                      :margin 0px)
           (".result h2" :margin-top 0px)
           (".error" :padding 10px :background "#C00" :color white)
-          (".description th" :text-align left)
+          (".description th" :text-align left :padding-right 10px)
           ("span.desc" :color blue))
   :content ((:div :id "workspace"
               (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))

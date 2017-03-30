@@ -72,7 +72,8 @@
                      (@ ws root) this
                      (@ ws onmessage) (@ this handle-message)
                      (@ this history) (make-array)
-                     (@ this aliases) (create a "alias" c "clear" h "help" d "describe"))
+                     (@ this aliases) (create a "alias" c "clear" h "help" d "describe"
+                                              fs "fullscreen"))
                ((@ this add-command) "clear" "clearRepl")
                ((@ this add-command) "fullscreen" "toggleFullscreen")
                ((@ this add-command) "describe" "describe")

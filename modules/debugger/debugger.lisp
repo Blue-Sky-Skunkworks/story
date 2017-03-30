@@ -101,7 +101,7 @@
            (with-content (repl)
              (insert-before (parent-node repl) el repl)
              (flush-dom)
-             ((@ repl scroll-into-view))))
+             ((@ repl focus))))
    (insert-text (text &key class-name)
                 ((@ this insert) (dom (:div class-name) text)))
    (insert-error (text)

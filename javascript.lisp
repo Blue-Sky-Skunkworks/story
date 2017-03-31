@@ -221,6 +221,9 @@
         (defun add-class (el name)
           (setf (@ el class-name) (+ (@ el class-name) (if (@ el class-name) " " "") name)))
 
+        (defun has-class (el name)
+          ((@ el class-list contains) name))
+
         (unless (@ *string prototype ends-with)
           (setf (@ *string prototype ends-with)
                 (lambda (suffix) (not (equal ((@ this index-of) suffix

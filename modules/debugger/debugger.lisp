@@ -138,8 +138,16 @@
    (add-command (command fn)
                 (setf (aref (@ this commands) command) fn))
    (evaluate (&rest args)
+             (console :evaluate args)
              (let ((rtn (eval ((@ args join) " "))))
+               (console :return rtn)
                ((@ this insert) (dom (:div "result") ((@ this present) rtn)))))
+   (prototypes-of (el)
+                  (when (objectp el)
+                    (loop
+                      for pro = (get-prototype-of el) :then (get-prototype-of pro)
+                      while pro
+                      collect pro)))
    (_describe (el)
               (console :describe el)
               (when el
@@ -147,18 +155,22 @@
                   ((@ this insert)
                    (dom (:div "result description")
                         (dom :h2 ((@ obj present) el))
+                        (when (objectp el)
+                          (dom :h3 (loop for pro in ((@ obj prototypes-of) el)
+                                         collect ((@ obj present) pro)
+                                         collect (text " "))))
                         (dom :table
                              (loop for key of el
                                    collect
-                                      (dom :tr
+                                      (dom (:tr (when ((@ el has-own-property) key) "owned"))
                                            (dom :th key)
                                            (dom :td ((@ obj present) (aref el key))))))
+
                         (when (functionp el)
                           (let ((pre
                                   (dom :pre
                                        (dom (:code "language-js") ((@ el to-string))))))
-                            ((@ *prism highlight-element) (@ pre first-child))
-                            pre)))))))
+                            ((@ *prism highlight-element) (@ pre first-child)))))))))
    (describe (arg)
              ((@ this _describe)
               (if ((@ arg starts-with) "#")
@@ -221,9 +233,10 @@
                 ((eql type "object")
                  (if (eql element nil)
                      "null"
-                     (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
-                                         (presenting element) (tab-index 1)))
-                          ((@ *object prototype to-string call) element))))
+                     (let ((type ((@ ((@ *object prototype to-string call) element) slice) 8 -1)))
+                       (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+                                           (presenting element) (tab-index 1)))
+                            (+ "[" type "]")))))
                 ((eql type "string") (+ "\"" element "\""))
                 ((eql type "array") (+ "[" ((@ element to-string)) "]"))
                 ((eql type "undefined") type)

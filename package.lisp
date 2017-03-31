@@ -2,7 +2,7 @@
 (defpackage story-js
   (:use common-lisp parenscript cl-who)
   (:import-from alexandria ensure-list)
-  (:export js-file id set-html set-html* console dom get-prototype-of text aand))
+  (:export js-file id set-html set-html* console dom get-prototype-of text aand try))
 
 (defpackage story-css
   (:use common-lisp iterate cl-who cl-css)

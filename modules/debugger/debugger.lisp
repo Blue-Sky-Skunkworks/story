@@ -60,13 +60,14 @@
                      :margin 0px)
           (".result h2" :margin-top 0px)
           ("div.divider" :height 5px :background "#BBB")
-          (".error" :padding 10px :background "#C00" :color white)
+          ("div.error" :padding 10px :background "#C00" :color white)
           ;; (".description table" :border-collapse collapse)
           ;; (".description tr.owned")
           (".description h3" :white-space normal)
           (".description th" :text-align left :font-family monospace :padding-right 10px)
           ("code.language-js" :font-family monospace)
-          ("span.desc" :color blue))
+          ("span.desc" :color blue :cursor pointer)
+          ("span.error" :color red))
   :content ((:div :id "workspace"
               (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
@@ -165,12 +166,16 @@
                           (dom :h3 (loop for pro in ((@ obj prototypes-of) el)
                                          collect ((@ obj present) pro)
                                          collect (text " "))))
+
                         (dom :table
                              (loop for key of el
                                    collect
                                       (dom (:tr (when ((@ el has-own-property) key) "owned"))
                                            (dom :th key)
-                                           (dom :td ((@ obj present) (aref el key))))))
+                                           (dom :td ((@ obj present)
+                                                     (try
+                                                      (aref el key)
+                                                      (:catch (error) error)))))))
                         (when (functionp el)
                           (let ((pre
                                   (dom :pre
@@ -240,9 +245,13 @@
                  (if (eql element nil)
                      "null"
                      (let ((type ((@ ((@ *object prototype to-string call) element) slice) 8 -1)))
-                       (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
-                                           (presenting element) (tab-index 1)))
-                            (+ "[" type "]")))))
+                       (dom (:span (+ "desc" (if (eql type "Error") " error" ""))
+                                   ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+                                    (presenting element) (tab-index 1)))
+                            (+ "[" (case type
+                                     ("Error" (@ element name))
+                                     (otherwise type))
+                               "]")))))
                 ((eql type "string") (+ "\"" element "\""))
                 ((eql type "array") (+ "[" ((@ element to-string)) "]"))
                 ((eql type "undefined") type)

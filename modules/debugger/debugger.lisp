@@ -59,6 +59,7 @@
                      :font-family monospace :white-space pre
                      :margin 0px)
           (".result h2" :margin-top 0px)
+          ("div.divider" :height 5px :background "#BBB")
           (".error" :padding 10px :background "#C00" :color white)
           ;; (".description table" :border-collapse collapse)
           ;; (".description tr.owned")
@@ -102,6 +103,8 @@
    (alias-of (string) (or (aref (@ this aliases) string) string))
    (insert (el)
            (with-content (repl)
+             (when (aand (@ repl previous-sibling) (has-class it "result"))
+               (insert-before (parent-node repl) (dom (:div "divider")) repl))
              (insert-before (parent-node repl) el repl)
              (flush-dom)
              ((@ repl focus))))

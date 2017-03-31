@@ -63,6 +63,7 @@
           (".error" :padding 10px :background "#C00" :color white)
           ;; (".description table" :border-collapse collapse)
           ;; (".description tr.owned")
+          (".description h3" :white-space normal)
           (".description th" :text-align left :font-family monospace :padding-right 10px)
           ("code.language-js" :font-family monospace)
           ("span.desc" :color blue))

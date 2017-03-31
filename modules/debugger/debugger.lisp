@@ -130,6 +130,7 @@
                        ((@ this root insert)
                         (dom ("div" class nil message))))))
    (clear-repl ()
+               ((@ console clear))
                (with-content (workspace)
                  (loop for child in (child-nodes workspace)
                        do (unless (eql (@ child id) "repl")

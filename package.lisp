@@ -2,17 +2,16 @@
 (defpackage story-js
   (:use common-lisp parenscript cl-who)
   (:import-from alexandria ensure-list)
-  (:export js-file id set-html set-html* console dom get-prototype-of))
+  (:export js-file id set-html set-html* console dom get-prototype-of text))
 
 (defpackage story-css
   (:use common-lisp iterate cl-who cl-css)
   (:export style))
 
 (defpackage story
-  (:use common-lisp cl-who iterate hunchentoot local-time split-sequence
+  (:use common-lisp story-js cl-who iterate hunchentoot local-time split-sequence
         cffi printv cl-ascii-art inferior-shell string-case hunchensocket)
   (:import-from sb-int named-lambda)
-  (:import-from story-js id set-html set-html* console get-prototype-of)
   (:import-from parenscript ps ps* defpsmacro @ new create)
   (:import-from ppcre scan do-scans create-scanner)
   (:import-from anaphora aand acond it)

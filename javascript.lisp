@@ -36,6 +36,8 @@
        ,@(when class-name `((add-class ,el ,class-name)))
        ,el)))
 
+(defpsmacro text (arg) `(new (*text ,arg)))
+
 (defpsmacro dom (args &rest children)
   (destructuring-bind (node-type &optional class-name properties inner-html) (ensure-list args)
     (let ((el (gensym))
@@ -56,9 +58,9 @@
                                 (if (arrayp ,ch)
                                     (loop for c in ,ch
                                           do ((@ ,el append-child)
-                                              (if (and c (@ c node-type)) c (new (*text c)))))
+                                              (if (and c (@ c node-type)) c (text c))))
                                     ((@ ,el append-child)
-                                     (if (and ,ch (@ ,ch node-type)) ,ch (new (*text ,ch)))))))))
+                                     (if (and ,ch (@ ,ch node-type)) ,ch (text ,ch))))))))
          ,el))))
 
 (defpsmacro set-html (el html)

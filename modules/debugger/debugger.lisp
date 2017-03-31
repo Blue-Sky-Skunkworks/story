@@ -60,6 +60,8 @@
                      :margin 0px)
           (".result h2" :margin-top 0px)
           (".error" :padding 10px :background "#C00" :color white)
+          ;; (".description table" :border-collapse collapse)
+          ;; (".description tr.owned")
           (".description th" :text-align left :font-family monospace :padding-right 10px)
           ("code.language-js" :font-family monospace)
           ("span.desc" :color blue))
@@ -165,12 +167,12 @@
                                       (dom (:tr (when ((@ el has-own-property) key) "owned"))
                                            (dom :th key)
                                            (dom :td ((@ obj present) (aref el key))))))
-
                         (when (functionp el)
                           (let ((pre
                                   (dom :pre
                                        (dom (:code "language-js") ((@ el to-string))))))
-                            ((@ *prism highlight-element) (@ pre first-child)))))))))
+                            ((@ *prism highlight-element) (@ pre first-child))
+                            pre)))))))
    (describe (arg)
              ((@ this _describe)
               (if ((@ arg starts-with) "#")
@@ -229,7 +231,7 @@
                 ((eql type "function") type
                  (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
                                      (presenting element) (tab-index 1)))
-                      (+ "[function" (if (@ element name) (+ " " (@ element name)) "") "]")))
+                      (+ "[fn " (if (@ element name) (+ " " (@ element name)) "") "]")))
                 ((eql type "object")
                  (if (eql element nil)
                      "null"

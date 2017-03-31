@@ -2,6 +2,11 @@
 
 (import '(story::html-to-string))
 
+(defmacro+ps anaphoric (op test &body body)
+  `(let ((it ,test)) (,op it ,@body)))
+
+(defmacro+ps aand (first &rest rest) `(anaphoric and ,first ,@rest))
+
 (defun mkstr (&rest args)
   (with-output-to-string (s)
     (dolist (a args) (when a (princ a s)))))
@@ -43,7 +48,7 @@
     (let ((el (gensym))
           (ch (gensym)))
       `(let ((,el ((@ document create-element) ,node-type)))
-         ,@(when class-name `((add-class ,el ,class-name)))
+         ,@(when class-name `((aand ,class-name (add-class ,el it))))
          ,@(when inner-html `((setf (getprop ,el 'inner-h-t-m-l) ,inner-html)))
          ,@(when properties
              (loop for (k v) in properties

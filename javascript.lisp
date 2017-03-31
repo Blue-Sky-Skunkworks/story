@@ -89,6 +89,9 @@
 (defpsmacro remove-node (el)
   `((@ ,el parent-node remove-child) ,el))
 
+(defpsmacro get-prototype-of (object)
+  `((@ *object get-prototype-of) ,object))
+
 (defpsmacro when-let ((variable initial-form) &body body)
   `(let ((,variable ,initial-form))
      (when ,variable
@@ -202,6 +205,7 @@
         (defun arrayp (o) (eql (type-of o) "array"))
         (defun stringp (o) (eql (type-of o) "string"))
         (defun functionp (o) (eql (type-of o) "function"))
+        (defun objectp (o) (eql (type-of o) "object"))
 
         (defun function-from-string (name)
           (let ((el (eval name)))
@@ -230,6 +234,6 @@
 
         (defun id (id &optional (error t))
           (or ((@ document get-element-by-id) id)
-              (when error (console "ERROR: id" id)))))))))
+              (when error ((@ console error) "ERROR: id" id)))))))))
 
 (defun js-file () *js-file*)

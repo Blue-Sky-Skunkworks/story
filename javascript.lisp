@@ -41,8 +41,6 @@
        ,@(when class-name `((add-class ,el ,class-name)))
        ,el)))
 
-(defpsmacro text (arg) `(new (*text ,arg)))
-
 (defpsmacro dom (args &rest children)
   (destructuring-bind (node-type &optional class-name properties inner-html) (ensure-list args)
     (let ((el (gensym))
@@ -191,6 +189,8 @@
                     (setf (getprop el n) (getprop props n)))
             (when parent ((@ parent append-child) el))
             el))
+
+        (defun text (arg) (new (*text arg)))
 
         (defun mapcar (fun &rest arrs)
           (let ((result-array (make-array)))

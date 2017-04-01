@@ -83,6 +83,7 @@
                                               fs "fullscreen" e "evaluate"))
                ((@ this add-command) "clear" "clearRepl")
                ((@ this add-command) "fullscreen" "toggleFullscreen")
+               ((@ this add-command) "dom" "insertDom")
                ((@ this add-command) "describe" "describe")
                ((@ this add-command) "alias" "alias")
                ((@ this add-command) "evaluate" "evaluate")
@@ -155,6 +156,23 @@
                       for pro = (get-prototype-of el) :then (get-prototype-of pro)
                       while pro
                       collect pro)))
+   (_parse_id (arg)
+              (if ((@ arg starts-with) "#")
+                  (or (id ((@ arg substr) 1))
+                      (progn
+                        ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
+                        nil))
+                  (eval arg)))
+   (insert-dom (arg)
+               (let ((root ((@ this _parse_id) arg))
+                     (obj this))
+                 (flet ((recur (el indent)
+                          ((@ obj insert)
+                           (dom (:div nil ((style (+ "padding-left:" (* indent 20) "px"))))
+                                ((@ obj present) el)))
+                          (loop for child in (@ el children)
+                                do (recur child (1+ indent)))))
+                   (recur root 0))))
    (_describe (el)
               (console :describe el)
               (when el
@@ -166,7 +184,6 @@
                           (dom :h3 (loop for pro in ((@ obj prototypes-of) el)
                                          collect ((@ obj present) pro)
                                          collect (text " "))))
-
                         (dom :table
                              (loop for key of el
                                    collect
@@ -244,7 +261,8 @@
                 ((eql type "object")
                  (if (eql element nil)
                      "null"
-                     (let ((type ((@ ((@ *object prototype to-string call) element) slice) 8 -1)))
+                     (let* ((type (or (try ((@ element node-name to-lower-case)) (:catch (error) nil))
+                                      ((@ ((@ *object prototype to-string call) element) slice) 8 -1))))
                        (dom (:span (+ "desc" (if (eql type "Error") " error" ""))
                                    ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
                                     (presenting element) (tab-index 1)))

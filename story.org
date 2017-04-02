@@ -183,3 +183,4 @@ Exchanging and persisting data between devices and services
 ** http://my-mind.github.io/
 ** https://libraries.io/npm/gacha
 ** https://github.com/LucianBuzzo/dungeon-factory
+** TinyColor

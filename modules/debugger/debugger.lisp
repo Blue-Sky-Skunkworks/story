@@ -198,7 +198,7 @@
                                                    (aref el key)
                                                    (:catch (error) error)))))))
                         (cond
-                          ((eql (@ el node-name) "STYLE")
+                          ((ignore-errors (eql (@ el node-name) "STYLE"))
                            (let ((pre
                                    (dom :pre
                                         (dom (:code "language-css") (@ el inner-text)))))

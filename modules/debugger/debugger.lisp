@@ -69,7 +69,7 @@
           ("span.desc" :color blue :cursor pointer)
           ("span.error" :color red))
   :content ((:div :id "workspace"
-              (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
+                  (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
   ((attached ()
              (let* ((url (+ "ws://localhost:" (@ this port) (@ this socket)))

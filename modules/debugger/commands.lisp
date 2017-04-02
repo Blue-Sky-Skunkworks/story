@@ -4,7 +4,9 @@
                                     ("unicode" . cl-ascii-art:show-unicode-characters)
                                     ("alias" . "List and set the command aliases.")
                                     ("clear" . "Clear the workspace.")
-                                    ("fullscreen" . "Toggle full screen mode.")))
+                                    ("fullscreen" . "Toggle full screen mode.")
+                                    ("describe" . "Describe element.")
+                                    ("evaluate" . "Evaluate expression.")))
 
 (defmacro define-debugger-command (name args documentation &body body)
   (let ((fn-name (symb 'debugger-command- name))

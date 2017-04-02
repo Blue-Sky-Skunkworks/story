@@ -191,18 +191,25 @@
                         (dom :table
                              (loop for key of el
                                    collect
-                                      (dom (:tr (when ((@ el has-own-property) key) "owned"))
-                                           (dom :th key)
-                                           (dom :td ((@ obj present)
-                                                     (try
-                                                      (aref el key)
-                                                      (:catch (error) error)))))))
-                        (when (functionp el)
-                          (let ((pre
-                                  (dom :pre
-                                       (dom (:code "language-js") ((@ el to-string))))))
-                            ((@ *prism highlight-element) (@ pre first-child))
-                            pre)))))))
+                                   (dom (:tr (when ((@ el has-own-property) key) "owned"))
+                                        (dom :th key)
+                                        (dom :td ((@ obj present)
+                                                  (try
+                                                   (aref el key)
+                                                   (:catch (error) error)))))))
+                        (cond
+                          ((eql (@ el node-name) "STYLE")
+                           (let ((pre
+                                   (dom :pre
+                                        (dom (:code "language-css") (@ el inner-text)))))
+                             ((@ *prism highlight-element) (@ pre first-child))
+                             pre))
+                          ((functionp el)
+                           (let ((pre
+                                   (dom :pre
+                                        (dom (:code "language-js") ((@ el to-string))))))
+                             ((@ *prism highlight-element) (@ pre first-child))
+                             pre))))))))
    (describe (arg)
              ((@ this _describe)
               (if ((@ arg starts-with) "#")

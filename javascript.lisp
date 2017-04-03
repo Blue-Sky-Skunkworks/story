@@ -190,7 +190,7 @@
             (when parent ((@ parent append-child) el))
             el))
 
-        (defun text (arg) (new (*text arg)))
+        (defun text (arg) ((@ document create-text-node) arg))
 
         (defun mapcar (fun &rest arrs)
           (let ((result-array (make-array)))

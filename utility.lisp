@@ -6,7 +6,7 @@
 (defmacro html-to-string (&body body) `(with-html-output-to-string (stream nil) ,@body))
 
 (defun story-file (&optional base)
-  (directory-namestring (asdf:system-relative-pathname :story base)))
+  (namestring (asdf:system-relative-pathname :story base)))
 
 (defmacro f (&rest args) `(format nil ,@ args))
 

@@ -117,6 +117,8 @@
 (ps:defpsmacro with-content (ids &body body) `(with-slots ,ids (@ this $) ,@body))
 (ps:defpsmacro flush-dom () `((@ *polymer dom flush)))
 
+(export '(with-content))
+
 (in-package :story-js)
 
 (define-script iron-request

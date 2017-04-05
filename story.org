@@ -184,3 +184,7 @@ Exchanging and persisting data between devices and services
 ** https://libraries.io/npm/gacha
 ** https://github.com/LucianBuzzo/dungeon-factory
 ** TinyColor
+** research https://rollupjs.org/
+** js-quantites
+** https://zeronet.io/en
+** TODO compress with zopfli

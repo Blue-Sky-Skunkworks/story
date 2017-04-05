@@ -2,7 +2,7 @@
 
 (define-story-module files
   :stylesheets (("files.css" files-css))
-  :scripts (("files.js" files) "marked.js")
+  :scripts (("files.js" files-js) "marked.js")
   :depends-on (:iron-request :images :prism :emoji))
 
 (defun file-icon (mime)
@@ -76,7 +76,7 @@
   `(setf (getprop ,el ,(format nil "~(on~A~)" event-name))
          (lambda (event) ,@body)))
 
-(define-script files
+(define-script files-js
   (defun fetch-json (url callback)
     (request url (lambda (val) (funcall callback (eval (+ "(" (@ val response) ")"))))))
 

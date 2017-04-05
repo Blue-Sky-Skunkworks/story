@@ -8,7 +8,7 @@
   :author "unknown"
   :license "unknown"
   :serial t
-  :depends-on ("story-modules")
+  :depends-on ("story-modules" "story-module-polymer" "story-module-files" "story-module-prism")
   :components ((:static-file "story-module-debugger.asd")
                (:file "debugger")
                (:file "commands")

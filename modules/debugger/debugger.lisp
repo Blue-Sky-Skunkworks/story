@@ -3,7 +3,7 @@
 (define-story-module debugger
   :imports (("debugger" debugger-interface-template))
   :sockets (("/debugger" debugger-socket-handler))
-  :depends-on (:polymer :paper-input :files :packery :prism))
+  :depends-on (:polymer :paper-input :files :prism))
 
 (defvar *debugger* nil)
 
@@ -67,7 +67,10 @@
           (".description th" :text-align left :font-family monospace :padding-right 10px)
           ("code.language-js" :font-family monospace)
           ("span.desc" :color blue :cursor pointer)
-          ("span.error" :color red))
+          ("span.error" :color red)
+          ("td" :text-align left :padding "0px 20px 0px 0px")
+          ("id")
+          )
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
@@ -80,12 +83,14 @@
                      (@ ws onmessage) (@ this handle-message)
                      (@ this history) (make-array)
                      (@ this aliases) (create a "alias" c "clear" h "help" d "describe"
-                                              fs "fullscreen" e "evaluate" rv "reverse-video"))
+                                              fs "fullscreen" e "evaluate" rv "reverse-video"
+                                              f "find"))
                ((@ this add-command) "clear" "clearRepl")
                ((@ this add-command) "fullscreen" "toggleFullscreen")
                ((@ this add-command) "dom" "insertDom")
                ((@ this add-command) "describe" "describe")
                ((@ this add-command) "alias" "alias")
+               ((@ this add-command) "find" "findDom")
                ((@ this add-command) "evaluate" "evaluate")
                ((@ this add-command) "reverse-video" "reverseVideo")
                ((@ this $ repl focus))
@@ -107,9 +112,10 @@
    (alias-of (string) (or (aref (@ this aliases) string) string))
    (insert (el)
            (with-content (repl)
-             (when (aand (@ repl previous-sibling) (has-class it "result"))
+             (when (story-js::aand (@ repl previous-sibling) (has-class it "result"))
                (insert-before (parent-node repl) (dom (:div "divider")) repl))
              (insert-before (parent-node repl) el repl)
+             (console el)
              (flush-dom)
              ((@ repl focus))))
    (insert-text (text &key class-name)
@@ -161,22 +167,32 @@
                       while pro
                       collect pro)))
    (_parse_id (arg)
-              (if ((@ arg starts-with) "#")
-                  (or (id ((@ arg substr) 1))
-                      (progn
-                        ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
-                        nil))
-                  (eval arg)))
+              (or ((@ document query-selector) arg)
+                  (progn
+                    ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
+                    nil)))
+   (find-dom (arg)
+             (let ((els ((@ document query-selector-all) arg)))
+               (console els)
+               (loop for el in els
+                     do ((@ this insert) ((@ this present) el)))))
    (insert-dom (arg)
                (let ((root ((@ this _parse_id) arg))
-                     (obj this))
+                     (obj this)
+                     (rows (make-array)))
                  (flet ((recur (el indent)
-                          ((@ obj insert)
-                           (dom (:div nil ((style (+ "padding-left:" (* indent 20) "px"))))
-                                ((@ obj present) el)))
-                          (loop for child in (@ el children)
-                                do (recur child (1+ indent)))))
-                   (recur root 0))))
+                          ((@ rows push)
+                           (dom :tr
+                                (dom :td
+                                     (dom (:div nil ((style (+ "padding-left:" (* indent 20) "px"))))
+                                          ((@ obj present) el)))
+                                (dom :td (@ el class-name))
+                                (dom :td (@ el id))))
+                          (unless (eql el obj)
+                            (loop for child in (@ el children)
+                                  do (recur child (1+ indent))))))
+                   (recur root 0))
+                 ((@ obj insert) (dom (:table "dom") rows))))
    (_describe (el)
               (console :describe el)
               (when el

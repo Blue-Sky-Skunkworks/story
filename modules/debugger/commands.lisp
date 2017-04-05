@@ -6,7 +6,10 @@
                                     ("clear" . "Clear the workspace.")
                                     ("fullscreen" . "Toggle full screen mode.")
                                     ("describe" . "Describe element.")
-                                    ("evaluate" . "Evaluate expression.")))
+                                    ("evaluate" . "Evaluate expression.")
+                                    ("dom" . "Show DOM.")
+                                    ("find" . "Find in DOM.")
+                                    ("reverse-video" . "Reverse colors.")))
 
 (defmacro define-debugger-command (name args documentation &body body)
   (let ((fn-name (symb 'debugger-command- name))

@@ -1,6 +1,16 @@
 (in-package :story)
 
-(define-story-module FOO)
+(define-story-module FOO
+  :imports (("FOO-demo" FOO-demo-template))
+  :depends-on (:polymer))
+
+(define-template FOO-demo
+  :properties ()
+  :style ()
+  :content ()
+  :methods
+  ((attached ()
+     )))
 
 
 

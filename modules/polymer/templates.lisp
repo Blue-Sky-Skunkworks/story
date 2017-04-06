@@ -1,21 +1,31 @@
 (in-package :story)
 
 (defmacro define-template (name &key style properties content methods)
-  (let ((sname (format nil "~(~A~)" name))
-        (props (loop for (name type value) in properties
-                     appending `(,name (create type ,(string-capitalize type)
-                                               ,@(when value `(value ,(if (symbolp value) (symbol-value value) value))))))))
-    `(defun ,(symb name '-template) ()
-       (html-to-string
-         (:dom-module :id ,sname
-                      (:template
-                       ,@(when style
-                           `((:style (str (cl-css:css ',style)))))
-                       ,@content))
-         (:script
-           (str ,(ps* `(*polymer (create is ,sname properties (create ,@props)
-                                         ,@(iter (for (name args . body) in methods)
-                                             (appending (list name `(lambda ,args ,@body)))))))))))))
+  (let* ((method-names (iter (for method in methods) (collect (car method))))
+         (methods
+           (iter (for method in methods)
+             (collect (cons (car method)
+                            (let ((rtn (cdr method)))
+                              (iter (for method-name in method-names)
+                                (setf rtn (nsubst `(@ this ,method-name) method-name rtn)))
+                              rtn))))))
+    (let ((sname (format nil "~(~A~)" name))
+          (props (loop for (name type value) in properties
+                       appending
+                       `(,name (create type ,(string-capitalize type)
+                                       ,@(when value `(value ,(if (symbolp value)
+                                                                  (symbol-value value) value))))))))
+      `(defun ,(symb name '-template) ()
+         (html-to-string
+           (:dom-module :id ,sname
+                        (:template
+                         ,@(when style
+                             `((:style (str (cl-css:css ',style)))))
+                         ,@content))
+           (:script
+             (str ,(ps* `(*polymer (create is ,sname properties (create ,@props)
+                                           ,@(iter (for (name args . body) in methods)
+                                               (appending (list name `(lambda ,args ,@body))))))))))))))
 
 (defmacro dom-repeat (&body body) `(html (:template :is "dom-repeat" ,@body)))
 

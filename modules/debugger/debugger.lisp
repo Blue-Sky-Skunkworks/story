@@ -67,10 +67,9 @@
           (".description th" :text-align left :font-family monospace :padding-right 10px)
           ("code.language-js" :font-family monospace)
           ("span.desc" :color blue :cursor pointer)
+          ("span.action" :color blue :cursor pointer)
           ("span.error" :color red)
-          ("td" :text-align left :padding "0px 20px 0px 0px")
-          ("id")
-          )
+          ("td" :text-align left :padding "0px 20px 0px 0px"))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
@@ -93,6 +92,7 @@
                ((@ this add-command) "find" "findDom")
                ((@ this add-command) "evaluate" "evaluate")
                ((@ this add-command) "reverse-video" "reverseVideo")
+               ((@ this add-command) "system" "describeSystem")
                ((@ this $ repl focus))
                (console "debugger connected to" url)))
    (alias (&optional from to)
@@ -307,5 +307,19 @@
                       (+ "\"" element "\"")))
                 ((eql type "array") (+ "[" ((@ element to-string)) "]"))
                 ((eql type "undefined") type)
-                (t (+ "UNHANDLED: " type)))))))
+                (t (+ "UNHANDLED: " type)))))
+   (describe-system ()
+                    (let ((n (@ window navigator)))
+                      ((@ this insert)
+                       (dom :table
+                            (loop for key in '("userAgent"
+                                               "appName"
+                                               ; "appCodeName" "appVersion"
+                                               "platform" "product"
+                                               "language" "languages"
+                                               "onLine" "cookieEnabled"
+                                               "doNotTrack")
+                                     collect (create-el-html* ("tr")
+                                                              (:th key)
+                                                              (:td (slot-value n key))))))))))
 

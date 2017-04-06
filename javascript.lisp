@@ -77,7 +77,7 @@
        (setf (getprop node 'inner-h-t-m-l) (parenscript:who-ps-html ,@html))
        node)))
 
-(defpsmacro create-el-html* ((node-type parent &key class) &body html)
+(defpsmacro create-el-html* ((node-type &optional parent &key class) &body html)
   `(set-html* (create-element ,node-type ,parent ,class) ,@html))
 
 (defpsmacro create-html (parent &body html)

@@ -70,6 +70,7 @@
           ("span.action" :color blue :cursor pointer)
           ("span.error" :color red)
           (".desc .info" :color green :padding-left 2px :padding-right 2px)
+          ("th" :padding 2px)
           ("td" :text-align left :padding "0px 20px 0px 0px"))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
@@ -111,14 +112,15 @@
                                             (dom :td v))))
                 (insert table))))
    (alias-of (string) (or (aref (@ this aliases) string) string))
-   (insert (el)
-           (with-content (repl)
-             (when (story-js::aand (@ repl previous-sibling) (has-class it "result"))
-               (insert-before (parent-node repl) (dom (:div "divider")) repl))
-             (insert-before (parent-node repl) el repl)
-             (console el)
-             (flush-dom)
-             ((@ repl focus))))
+   (insert (&rest els)
+           (loop for el in els
+                 do (with-content (repl)
+                      (when (story-js::aand (@ repl previous-sibling) (has-class it "result"))
+                        (insert-before (parent-node repl) (dom (:div "divider")) repl))
+                      (insert-before (parent-node repl) el repl)
+                      (console el)
+                      (flush-dom)
+                      ((@ repl focus)))))
    (insert-text (text &key class-name) (insert (dom (:div class-name) text)))
    (insert-error (text) (insert-text (+ "ERROR: " text) :class-name "error"))
    (reverse-video ()
@@ -287,17 +289,17 @@
    (_present-obj (type el)
                  (let* ((shref (@ this _shorten-href))
                         (info
-                         (case type
-                           ("title" (@ el text-content))
-                           ("h1" (@ el text-content))
-                           ("link" (shref (@ el href)))
-                           ("script"
-                            ((@ (list
-                                 (case (@ el type)
-                                   ("text/javascript" "")
-                                   (otherwise (@ el type)))
-                                 (shref (@ el src)))
-                                join) " ")))))
+                          (case type
+                            ("title" (@ el text-content))
+                            ("h1" (@ el text-content))
+                            ("link" (shref (@ el href)))
+                            ("script"
+                             ((@ (list
+                                  (case (@ el type)
+                                    ("text/javascript" "")
+                                    (otherwise (@ el type)))
+                                  (shref (@ el src)))
+                                 join) " ")))))
                    (if info
                        (dom (:span "info") info)
                        "")))

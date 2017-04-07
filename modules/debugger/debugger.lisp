@@ -49,6 +49,13 @@
   (declare (ignore request))
   (or *debugger* (setf *debugger* (make-instance 'debugger))))
 
+(defpsmacro when-enter-or-tap (&body body)
+  `(when (or (and (eql (@ event type) "keypress")
+                  (eql (@ event key) "Enter"))
+             (eql (@ event type) "tap"))
+     (let ((el (@ event target)))
+       ,@body)))
+
 (define-template debugger-interface
   :properties (("socket" string "/debugger")
                ("port" number *websocket-port*))
@@ -78,7 +85,8 @@
                              :margin 0px :font-size larger)
           (".fn-call-result .name" :padding 4px :margin-bottom 4px)
           ("th" :padding 2px)
-          ("td" :text-align left :padding "0px 20px 0px 0px"))
+          ("td" :text-align left :padding "0px 20px 0px 0px")
+          (".error .error-message" :padding "0px 4px 0px 0px"))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
@@ -165,7 +173,7 @@
                 (setf (aref (@ this commands) command) fn))
    (evaluate (&rest args)
              (console :evaluate args)
-             (let ((rtn (eval ((@ args join) " "))))
+             (let ((rtn (try (eval ((@ args join) " ")) (:catch (e) e))))
                (console :return rtn)
                (insert (dom (:div "result") (present rtn)))))
    (prototypes-of (el)
@@ -190,8 +198,8 @@
                             (dom :td
                                  (dom (:div nil ((style (+ "padding-left:" (* indent 20) "px"))))
                                       (present el)))
-                            ;(dom :td (@ el class-name))
-                            ;(dom :td (@ el id))
+                                        ;(dom :td (@ el class-name))
+                                        ;(dom :td (@ el id))
                             ))
                       (unless (eql el this)
                         (loop for child in (@ el children)
@@ -242,15 +250,13 @@
                                                          (_fn-this fn-this)))
                                         "call"))))))))))
    (_fn-call (event)
-             (when (or (and (eql (@ event type) "keypress")
-                            (eql (@ event key) "Enter"))
-                       (eql (@ event type) "tap"))
-               (let ((fn (@ event src-element _fn))
-                     (fn-this (@ event src-element _fn-this)))
-                 (insert
-                  (dom (:div "fn-call-result")
-                       (dom (:span "name") (+ (@ fn name) "() ⟹  "))
-                       (present (try ((@ fn call) fn-this) (:catch (e) e))))))))
+             (when-enter-or-tap
+              (let ((fn (@ el _fn))
+                    (fn-this (@ el _fn-this)))
+                (insert
+                 (dom (:div "fn-call-result")
+                      (dom (:span "name") (+ (@ fn name) "() ⟹  "))
+                      (present (try ((@ fn call) fn-this) (:catch (e) e))))))))
    (describe (arg)
              (_describe
               (if ((@ arg starts-with) "#")
@@ -258,7 +264,7 @@
                       (progn
                         (insert-error (+ "ID \"" arg "\" does not exist."))
                         nil))
-                  (eval arg))))
+                  (try (eval arg) (:catch (e) e)))))
    (handle-command (full-command)
                    ((@ this history push) full-command)
                    (with-content (repl)
@@ -313,6 +319,21 @@
                   (if ((@ href starts-with) "http://localhost")
                       (+ "lo" ((@ href substr) 16))
                       href))
+   (_present-error (el)
+                   (dom (:span "error-message")
+                        (+ ": " (@ el message))
+                        (dom (:span "more" ((on-tap "_expandError")
+                                            (on-keypress "_expandError")
+                                            (stack (@ el stack))
+                                            (tab-index 1)))
+                             " …")))
+   (_expand-error (event)
+                  (when-enter-or-tap
+                   (setf (@ el text-content)
+                         (if (@ el expanded)
+                             " …"
+                             ((@ el stack substr) ((@ el stack index-of) #\newline)))
+                         (@ el expanded) (not (@ el expanded)))))
    (_present-obj (type el)
                  (let* ((shref (@ this _shorten-href))
                         (info
@@ -328,10 +349,10 @@
                                   (shref (@ el src)))
                                  join) " "))))
                         (id (ignore-errors (@ el id))))
-                   (if (or info id)
-                       (list (when info (dom (:span "info") info))
-                             (when (stringp id) (dom (:span "id") id)))
-                       "")))
+                   (list (when info (dom (:span "info") info))
+                         (when ((@ type ends-with) "Error")
+                           (_present-error el))
+                         (when (stringp id) (dom (:span "id") id)))))
    (present (element &optional fn-this)
             (let ((type (type-of element)))
               (cond

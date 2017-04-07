@@ -72,6 +72,11 @@
           (".desc .info" :color green :padding-left 2px :padding-right 2px)
           (".desc .id" :color red :padding-left 2px)
           (".dom" :padding "6px 10px 10px 10px" :background "#DDD")
+          (".fn-call" :display inline-block :cursor pointer :color blue :padding 2px)
+          (".fn-call-result" :padding 10px :background "#DDD"
+                             :font-family monospace :white-space pre
+                             :margin 0px :font-size larger)
+          (".fn-call-result .name" :padding 4px :margin-bottom 4px)
           ("th" :padding 2px)
           ("td" :text-align left :padding "0px 20px 0px 0px"))
   :content ((:div :id "workspace"
@@ -120,7 +125,6 @@
                       (when (story-js::aand (@ repl previous-sibling) (has-class it "result"))
                         (insert-before (parent-node repl) (dom (:div "divider")) repl))
                       (insert-before (parent-node repl) el repl)
-                      (console el)
                       (flush-dom)
                       ((@ repl focus)))))
    (insert-text (text &key class-name) (insert (dom (:div class-name) text)))
@@ -197,7 +201,7 @@
                      (rows (make-array)))
                  (_insert-dom-recur rows root 0)
                  (insert (dom (:div "dom") (dom :table rows)))))
-   (_describe (el)
+   (_describe (el &optional fn-this)
               (console :describe el)
               (when el
                 (let ((obj this))
@@ -216,7 +220,8 @@
                                         (dom :td ((@ obj present)
                                                   (try
                                                    (aref el key)
-                                                   (:catch (error) error)))))))
+                                                   (:catch (error) error))
+                                                  el)))))
                         (cond
                           ((ignore-errors (eql (@ el node-name) "STYLE"))
                            (let ((pre
@@ -229,7 +234,23 @@
                                    (dom :pre
                                         (dom (:code "language-js") ((@ el to-string))))))
                              ((@ *prism highlight-element) (@ pre first-child))
-                             pre))))))))
+                             (list pre
+                                   (dom (:div "fn-call" ((tab-index 1)
+                                                         (on-tap "_fnCall")
+                                                         (on-keypress "_fnCall")
+                                                         (_fn el)
+                                                         (_fn-this fn-this)))
+                                        "call"))))))))))
+   (_fn-call (event)
+             (when (or (and (eql (@ event type) "keypress")
+                            (eql (@ event key) "Enter"))
+                       (eql (@ event type) "tap"))
+               (let ((fn (@ event src-element _fn))
+                     (fn-this (@ event src-element _fn-this)))
+                 (insert
+                  (dom (:div "fn-call-result")
+                       (dom (:span "name") (+ (@ fn name) "() ⟹  "))
+                       (present (try ((@ fn call) fn-this) (:catch (e) e))))))))
    (describe (arg)
              (_describe
               (if ((@ arg starts-with) "#")
@@ -276,10 +297,13 @@
                               (setf (@ repl value) next
                                     history-index (- history-index 1)))))
                          (t (setf (@ this history-index) 0) nil)))))
-   (handle-present-tap (event) (_describe (@ event target presenting)))
+   (handle-present-tap (event)
+                       (_describe (@ event target presenting)
+                                  (@ event target _fn-this)))
    (handle-present-keys (event)
                         (when (eql (@ event key) "Enter")
-                          (_describe (@ event target presenting))))
+                          (_describe (@ event target presenting)
+                                     (@ event target _fn-this))))
    (handle-text-expansion (event)
                           (let ((style (@ event target style)))
                             (setf (@ style white-space)
@@ -308,14 +332,15 @@
                        (list (when info (dom (:span "info") info))
                              (when (stringp id) (dom (:span "id") id)))
                        "")))
-   (present (element)
+   (present (element &optional fn-this)
             (let ((type (type-of element)))
               (cond
                 ((eql type "number") element)
                 ((eql type "boolean") element)
                 ((eql type "function") type
                  (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
-                                     (presenting element) (tab-index 1)))
+                                     (presenting element) (tab-index 1)
+                                     (_fn-this fn-this)))
                       (mkstr "[" (@ element name) "]")))
                 ((eql type "object")
                  (if (eql element nil)
@@ -332,7 +357,7 @@
                             ((@ this _present-obj call) this type element)
                             (text ">")))))
                 ((eql type "string")
-                 (dom (:span nil ((style "display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px;") (on-tap "handleTextExpansion")))
+                 (dom (:span nil ((style "display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px;") (on-tap "handleTextExpansion")))
                       (+ "\"" element "\"")))
                 ((eql type "array") (+ "[" ((@ element to-string)) "]"))
                 ((eql type "undefined") type)

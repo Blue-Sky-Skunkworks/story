@@ -166,6 +166,11 @@
 
         (defun text (arg) ((@ document create-text-node) arg))
 
+        (defun mkstr (&rest args)
+          ((@ (loop for arg in args
+                    when arg collect arg)
+              join) ""))
+
         (defun mapcar (fun &rest arrs)
           (let ((result-array (make-array)))
             (if (= 1 (length arrs))

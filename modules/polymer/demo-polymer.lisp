@@ -102,6 +102,6 @@
   (:demo-element :title "WooHoo!"))
 
 (define-template demo-element
-    :style ((":host" :display inline-block :background-color "#AAA" :padding 20px :margin 10px))
+  :style ((":host" :display inline-block :background-color "#AAA" :padding 20px :margin 10px))
   :properties (("title" string "nameme"))
   :content ((:span "This is {{title}}.")))

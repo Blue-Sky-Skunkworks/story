@@ -19,6 +19,4 @@
            (setf (@ demo style background) (@ color value))
            ((@ color focus))))
    (attached () (_set))
-   (color-keys (event)
-               (when (eql (@ event key) "Enter")
-                 (_set)))))
+   (color-keys (event) (when (eql (@ event key) "Enter") (_set)))))

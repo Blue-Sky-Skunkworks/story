@@ -84,15 +84,15 @@
                      (@ this aliases) (create a "alias" c "clear" h "help" d "describe"
                                               fs "fullscreen" e "evaluate" rv "reverse-video"
                                               f "find"))
-               ((@ this add-command) "clear" "clearRepl")
-               ((@ this add-command) "fullscreen" "toggleFullscreen")
-               ((@ this add-command) "dom" "insertDom")
-               ((@ this add-command) "describe" "describe")
-               ((@ this add-command) "alias" "alias")
-               ((@ this add-command) "find" "findDom")
-               ((@ this add-command) "evaluate" "evaluate")
-               ((@ this add-command) "reverse-video" "reverseVideo")
-               ((@ this add-command) "system" "describeSystem")
+               (add-command "clear" "clearRepl")
+               (add-command "fullscreen" "toggleFullscreen")
+               (add-command "dom" "insertDom")
+               (add-command "describe" "describe")
+               (add-command "alias" "alias")
+               (add-command "find" "findDom")
+               (add-command "evaluate" "evaluate")
+               (add-command "reverse-video" "reverseVideo")
+               (add-command "system" "describeSystem")
                ((@ this $ repl focus))
                (console "debugger connected to" url)))
    (alias (&optional from to)
@@ -100,15 +100,15 @@
               (if to
                   (progn
                     (setf (aref (@ this aliases) from) to)
-                    ((@ this insert-text) (+ "Alias for \"" from "\" set.")))
-                  ((@ this insert-error) "Missing TO in alias FROM TO."))
+                    (insert-text (+ "Alias for \"" from "\" set.")))
+                  (insert-error "Missing TO in alias FROM TO."))
               (let ((table (dom :table)))
                 (loop for (k v) of (@ this aliases)
                       do (append-child table
                                        (dom :tr
                                             (dom :th k)
                                             (dom :td v))))
-                ((@ this insert) table))))
+                (insert table))))
    (alias-of (string) (or (aref (@ this aliases) string) string))
    (insert (el)
            (with-content (repl)
@@ -118,10 +118,8 @@
              (console el)
              (flush-dom)
              ((@ repl focus))))
-   (insert-text (text &key class-name)
-                ((@ this insert) (dom (:div class-name) text)))
-   (insert-error (text)
-                 ((@ this insert-text) (+ "ERROR: " text) :class-name "error"))
+   (insert-text (text &key class-name) (insert (dom (:div class-name) text)))
+   (insert-error (text) (insert-text (+ "ERROR: " text) :class-name "error"))
    (reverse-video ()
                   (setf (@ document body style filter)
                         (if (plusp (length (@ document body style filter))) "" "invert(100%)")))
@@ -143,9 +141,10 @@
                                       s-border border border 0))))
                         (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
    (handle-message (event)
-                   (let ((rtn ((@ *J-s-o-n parse) (@ event data))))
+                   (let ((rtn ((@ *J-s-o-n parse) (@ event data)))
+                         (this (@ this root)))
                      (with-slots (class message) rtn
-                       ((@ this root insert)
+                       (insert
                         (dom ("div" class nil message))))))
    (clear-repl ()
                ((@ console clear))
@@ -159,7 +158,7 @@
              (console :evaluate args)
              (let ((rtn (eval ((@ args join) " "))))
                (console :return rtn)
-               ((@ this insert) (dom (:div "result") ((@ this present) rtn)))))
+               (insert (dom (:div "result") (present rtn)))))
    (prototypes-of (el)
                   (when (objectp el)
                     (loop
@@ -169,35 +168,34 @@
    (_parse_id (arg)
               (or ((@ document query-selector) arg)
                   (progn
-                    ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
+                    (insert-error (+ "ID \"" arg "\" does not exist."))
                     nil)))
    (find-dom (arg)
              (let ((els ((@ document query-selector-all) arg)))
                (console els)
                (loop for el in els
-                     do ((@ this insert) ((@ this present) el)))))
+                     do (insert (present el)))))
+   (_insert-dom-recur (rows el indent)
+                      ((@ rows push)
+                       (dom :tr
+                            (dom :td
+                                 (dom (:div nil ((style (+ "padding-left:" (* indent 20) "px"))))
+                                      (present el)))
+                            (dom :td (@ el class-name))
+                            (dom :td (@ el id))))
+                      (unless (eql el this)
+                        (loop for child in (@ el children)
+                              do (_insert-dom-recur rows child (1+ indent)))))
    (insert-dom (arg)
-               (let ((root ((@ this _parse_id) arg))
-                     (obj this)
+               (let ((root (_parse_id arg))
                      (rows (make-array)))
-                 (flet ((recur (el indent)
-                          ((@ rows push)
-                           (dom :tr
-                                (dom :td
-                                     (dom (:div nil ((style (+ "padding-left:" (* indent 20) "px"))))
-                                          ((@ obj present) el)))
-                                (dom :td (@ el class-name))
-                                (dom :td (@ el id))))
-                          (unless (eql el obj)
-                            (loop for child in (@ el children)
-                                  do (recur child (1+ indent))))))
-                   (recur root 0))
-                 ((@ obj insert) (dom (:table "dom") rows))))
+                 (_insert-dom-recur rows root 0)
+                 (insert (dom (:table "dom") rows))))
    (_describe (el)
               (console :describe el)
               (when el
                 (let ((obj this))
-                  ((@ this insert)
+                  (insert
                    (dom (:div "result description")
                         (dom :h2 ((@ obj present) el))
                         (when (objectp el)
@@ -227,11 +225,11 @@
                              ((@ *prism highlight-element) (@ pre first-child))
                              pre))))))))
    (describe (arg)
-             ((@ this _describe)
+             (_describe
               (if ((@ arg starts-with) "#")
                   (or (id ((@ arg substr) 1))
                       (progn
-                        ((@ this insert-error) (+ "ID \"" arg "\" does not exist."))
+                        (insert-error (+ "ID \"" arg "\" does not exist."))
                         nil))
                   (eval arg))))
    (handle-command (full-command)
@@ -240,12 +238,12 @@
                      (let* ((pos ((@ full-command index-of) " "))
                             (command (if (plusp pos) ((@ full-command substr) 0 pos) full-command))
                             (args (when (plusp pos) ((@ full-command substr) (1+ pos)))))
-                       (let ((fn (aref (@ this commands) ((@ this alias-of) command))))
+                       (let ((fn (aref (@ this commands) (alias-of command))))
                          (if fn
                              (progn
                                (apply (aref this fn) (and args ((@ args split) " ")))
                                nil)
-                             (+ ((@ this alias-of) command)
+                             (+ (alias-of command)
                                 (if args (+ " " args) "")))))))
    (handle-keydown (event)
                    (with-content (workspace repl)
@@ -254,9 +252,9 @@
                          ((eql (@ event key) "Enter")
                           (let ((value (@ repl value)))
                             (when (plusp (@ value length))
-                              ((@ this insert) (dom ("div" "entry") value))
+                              (insert (dom ("div" "entry") value))
                               (setf (@ repl value) "")
-                              (let ((remote-command ((@ this handle-command) value)))
+                              (let ((remote-command (handle-command value)))
                                 (when remote-command
                                   ((@ this websocket send) remote-command))))))
                          ((eql (@ event key) "ArrowUp")
@@ -272,10 +270,10 @@
                               (setf (@ repl value) next
                                     history-index (- history-index 1)))))
                          (t (setf (@ this history-index) 0) nil)))))
-   (handle-present-tap (event) ((@ this _describe) (@ event target presenting)))
+   (handle-present-tap (event) (_describe (@ event target presenting)))
    (handle-present-keys (event)
                         (when (eql (@ event key) "Enter")
-                          ((@ this _describe) (@ event target presenting))))
+                          (_describe (@ event target presenting))))
    (handle-text-expansion (event)
                           (let ((style (@ event target style)))
                             (setf (@ style white-space)
@@ -310,7 +308,7 @@
                 (t (+ "UNHANDLED: " type)))))
    (describe-system ()
                     (let ((n (@ window navigator)))
-                      ((@ this insert)
+                      (insert
                        (dom :table
                             (loop for key in '("userAgent"
                                                "appName"
@@ -321,5 +319,5 @@
                                                "doNotTrack")
                                      collect (create-el-html* ("tr")
                                                               (:th key)
-                                                              (:td (slot-value n key))))))))))
+                                                              (:td (getprop n key))))))))))
 

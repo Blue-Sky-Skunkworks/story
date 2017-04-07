@@ -316,7 +316,7 @@
                 ((eql type "function") type
                  (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
                                      (presenting element) (tab-index 1)))
-                      (+ "[fn " (if (@ element name) (+ " " (@ element name)) "") "]")))
+                      (mkstr "[" (@ element name) "]")))
                 ((eql type "object")
                  (if (eql element nil)
                      "null"

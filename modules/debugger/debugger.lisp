@@ -306,7 +306,7 @@
                         (id (ignore-errors (@ el id))))
                    (if (or info id)
                        (list (when info (dom (:span "info") info))
-                             (when id (dom (:span "id") id)))
+                             (when (stringp id) (dom (:span "id") id)))
                        "")))
    (present (element)
             (let ((type (type-of element)))

@@ -188,7 +188,7 @@
                         (loop for child in (@ el children)
                               do (_insert-dom-recur rows child (1+ indent)))))
    (insert-dom (arg)
-               (let ((root (_parse_id arg))
+               (let ((root (if arg (_parse_id arg) document))
                      (rows (make-array)))
                  (_insert-dom-recur rows root 0)
                  (insert (dom (:table "dom") rows))))

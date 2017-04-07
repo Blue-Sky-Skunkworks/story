@@ -1,4 +1,4 @@
-(in-package :story)
+(in-package :story-js)
 
 (defpsmacro dom (args &rest children)
   (destructuring-bind (node-type &optional class-name properties inner-html) (ensure-list args)
@@ -19,6 +19,7 @@
                               (when ,ch
                                 (if (arrayp ,ch)
                                     (loop for c in ,ch
+                                          when c
                                           do ((@ ,el append-child)
                                               (if (and c (@ c node-type)) c (text c))))
                                     ((@ ,el append-child)

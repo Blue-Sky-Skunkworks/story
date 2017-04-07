@@ -12,6 +12,7 @@
                (:file "sharpl")
                (:file "utility")
                (:file "javascript")
+               (:file "dom")
                (:file "git")
                (:file "element")
                (:file "define-story")

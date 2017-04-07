@@ -69,6 +69,7 @@
           ("span.desc" :color blue :cursor pointer)
           ("span.action" :color blue :cursor pointer)
           ("span.error" :color red)
+          (".desc .info" :color green :padding-left 2px :padding-right 2px)
           ("td" :text-align left :padding "0px 20px 0px 0px"))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
@@ -279,6 +280,27 @@
                             (setf (@ style white-space)
                                   (if (eql (@ style white-space) "normal")
                                       "nowrap" "normal"))))
+   (_shorten-href (href)
+                  (if ((@ href starts-with) "http://localhost")
+                      (+ "lo" ((@ href substr) 16))
+                      href))
+   (_present-obj (type el)
+                 (let* ((shref (@ this _shorten-href))
+                        (info
+                         (case type
+                           ("title" (@ el text-content))
+                           ("h1" (@ el text-content))
+                           ("link" (shref (@ el href)))
+                           ("script"
+                            ((@ (list
+                                 (case (@ el type)
+                                   ("text/javascript" "")
+                                   (otherwise (@ el type)))
+                                 (shref (@ el src)))
+                                join) " ")))))
+                   (if info
+                       (dom (:span "info") info)
+                       "")))
    (present (element)
             (let ((type (type-of element)))
               (cond
@@ -296,10 +318,12 @@
                        (dom (:span (+ "desc" (if (eql type "Error") " error" ""))
                                    ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
                                     (presenting element) (tab-index 1)))
-                            (+ "[" (case type
-                                     ("Error" (@ element name))
-                                     (otherwise type))
-                               "]")))))
+                            (text "<")
+                            (text (case type
+                                    ("Error" (@ element name))
+                                    (otherwise type)))
+                            ((@ this _present-obj call) this type element)
+                            (text ">")))))
                 ((eql type "string")
                  (dom (:span nil ((style "display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px;") (on-tap "handleTextExpansion")))
                       (+ "\"" element "\"")))
@@ -312,12 +336,12 @@
                        (dom :table
                             (loop for key in '("userAgent"
                                                "appName"
-                                               ; "appCodeName" "appVersion"
+                                        ; "appCodeName" "appVersion"
                                                "platform" "product"
                                                "language" "languages"
                                                "onLine" "cookieEnabled"
                                                "doNotTrack")
-                                     collect (create-el-html* ("tr")
-                                                              (:th key)
-                                                              (:td (getprop n key))))))))))
+                                  collect (create-el-html* ("tr")
+                                                           (:th key)
+                                                           (:td (getprop n key))))))))))
 

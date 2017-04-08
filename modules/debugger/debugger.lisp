@@ -88,7 +88,9 @@
           ("td" :text-align left :padding "0px 20px 0px 0px")
           (".error .error-message" :max-width 300px :padding "0px 4px 0px 0px")
           (".system-information" :padding 10px)
-          (".system-information th" :padding-right 20px))
+          (".system-information th" :padding-right 20px)
+          ("span.string" :display inline-block :overflow hidden :text-overflow ellipsis
+                         :white-space nowrap :max-width 300px))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
@@ -139,26 +141,6 @@
                       ((@ repl focus)))))
    (insert-text (text &key class-name) (insert (dom (:div class-name) text)))
    (insert-error (text) (insert-text (+ "ERROR: " text) :class-name "error"))
-   (reverse-video ()
-                  (setf (@ document body style filter)
-                        (if (plusp (length (@ document body style filter))) "" "invert(100%)")))
-   (toggle-fullscreen ()
-                      (with-content (workspace)
-                        (with-slots (s-position s-top s-right s-bottom s-left s-padding s-margin
-                                     s-border)
-                            workspace
-                          (with-slots (position top right bottom left padding margin border)
-                              (@ workspace style)
-                            (if (@ workspace fullscreen)
-                                (setf position s-position top s-top right s-right bottom
-                                      s-bottom left s-left margin s-margin padding s-padding
-                                      border s-border)
-                                (setf s-position position position "absolute" s-top top top 0
-                                      s-right right right 0 s-bottom bottom bottom 0
-                                      s-left left left 0 s-margin margin margin 0
-                                      s-padding padding padding 10
-                                      s-border border border 0))))
-                        (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
    (handle-message (event)
                    (let ((rtn ((@ *J-s-o-n parse) (@ event data)))
                          (this (@ this root)))
@@ -189,11 +171,6 @@
                   (progn
                     (insert-error (+ "ID \"" arg "\" does not exist."))
                     nil)))
-   (find-dom (arg)
-             (let ((els ((@ document query-selector-all) arg)))
-               (console els)
-               (loop for el in els
-                     do (insert (present el)))))
    (_insert-dom-recur (rows el indent)
                       ((@ rows push)
                        (dom :tr
@@ -354,39 +331,40 @@
                    (list (when info (dom (:span "info") info))
                          (when ((@ type ends-with) "Error")
                            (_present-error el))
-                         (when (stringp id) (dom (:span "id") id)))))
-   (present (element &optional fn-this)
-            (let ((type (type-of element)))
-              (cond
-                ((eql type "number") element)
-                ((eql type "boolean") element)
-                ((eql type "function") type
-                 (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
-                                     (presenting element) (tab-index 1)
-                                     (_fn-this fn-this)))
-                      (mkstr "[" (@ element name) "]")))
-                ((eql type "object")
-                 (if (eql element nil)
-                     "null"
-                     (let* ((type (or (try ((@ element node-name to-lower-case)) (:catch (error) nil))
-                                      ((@ ((@ *object prototype to-string call) element) slice) 8 -1))))
-                       (dom (:span (+ "desc" (if (eql type "Error") " error" ""))
-                                   ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
-                                    (presenting element) (tab-index 1)))
-                            (text "<")
-                            (text (case type
-                                    ("Error" (@ element name))
-                                    (otherwise type)))
-                            ((@ this _present-obj call) this type element)
-                            (text ">")))))
-                ((eql type "string")
-                 (dom (:span nil ((style "display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px;") (on-tap "handleTextExpansion")))
-                      (+ "\"" element "\"")))
-                ((eql type "array") (+ "[" ((@ element to-string)) "]"))
-                ((eql type "undefined") type)
-                (t (+ "UNHANDLED: " type)))))))
+                         (when (stringp id) (dom (:span "id") id)))))))
 
-(define-template-method describe-system debugger-interface ()
+(define-template-method debugger-interface present (element &optional fn-this)
+  (let ((type (type-of element)))
+    (cond
+      ((eql type "number") element)
+      ((eql type "boolean") element)
+      ((eql type "function") type
+       (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+                           (presenting element) (tab-index 1)
+                           (_fn-this fn-this)))
+            (mkstr "[" (@ element name) "]")))
+      ((eql type "object")
+       (if (eql element nil)
+           "null"
+           (let* ((type (or (try ((@ element node-name to-lower-case)) (:catch (error) nil))
+                            ((@ ((@ *object prototype to-string call) element) slice) 8 -1))))
+             (dom (:span (+ "desc" (if (eql type "Error") " error" ""))
+                         ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+                          (presenting element) (tab-index 1)))
+                  (text "<")
+                  (text (case type
+                          ("Error" (@ element name))
+                          (otherwise type)))
+                  ((@ this _present-obj call) this type element)
+                  (text ">")))))
+      ((eql type "string")
+       (dom (:span "string" ((on-tap "handleTextExpansion")))
+            (+ "\"" element "\"")))
+      ((eql type "array") (+ "[" ((@ element to-string)) "]"))
+      ((eql type "undefined") type)
+      (t (+ "UNHANDLED: " type)))))
+
+(define-template-method debugger-interface describe-system ()
   (let ((n (@ window navigator))
         (el this))
     (insert
@@ -403,3 +381,30 @@
                                   (dom :th key)
                                   (dom :td ((@ el present) (getprop n key))))))))))
 
+(define-template-method debugger-interface toggle-fullscreen ()
+  (with-content (workspace)
+    (with-slots (s-position s-top s-right s-bottom s-left s-padding s-margin
+                 s-border)
+        workspace
+      (with-slots (position top right bottom left padding margin border)
+          (@ workspace style)
+        (if (@ workspace fullscreen)
+            (setf position s-position top s-top right s-right bottom
+                  s-bottom left s-left margin s-margin padding s-padding
+                  border s-border)
+            (setf s-position position position "absolute" s-top top top 0
+                  s-right right right 0 s-bottom bottom bottom 0
+                  s-left left left 0 s-margin margin margin 0
+                  s-padding padding padding 10
+                  s-border border border 0))))
+    (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
+
+(define-template-method debugger-interface reverse-video ()
+  (setf (@ document body style filter)
+        (if (plusp (length (@ document body style filter))) "" "invert(100%)")))
+
+(define-template-method debugger-interface find-dom (arg)
+  (let ((els ((@ document query-selector-all) arg)))
+    (console els)
+    (loop for el in els
+          do (insert (present el)))))

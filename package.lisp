@@ -15,7 +15,7 @@
   (:use common-lisp story-js cl-who iterate hunchentoot local-time split-sequence
         cffi printv cl-ascii-art inferior-shell string-case hunchensocket)
   (:import-from sb-int named-lambda)
-  (:import-from parenscript ps ps* defpsmacro @ new create)
+  (:import-from parenscript ps ps* defpsmacro @ new create getprop)
   (:import-from ppcre scan do-scans create-scanner)
   (:import-from anaphora aand acond it)
   (:import-from alexandria with-output-to-file when-let if-let with-input-from-file assoc-value with-gensyms ensure-list once-only)

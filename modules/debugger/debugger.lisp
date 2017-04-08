@@ -92,7 +92,7 @@
           ("span.string" :display inline-block :overflow hidden :text-overflow ellipsis
                          :white-space nowrap :max-width 300px))
   :content ((:div :id "workspace"
-                  (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
+                  (input :id "repl" :on-keydown "_handleKeydown" :no-label-float t)))
   :methods
   ((attached ()
              (let* ((url (+ "ws://localhost:" (@ this port) (@ this socket)))
@@ -100,7 +100,7 @@
                (setf (@ this websocket) ws
                      (@ this commands) (create)
                      (@ ws root) this
-                     (@ ws onmessage) (@ this handle-message)
+                     (@ ws onmessage) (@ this _handle-message)
                      (@ this history) (make-array)
                      (@ this aliases) (create a "alias" c "clear" h "help" d "describe"
                                               fs "fullscreen" e "evaluate" rv "reverse-video"
@@ -141,31 +141,24 @@
                       ((@ repl focus)))))
    (insert-text (text &key class-name) (insert (dom (:div class-name) text)))
    (insert-error (text) (insert-text (+ "ERROR: " text) :class-name "error"))
-   (handle-message (event)
-                   (let ((rtn ((@ *J-s-o-n parse) (@ event data)))
-                         (this (@ this root)))
-                     (with-slots (class message) rtn
-                       (insert
-                        (dom ("div" class nil message))))))
-   (clear-repl ()
-               ((@ console clear))
-               (with-content (workspace)
-                 (loop for child in (child-nodes workspace)
-                       do (unless (eql (@ child id) "repl")
-                            (remove-child workspace child)))))
-   (add-command (command fn)
-                (setf (aref (@ this commands) command) fn))
+   (_handle-message (event)
+                    (let ((rtn ((@ *J-s-o-n parse) (@ event data)))
+                          (this (@ this root)))
+                      (with-slots (class message) rtn
+                        (insert
+                         (dom ("div" class nil message))))))
+   (add-command (command fn) (setf (aref (@ this commands) command) fn))
    (evaluate (&rest args)
              (console :evaluate args)
              (let ((rtn (try (eval ((@ args join) " ")) (:catch (e) e))))
                (console :return rtn)
                (insert (dom (:div "result") (present rtn)))))
-   (prototypes-of (el)
-                  (when (objectp el)
-                    (loop
-                      for pro = (get-prototype-of el) :then (get-prototype-of pro)
-                      while pro
-                      collect pro)))
+   (_prototypes-of (el)
+                   (when (objectp el)
+                     (loop
+                       for pro = (get-prototype-of el) :then (get-prototype-of pro)
+                       while pro
+                       collect pro)))
    (_parse_id (arg)
               (or ((@ document query-selector) arg)
                   (progn
@@ -196,7 +189,7 @@
                    (dom (:div "result description")
                         (dom :h2 ((@ obj present) el))
                         (when (objectp el)
-                          (dom :h3 (loop for pro in ((@ obj prototypes-of) el)
+                          (dom :h3 (loop for pro in ((@ obj _prototypes-of) el)
                                          collect ((@ obj present) pro)
                                          collect (text " "))))
                         (dom :table
@@ -244,56 +237,54 @@
                         (insert-error (+ "ID \"" arg "\" does not exist."))
                         nil))
                   (try (eval arg) (:catch (e) e)))))
-   (handle-command (full-command)
-                   ((@ this history push) full-command)
-                   (with-content (repl)
-                     (let* ((pos ((@ full-command index-of) " "))
-                            (command (if (plusp pos) ((@ full-command substr) 0 pos) full-command))
-                            (args (when (plusp pos) ((@ full-command substr) (1+ pos)))))
-                       (let ((fn (aref (@ this commands) (alias-of command))))
-                         (if fn
-                             (progn
-                               (apply (aref this fn) (and args ((@ args split) " ")))
-                               nil)
-                             (+ (alias-of command)
-                                (if args (+ " " args) "")))))))
-   (handle-keydown (event)
-                   (with-content (workspace repl)
-                     (with-slots (history history-index) this
-                       (cond
-                         ((eql (@ event key) "Enter")
-                          (let ((value (@ repl value)))
-                            (when (plusp (@ value length))
-                              (insert (dom ("div" "entry") value))
-                              (setf (@ repl value) "")
-                              (let ((remote-command (handle-command value)))
-                                (when remote-command
-                                  ((@ this websocket send) remote-command))))))
-                         ((eql (@ event key) "ArrowUp")
-                          (when (and (plusp (length history))
-                                     (< history-index (length history)))
-                            (setf history-index (+ history-index 1)
-                                  (@ repl value) (aref history (- (length history) history-index)))))
-                         ((eql (@ event key) "ArrowDown")
-                          (when (plusp history-index)
-                            (let ((next (if (= history-index 1)
-                                            ""
-                                            (aref history (- (length history) history-index -1)))))
-                              (setf (@ repl value) next
-                                    history-index (- history-index 1)))))
-                         (t (setf (@ this history-index) 0) nil)))))
-   (handle-present-tap (event)
-                       (_describe (@ event target presenting)
-                                  (@ event target _fn-this)))
-   (handle-present-keys (event)
-                        (when (eql (@ event key) "Enter")
-                          (_describe (@ event target presenting)
-                                     (@ event target _fn-this))))
-   (handle-text-expansion (event)
-                          (let ((style (@ event target style)))
-                            (setf (@ style white-space)
-                                  (if (eql (@ style white-space) "normal")
-                                      "nowrap" "normal"))))
+   (_handle-command (full-command)
+                    ((@ this history push) full-command)
+                    (with-content (repl)
+                      (let* ((pos ((@ full-command index-of) " "))
+                             (command (if (plusp pos) ((@ full-command substr) 0 pos) full-command))
+                             (args (when (plusp pos) ((@ full-command substr) (1+ pos)))))
+                        (let ((fn (aref (@ this commands) (alias-of command))))
+                          (if fn
+                              (progn
+                                (apply (aref this fn) (and args ((@ args split) " ")))
+                                nil)
+                              (+ (alias-of command)
+                                 (if args (+ " " args) "")))))))
+   (_handle-keydown (event)
+                    (with-content (workspace repl)
+                      (with-slots (history history-index) this
+                        (cond
+                          ((eql (@ event key) "Enter")
+                           (let ((value (@ repl value)))
+                             (when (plusp (@ value length))
+                               (insert (dom ("div" "entry") value))
+                               (setf (@ repl value) "")
+                               (let ((remote-command (_handle-command value)))
+                                 (when remote-command
+                                   ((@ this websocket send) remote-command))))))
+                          ((eql (@ event key) "ArrowUp")
+                           (when (and (plusp (length history))
+                                      (< history-index (length history)))
+                             (setf history-index (+ history-index 1)
+                                   (@ repl value) (aref history (- (length history) history-index)))))
+                          ((eql (@ event key) "ArrowDown")
+                           (when (plusp history-index)
+                             (let ((next (if (= history-index 1)
+                                             ""
+                                             (aref history (- (length history) history-index -1)))))
+                               (setf (@ repl value) next
+                                     history-index (- history-index 1)))))
+                          (t (setf (@ this history-index) 0) nil)))))
+   (_handle-present-event (event)
+                          (when-enter-or-tap
+                           (_describe (@ el presenting)
+                                      (@ el _fn-this))))
+   (_handle-text-expansion (event)
+                           (when-enter-or-tap
+                            (let ((style (@ el style)))
+                              (setf (@ style white-space)
+                                    (if (eql (@ style white-space) "normal")
+                                        "nowrap" "normal")))))
    (_shorten-href (href)
                   (if ((@ href starts-with) "http://localhost")
                       (+ "lo" ((@ href substr) 16))
@@ -339,7 +330,8 @@
       ((eql type "number") element)
       ((eql type "boolean") element)
       ((eql type "function") type
-       (dom (:span "desc" ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+       (dom (:span "desc" ((on-tap "_handlePresentEvent")
+                           (on-keypress "_handlePresentEvent")
                            (presenting element) (tab-index 1)
                            (_fn-this fn-this)))
             (mkstr "[" (@ element name) "]")))
@@ -349,7 +341,8 @@
            (let* ((type (or (try ((@ element node-name to-lower-case)) (:catch (error) nil))
                             ((@ ((@ *object prototype to-string call) element) slice) 8 -1))))
              (dom (:span (+ "desc" (if (eql type "Error") " error" ""))
-                         ((on-tap "handlePresentTap") (on-keypress "handlePresentKeys")
+                         ((on-tap "_handlePresentEvent")
+                          (on-keypress "_handlePresentEvent")
                           (presenting element) (tab-index 1)))
                   (text "<")
                   (text (case type
@@ -358,7 +351,7 @@
                   ((@ this _present-obj call) this type element)
                   (text ">")))))
       ((eql type "string")
-       (dom (:span "string" ((on-tap "handleTextExpansion")))
+       (dom (:span "string" ((on-tap "_handleTextExpansion") (on-keypress "_handleTextExpansion")))
             (+ "\"" element "\"")))
       ((eql type "array") (+ "[" ((@ element to-string)) "]"))
       ((eql type "undefined") type)
@@ -408,3 +401,10 @@
     (console els)
     (loop for el in els
           do (insert (present el)))))
+
+(define-template-method debugger-interface clear-repl ()
+  ((@ console clear))
+  (with-content (workspace)
+    (loop for child in (child-nodes workspace)
+          do (unless (eql (@ child id) "repl")
+               (remove-child workspace child)))))

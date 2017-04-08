@@ -86,7 +86,9 @@
           (".fn-call-result .name" :padding 4px :margin-bottom 4px)
           ("th" :padding 2px)
           ("td" :text-align left :padding "0px 20px 0px 0px")
-          (".error .error-message" :padding "0px 4px 0px 0px"))
+          (".error .error-message" :max-width 300px :padding "0px 4px 0px 0px")
+          (".system-information" :padding 10px)
+          (".system-information th" :padding-right 20px))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "handleKeydown" :no-label-float t)))
   :methods
@@ -382,19 +384,22 @@
                       (+ "\"" element "\"")))
                 ((eql type "array") (+ "[" ((@ element to-string)) "]"))
                 ((eql type "undefined") type)
-                (t (+ "UNHANDLED: " type)))))
-   (describe-system ()
-                    (let ((n (@ window navigator)))
-                      (insert
-                       (dom :table
-                            (loop for key in '("userAgent"
-                                               "appName"
+                (t (+ "UNHANDLED: " type)))))))
+
+(define-template-method describe-system debugger-interface ()
+  (let ((n (@ window navigator))
+        (el this))
+    (insert
+     (dom (:div "system-information")
+          (dom :table
+               (loop for key in '("userAgent"
+                                  "appName"
                                         ; "appCodeName" "appVersion"
-                                               "platform" "product"
-                                               "language" "languages"
-                                               "onLine" "cookieEnabled"
-                                               "doNotTrack")
-                                  collect (create-el-html* ("tr")
-                                                           (:th key)
-                                                           (:td (getprop n key))))))))))
+                                  "platform" "product"
+                                  "language" "languages"
+                                  "onLine" "cookieEnabled"
+                                  "doNotTrack")
+                     collect (dom :tr
+                                  (dom :th key)
+                                  (dom :td ((@ el present) (getprop n key))))))))))
 

@@ -10,11 +10,11 @@
 
 (defvar *template-methods* (make-hash-table))
 
-(defmacro define-template-method (name template args &body body)
+(defmacro define-template-method (template name args &body body)
   (when-let (hit (gethash template *template-methods*))
     (setf (gethash template *template-methods*)
           (remove name hit :key #'car)))
-  (push (list name args body) (gethash template *template-methods*))
+  (push `(,name ,args ,@body) (gethash template *template-methods*))
   nil)
 
 (defun template-methods (name) (gethash name *template-methods*))
@@ -22,8 +22,8 @@
 (defun create-template (name)
   (destructuring-bind (style properties content methods content-html) (gethash name *templates*)
     (declare (ignore content))
-    (let ((methods (append methods (template-methods name)))
-          (method-names (iter (for method in methods) (collect (car method)))))
+    (let* ((methods (append methods (template-methods name)))
+           (method-names (iter (for method in methods) (collect (car method)))))
       (let ((sname (format nil "~(~A~)" name))
             (props (loop for (name type value) in properties
                          appending

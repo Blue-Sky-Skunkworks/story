@@ -323,6 +323,9 @@
     ((@ el then) fn fn)
     value))
 
+(define-object-presentor "BatteryManager"
+  (mkstr (* (@ el level) 100) "%" (when (@ el charging) " charging")))
+
 (define-object-presentor "script"
   ((@ (list
        (case (@ el type)

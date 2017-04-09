@@ -218,17 +218,44 @@
                                                        ((on-tap on-keypress) "_fnCall")
                                                        (_fn el)
                                                        (_fn-this fn-this)))
-                                      "call")))))))))
+                                      "call"
+                                      (when (plusp (@ el length))
+                                        (dom (:span "fn-args" ((style "visibility:hidden;")))
+                                             (loop for x from 1 to (@ el length)
+                                                   collect (dom (:input "arg"
+                                                                  ((type "text")
+                                                                   (style "width:50px;margin-left:10px;"))))))))))))))))
+   (_fn-call-complete (fn fn-this args)
+                      (let ((result (try ((@ fn apply) fn-this args) (:catch (e) e))))
+                        (console :call fn-this fn args :result result)
+                        (insert
+                         (dom (:div "fn-call-result")
+                              (dom (:span "name") (+ (@ fn-this constructor name)
+                                                     "."
+                                                     (@ fn name) "("
+                                                     args
+                                                     ") ⟹  "))
+                              (present result)))))
+   (_verify-call-arguments (fn el args)
+                           (setf (@ args style visibility) "visible")
+                           (loop for arg in (@ args children)
+                                 when (= 0 (@ arg value length))
+                                   do ((@ arg focus))
+                                      (return nil)
+                                 finally (return t)))
    (_fn-call (event)
              (when-enter-or-tap
+              (when (eql (@ el local-name) "input")
+                (setf el (@ el parent-node parent-node)))
               (let* ((fn (@ el _fn))
                      (fn-this (@ el _fn-this))
-                     (result (try ((@ fn call) fn-this) (:catch (e) e))))
-                (console :call fn :result result)
-                (insert
-                 (dom (:div "fn-call-result")
-                      (dom (:span "name") (+ (@ fn name) "() ⟹  "))
-                      (present result))))))
+                     (args ((@ el query-selector) ".fn-args")))
+                (if (plusp (@ fn length))
+                    (when (_verify-call-arguments fn el args)
+                      (_fn-call-complete fn fn-this
+                                         (loop for child in (@ args children)
+                                               collect (eval (@ child value)))))
+                    (_fn-call-complete fn fn-this)))))
    (describe (arg)
              (_describe
               (if (and (stringp arg) ((@ arg starts-with) "#"))

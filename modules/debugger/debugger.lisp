@@ -341,7 +341,7 @@
           (id (ignore-errors (@ el id))))
      (list (when info (dom (:span "info") info))
            (when ((@ type ends-with) "Error") (_present-error el))
-           (when (stringp id) (dom (:span "id") id)))))
+           (when (and (stringp id) (plusp (@ id length))) (dom (:span "id") id)))))
 
 (define-template-method debugger-interface present (element &optional fn-this)
   (let ((type (type-of element)))

@@ -309,12 +309,19 @@
 (defmacro define-object-presentor (type &body body)
   `(progn
      (setf *object-presentors* (remove ',type *object-presentors* :key #'car :test #'equal))
-     (push (list ',type ',@body) *object-presentors*)))
+     (push (list ',type ',(if (second body) `(progn ,@body) (first body))) *object-presentors*)))
 
 (define-object-presentor "title" (@ el text-content))
 (define-object-presentor "h1" (@ el text-content))
-
 (define-object-presentor "link" (shref (@ el href)))
+
+(define-object-presentor "Promise"
+  (let* ((value (dom :span "unresolved"))
+         (fn (lambda (arg)
+               (setf (@ value text-content) "")
+               ((@ value append-child) ((@ interface present) arg)))))
+    ((@ el then) fn fn)
+    value))
 
 (define-object-presentor "script"
   ((@ (list
@@ -326,6 +333,7 @@
 
 (define-template-method debugger-interface _present-obj (type el)
   `(let* ((shref (@ this _shorten-href))
+          (interface this)
           (info (case type ,@*object-presentors*))
           (id (ignore-errors (@ el id))))
      (list (when info (dom (:span "info") info))

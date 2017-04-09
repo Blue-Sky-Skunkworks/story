@@ -223,6 +223,8 @@
 
         (defun id (id &optional (error t))
           (or ((@ document get-element-by-id) id)
-              (when error ((@ console error) "ERROR: id" id)))))))))
+              (when error ((@ console error) "ERROR: id" id))))
+
+        )))))
 
 (defun js-file () *js-file*)

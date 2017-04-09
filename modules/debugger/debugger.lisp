@@ -87,8 +87,8 @@
           ("th" :padding 2px)
           ("td" :text-align left :padding "0px 20px 0px 0px")
           (".error .error-message" :max-width 300px :padding "0px 4px 0px 0px")
-          (".system-information" :padding 10px)
-          (".system-information th" :padding-right 20px)
+          (".system-information" :padding 10px :font-family monospace)
+          (".system-information th" :padding-right 20px :text-align right)
           ("span.string" :display inline-block :overflow hidden :text-overflow ellipsis
                          :white-space nowrap :max-width 300px))
   :content ((:div :id "workspace"
@@ -223,15 +223,17 @@
                                         "call"))))))))))
    (_fn-call (event)
              (when-enter-or-tap
-              (let ((fn (@ el _fn))
-                    (fn-this (@ el _fn-this)))
+              (let* ((fn (@ el _fn))
+                     (fn-this (@ el _fn-this))
+                     (result (try ((@ fn call) fn-this) (:catch (e) e))))
+                (console :call fn :result result)
                 (insert
                  (dom (:div "fn-call-result")
                       (dom (:span "name") (+ (@ fn name) "() ⟹  "))
-                      (present (try ((@ fn call) fn-this) (:catch (e) e))))))))
+                      (present result))))))
    (describe (arg)
              (_describe
-              (if ((@ arg starts-with) "#")
+              (if (and (stringp arg) ((@ arg starts-with) "#"))
                   (or (id ((@ arg substr) 1))
                       (progn
                         (insert-error (+ "ID \"" arg "\" does not exist."))
@@ -303,26 +305,35 @@
                          (if (@ el expanded)
                              " …"
                              ((@ el stack substr) ((@ el stack index-of) #\newline)))
-                         (@ el expanded) (not (@ el expanded)))))
-   (_present-obj (type el)
-                 (let* ((shref (@ this _shorten-href))
-                        (info
-                          (case type
-                            ("title" (@ el text-content))
-                            ("h1" (@ el text-content))
-                            ("link" (shref (@ el href)))
-                            ("script"
-                             ((@ (list
-                                  (case (@ el type)
-                                    ("text/javascript" "")
-                                    (otherwise (@ el type)))
-                                  (shref (@ el src)))
-                                 join) " "))))
-                        (id (ignore-errors (@ el id))))
-                   (list (when info (dom (:span "info") info))
-                         (when ((@ type ends-with) "Error")
-                           (_present-error el))
-                         (when (stringp id) (dom (:span "id") id)))))))
+                         (@ el expanded) (not (@ el expanded)))))))
+
+(defvar *object-presentors* nil)
+
+(defmacro define-object-presentor (type &body body)
+  `(progn
+     (setf *object-presentors* (remove ',type *object-presentors* :key #'car :test #'equal))
+     (push (list ',type ',@body) *object-presentors*)))
+
+(define-object-presentor "title" (@ el text-content))
+(define-object-presentor "h1" (@ el text-content))
+
+(define-object-presentor "link" (progn (console :link (@ el href)) (shref (@ el href))))
+
+(define-object-presentor "script"
+  ((@ (list
+       (case (@ el type)
+         ("text/javascript" "")
+         (otherwise (@ el type)))
+       (shref (@ el src)))
+      join) " "))
+
+(define-template-method debugger-interface _present-obj (type el)
+  `(let* ((shref (@ this _shorten-href))
+          (info (case type ,@*object-presentors*))
+          (id (ignore-errors (@ el id))))
+     (list (when info (dom (:span "info") info))
+           (when ((@ type ends-with) "Error") (_present-error el))
+           (when (stringp id) (dom (:span "id") id)))))
 
 (define-template-method debugger-interface present (element &optional fn-this)
   (let ((type (type-of element)))

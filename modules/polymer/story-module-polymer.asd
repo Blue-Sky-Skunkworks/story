@@ -12,4 +12,5 @@
   :components ((:static-file "story-module-polymer.asd")
                (:file "polymer")
                (:file "templates")
+               (:file "grid")
                (:file "demo-polymer")))

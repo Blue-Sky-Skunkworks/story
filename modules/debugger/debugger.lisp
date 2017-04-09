@@ -316,7 +316,7 @@
 (define-object-presentor "title" (@ el text-content))
 (define-object-presentor "h1" (@ el text-content))
 
-(define-object-presentor "link" (progn (console :link (@ el href)) (shref (@ el href))))
+(define-object-presentor "link" (shref (@ el href)))
 
 (define-object-presentor "script"
   ((@ (list

@@ -73,10 +73,12 @@
           (".description h3" :white-space normal)
           (".description th" :text-align left :font-family monospace :padding-right 10px)
           ("code.language-js" :font-family monospace)
-          ("span.desc" :color blue :cursor pointer)
+          ("span.desc" :color blue :cursor pointer :display inline-block)
           ("span.action" :color blue :cursor pointer)
           ("span.error" :color red)
-          (".desc .info" :color green :padding-left 2px :padding-right 2px)
+          (".desc .info" :color green :padding-left 2px :padding-right 2px
+                         :max-width 300px :overflow hidden :text-overflow ellipsis
+                         :display inline-block :vertical-align bottom)
           (".desc .id" :color red :padding-left 2px)
           (".dom" :padding "6px 10px 10px 10px" :background "#DDD")
           (".fn-call" :display inline-block :cursor pointer :color blue :padding 2px)
@@ -360,6 +362,8 @@
          (otherwise (@ el type)))
        (shref (@ el src)))
       join) " "))
+
+(define-object-presentor "#text" (@ el text-content))
 
 (define-template-method debugger-interface _present-obj (type el)
   `(let* ((shref (@ this _shorten-href))

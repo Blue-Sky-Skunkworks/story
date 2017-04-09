@@ -183,44 +183,43 @@
                  (insert (dom (:div "dom") (dom :table rows)))))
    (_describe (el &optional fn-this)
               (console :describe el)
-              (when el
-                (let ((obj this))
-                  (insert
-                   (dom (:div "result description")
-                        (dom :h2 ((@ obj present) el))
-                        (when (objectp el)
-                          (dom :h3 (loop for pro in ((@ obj _prototypes-of) el)
-                                         collect ((@ obj present) pro)
-                                         collect (text " "))))
-                        (dom :table
-                             (loop for key of el
-                                   collect
-                                   (dom (:tr (when ((@ el has-own-property) key) "owned"))
-                                        (dom :th key)
-                                        (dom :td ((@ obj present)
-                                                  (try
-                                                   (aref el key)
-                                                   (:catch (error) error))
-                                                  el)))))
-                        (cond
-                          ((ignore-errors (eql (@ el node-name) "STYLE"))
-                           (let ((pre
-                                   (dom :pre
-                                        (dom (:code "language-css") (@ el inner-text)))))
-                             ((@ *prism highlight-element) (@ pre first-child))
-                             pre))
-                          ((functionp el)
-                           (let ((pre
-                                   (dom :pre
-                                        (dom (:code "language-js") ((@ el to-string))))))
-                             ((@ *prism highlight-element) (@ pre first-child))
-                             (list pre
-                                   (dom (:div "fn-call" ((tab-index 1)
-                                                         (on-tap "_fnCall")
-                                                         (on-keypress "_fnCall")
-                                                         (_fn el)
-                                                         (_fn-this fn-this)))
-                                        "call"))))))))))
+              (let ((obj this))
+                (insert
+                 (dom (:div "result description")
+                      (dom :h2 ((@ obj present) el))
+                      (when (objectp el)
+                        (dom :h3 (loop for pro in ((@ obj _prototypes-of) el)
+                                       collect ((@ obj present) pro)
+                                       collect (text " "))))
+                      (dom :table
+                           (loop for key of el
+                                 collect
+                                 (dom (:tr (when ((@ el has-own-property) key) "owned"))
+                                      (dom :th key)
+                                      (dom :td ((@ obj present)
+                                                (try
+                                                 (aref el key)
+                                                 (:catch (error) error))
+                                                el)))))
+                      (cond
+                        ((ignore-errors (eql (@ el node-name) "STYLE"))
+                         (let ((pre
+                                 (dom :pre
+                                      (dom (:code "language-css") (@ el inner-text)))))
+                           ((@ *prism highlight-element) (@ pre first-child))
+                           pre))
+                        ((functionp el)
+                         (let ((pre
+                                 (dom :pre
+                                      (dom (:code "language-js") ((@ el to-string))))))
+                           ((@ *prism highlight-element) (@ pre first-child))
+                           (list pre
+                                 (dom (:div "fn-call" ((tab-index 1)
+                                                       (on-tap "_fnCall")
+                                                       (on-keypress "_fnCall")
+                                                       (_fn el)
+                                                       (_fn-this fn-this)))
+                                      "call")))))))))
    (_fn-call (event)
              (when-enter-or-tap
               (let* ((fn (@ el _fn))
@@ -339,7 +338,7 @@
   (let ((type (type-of element)))
     (cond
       ((eql type "number") element)
-      ((eql type "boolean") element)
+      ((eql type "boolean") (if element "true" "false"))
       ((eql type "function") type
        (dom (:span "desc" ((on-tap "_handlePresentEvent")
                            (on-keypress "_handlePresentEvent")

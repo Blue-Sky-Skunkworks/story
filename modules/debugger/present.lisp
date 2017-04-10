@@ -31,6 +31,8 @@
 (define-object-presentor "BatteryManager"
   (mkstr (* (@ el level) 100) "%" (when (@ el charging) " charging")))
 
+(define-object-presentor "CSSStyleDeclaration" (text (@ el css-text)))
+
 (define-template-method debugger-interface _present-obj (type el)
   `(let* ((shref (@ this _shorten-href))
           (interface this)

@@ -175,7 +175,7 @@
                                         (present el)))
                               (loop for field in fields
                                     collect
-                                    (dom :td ((@ obj present) (slot-value el field))))
+                                    (dom :td ((@ obj present) (getprop el field))))
                                         ;(dom :td (@ el class-name))
                                         ;(dom :td (@ el id))
                               )))

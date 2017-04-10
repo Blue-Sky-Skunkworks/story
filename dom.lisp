@@ -24,14 +24,17 @@
                           `(setf (aref ,el ',k) ,v))))
          ,@(when children
              (loop for child in children
-                   collect `(let ((,ch ,child))
-                              (when ,ch
-                                (if (arrayp ,ch)
-                                    (loop for c in ,ch
-                                          when c
-                                          do ((@ ,el append-child)
-                                              (if (and c (@ c node-type)) c (text c))))
-                                    ((@ ,el append-child)
-                                     (if (and ,ch (@ ,ch node-type)) ,ch (text ,ch))))))))
+                   collect
+                   (if (stringp child)
+                       `((@ ,el append-child) (text ,child))
+                       `(let ((,ch ,child))
+                          (when ,ch
+                            (if (arrayp ,ch)
+                                (loop for c in ,ch
+                                      when c
+                                        do ((@ ,el append-child)
+                                            (if (and c (@ c node-type)) c (text c))))
+                                ((@ ,el append-child)
+                                 (if (and ,ch (@ ,ch node-type)) ,ch (text ,ch)))))))))
          ,el))))
 

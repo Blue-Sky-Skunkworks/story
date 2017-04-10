@@ -232,11 +232,12 @@
                         (console :call fn-this fn args :result result)
                         (insert
                          (dom (:div "fn-call-result")
-                              (dom (:span "name") (+ (@ fn-this constructor name)
-                                                     "."
-                                                     (@ fn name) "("
-                                                     args
-                                                     ") ⟹  "))
+                              (dom (:span "name") (+
+                                                   (ignore-errors (@ fn-this constructor name))
+                                                   "."
+                                                   (@ fn name) "("
+                                                   args
+                                                   ") ⟹  "))
                               (present result)))))
    (_verify-call-arguments (fn el args)
                            (setf (@ args style visibility) "visible")

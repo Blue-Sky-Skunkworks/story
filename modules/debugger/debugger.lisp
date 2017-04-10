@@ -91,8 +91,8 @@
           (".error .error-message" :max-width 300px :padding "0px 4px 0px 0px")
           (".system-information" :padding 10px :font-family monospace)
           (".system-information th" :padding-right 20px :text-align right)
-          ("span.string" :display inline-block :overflow hidden :text-overflow ellipsis
-                         :white-space nowrap :max-width 300px))
+          ("span.prestring" :display inline-block :overflow hidden :text-overflow ellipsis
+                            :white-space nowrap :max-width 300px))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "_handleKeydown" :no-label-float t)))
   :methods
@@ -249,6 +249,7 @@
    (_fn-call (event)
              (when-enter-or-tap
               (when (eql (@ el local-name) "input")
+                (when (eql (@ event type) "tap") (return))
                 (setf el (@ el parent-node parent-node)))
               (let* ((fn (@ el _fn))
                      (fn-this (@ el _fn-this))
@@ -400,7 +401,7 @@
                   ((@ this _present-obj call) this type element)
                   (text ">")))))
       ((eql type "string")
-       (dom (:span "string" (((on-tap on-keypress) "_handleTextExpansion")))
+       (dom (:span "prestring" (((on-tap on-keypress) "_handleTextExpansion")))
             (+ "\"" element "\"")))
       ((eql type "array") (+ "[" ((@ element to-string)) "]"))
       ((eql type "undefined") type)

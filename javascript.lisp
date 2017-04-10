@@ -185,7 +185,7 @@
           (let ((type (typeof o)))
             (cond
               ((and (eql type "object") o (instanceof o *array)) "array")
-              ; ((eql type "object") nil)
+                                        ; ((eql type "object") nil)
               (t type))))
 
         (defun arrayp (o) (eql (type-of o) "array"))
@@ -224,6 +224,16 @@
         (defun id (id &optional (error t))
           (or ((@ document get-element-by-id) id)
               (when error ((@ console error) "ERROR: id" id))))
+
+        (defun dom-append (el ch)
+          (when ch
+            (if (arrayp ch)
+                (loop for c in ch
+                      when c
+                        do ((@ el append-child)
+                            (if (and c (@ c node-type)) c (text c))))
+                ((@ el append-child)
+                 (if (and ch (@ ch node-type)) ch (text ch))))))
 
         )))))
 

@@ -1,4 +1,4 @@
-(in-package :story)
+
 
 (define-story-module debugger
   :imports (("debugger" debugger-interface-template))
@@ -148,7 +148,7 @@
                           (this (@ this root)))
                       (with-slots (class message) rtn
                         (insert
-                         (dom ("div" class nil message))))))
+                         (dom (:div class nil message))))))
    (add-command (command fn) (setf (aref (@ this commands) command) fn))
    (evaluate (&rest args)
              (let* ((cmd ((@ args join) " "))
@@ -287,7 +287,7 @@
                           ((eql (@ event key) "Enter")
                            (let ((value (@ repl value)))
                              (when (plusp (@ value length))
-                               (insert (dom ("div" "entry") value))
+                               (insert (dom (:div "entry") value))
                                (setf (@ repl value) "")
                                (let ((remote-command (_handle-command value)))
                                  (when remote-command

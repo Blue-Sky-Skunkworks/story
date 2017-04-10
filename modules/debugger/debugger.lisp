@@ -77,8 +77,8 @@
           ("span.action" :color blue :cursor pointer)
           ("span.error" :color red)
           (".desc .info" :color green :padding-left 2px :padding-right 2px
-                         :max-width 300px :overflow hidden :text-overflow ellipsis
-                         :display inline-block :vertical-align bottom)
+                         :max-width 400px :overflow hidden :text-overflow ellipsis
+                         :white-space nowrap :display inline-block :vertical-align bottom)
           (".desc .id" :color red :padding-left 2px)
           (".dom" :padding "6px 10px 10px 10px" :background "#DDD")
           (".fn-call" :display inline-block :cursor pointer :color blue :padding 2px)

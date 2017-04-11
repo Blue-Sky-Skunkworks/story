@@ -11,11 +11,12 @@
     (call-next-method)))
 
 (defun render-meta-tags (story stream)
-  (html
-    (iter (for (name content) in (meta-tags story))
-      (if (consp name)
-          (htm (:meta :http-equiv (car name) :content content))
-          (htm (:meta :name name :content content))))))
+  (let ((*attribute-quote-char* #\"))
+    (html
+      (iter (for (name content) in (meta-tags story))
+        (if (consp name)
+            (htm (:meta :http-equiv (car name) :content content))
+            (htm (:meta :name name :content content)))))))
 
 (defun render-stylesheets (story stream)
   (html

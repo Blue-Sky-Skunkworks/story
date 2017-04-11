@@ -10,6 +10,11 @@
     (funcall (renderer page) page stream)
     (call-next-method)))
 
+(defun render-meta-tags (story stream)
+  (html
+    (iter (for (name content) in (meta-tags story))
+      (htm (:meta :name name :content content)))))
+
 (defun render-stylesheets (story stream)
   (html
     (iter (for css in (stylesheets story))
@@ -44,10 +49,13 @@
          (when title (htm (:title (esc title))))
          (cond
            (*production*
+            (when (meta-tags story) (render-meta-tags story stream))
             (when (imports story) (htm (:link :rel "import" :href "all.html")))
-            (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css" :href "css-all.css")))
+            (when (stylesheets story) (htm (:link :rel "stylesheet" :type "text/css"
+                                                  :href "css-all.css")))
             (when (scripts story) (htm (:script :type "text/javascript" :src "js-all.min.js"))))
            (t
+            (when (meta-tags story) (render-meta-tags story stream))
             (when (imports story) (render-imports story stream))
             (when (stylesheets story) (render-stylesheets story stream))
             (when (scripts story) (render-scripts story stream)))))

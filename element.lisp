@@ -32,7 +32,8 @@
    (files :reader files :initarg :files)
    (suffixes :reader suffixes :initarg :suffixes)
    (prefixes :reader prefixes :initarg :prefixes)
-   (sockets :reader sockets :initarg :sockets)))
+   (sockets :reader sockets :initarg :sockets)
+   (meta-tags :reader meta-tags :initarg :meta-tags)))
 
 
 ;;; story
@@ -45,7 +46,8 @@
    (footer :reader footer :initarg :footer)
    (home :reader home :initarg :home)
    (modules :reader modules :initarg :modules :initform nil)
-   (cname :reader cname :initarg :cname)))
+   (cname :reader cname :initarg :cname)
+   (meta-tags :reader meta-tags :initarg :meta-tags)))
 
 (defmethod print-object ((story story) stream)
   (print-unreadable-object (story stream :type t)
@@ -135,6 +137,13 @@
     (for name in (modules-and-parents (modules story)))
     (let ((module (find-module name)))
       (when-let (els (script-init module))
+        (appending els)))))
+
+(defmethod meta-tags ((story story))
+  (iter
+    (for name in (modules-and-parents (modules story)))
+    (let ((module (find-module name)))
+      (when-let (els (meta-tags module))
         (appending els)))))
 
 (defun setup-server (story)

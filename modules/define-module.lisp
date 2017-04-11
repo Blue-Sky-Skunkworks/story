@@ -27,7 +27,7 @@
 (defmacro define-story-module (name &key init script-init stylesheets directories scripts
                                       imports production-import-fix depends-on
                                       extends dispatches suffixes prefixes files
-                                      sockets)
+                                      sockets meta-tags)
   (let* ((kname (ksymb (string-upcase name)))
          (mname (or extends name))
          (base (f "~A~(~A~)/" (story-modules-file) mname)))
@@ -39,7 +39,7 @@
                                     :extends ,extends :dispatches ',dispatches
                                     :suffixes ',suffixes :prefixes ',prefixes :files ',files
                                     :script-init ',script-init :depends-on ',depends-on
-                                    :sockets ',sockets))
+                                    :sockets ',sockets :meta-tags ',meta-tags))
        (defun ,(symb 'stage-story-module- name) ()
          ,@(when extends `((,(symb 'stage-story-module- extends))))
          ,@(when depends-on (iter (for el in (ensure-list depends-on)) (collect `(,(symb 'stage-story-module- el)))))

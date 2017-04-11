@@ -90,3 +90,19 @@
   ;; (format t "~%dispatches:~%")
   ;; (iter (for el in *module-dispatches*) (format t "  ~A~%" el))
   (when push (push-story story)))
+
+(defparameter *build-server-port* (+ *web-port* 1))
+(defvar *build-server* nil)
+
+(defun serve-build (&key (port *serve-build-port*) (root (story-file "build/")))
+  (when *build-server*
+    (warn "Build server already started. Restarting")
+    (stop *build-server*))
+  (note "starting story serve-build-server on port ~S with sockets on ~S" *web-port* *websocket-port*)
+  (setf *build-server*
+        (make-instance 'acceptor
+                       :port port
+                       :document-root root
+                       :access-log-destination sb-sys:*stdout*
+                       :message-log-destination sb-sys:*stdout*))
+  (start *build-server*))

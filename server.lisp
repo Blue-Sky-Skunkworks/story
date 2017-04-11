@@ -329,7 +329,7 @@ matches NAME."
       (format t "~%files:~%")
       (iter (for (k type name) in (val :files)) (format t "  ~36A  ~16A ~A~%" k type name))
       (format t "~%imports:~%")
-      (iter (for (k v) in (val :imports)) (format t "  ~36A  ~A~%" v k))
+      (iter (for el in (val :imports)) (format t "  ~A~%" el))
       (format t "~%dispatches:~%")
       (iter (for el in (val :dispatches)) (format t "  ~A~%" el))
       (format t "~%sockets:~%")

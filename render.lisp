@@ -13,7 +13,9 @@
 (defun render-meta-tags (story stream)
   (html
     (iter (for (name content) in (meta-tags story))
-      (htm (:meta :name name :content content)))))
+      (if (consp name)
+          (htm (:meta :http-equiv (car name) :content content))
+          (htm (:meta :name name :content content))))))
 
 (defun render-stylesheets (story stream)
   (html

@@ -37,7 +37,8 @@
   (mkstr (* (@ el level) 100) "%" (when (@ el charging) " charging")))
 
 (define-object-name-alias "CSSStyleDeclaration" "css")
-(define-object-presentor "CSSStyleDeclaration" (text (@ el css-text)))
+(define-object-presentor "CSSStyleDeclaration"
+  (when (plusp (@ el css-text length)) (@ el css-text)))
 
 (define-template-method debugger-interface _present-obj (type el)
   `(let* ((shref (@ this _shorten-href))

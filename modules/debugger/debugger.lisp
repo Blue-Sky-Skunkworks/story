@@ -116,6 +116,7 @@
                (add-command "evaluate" "evaluate")
                (add-command "reverse-video" "reverseVideo")
                (add-command "system" "describeSystem")
+               (add-command "storage" "describeStorage")
                ((@ this $ repl focus))
                (console "debugger connected to" url)))
    (alias (&optional from to)
@@ -187,50 +188,49 @@
                      (rows (make-array)))
                  (_insert-dom-recur rows root 0 fields)
                  (insert (dom (:div "dom") (dom :table rows)))))
-   (_describe (el &optional fn-this)
+   (_describe (el &key fn-this (show-prototypes t))
               (console :describe el)
               (let ((obj this))
-                (insert
-                 (dom (:div "result description")
-                      (dom :h2 ((@ obj present) el))
-                      (when (objectp el)
-                        (dom :h3 (loop for pro in ((@ obj _prototypes-of) el)
-                                       collect ((@ obj present) pro)
-                                       collect (text " "))))
-                      (dom :table
-                           (loop for key of el
-                                 collect
-                                 (dom (:tr (when ((@ el has-own-property) key) "owned"))
-                                      (dom :th key)
-                                      (dom :td ((@ obj present)
-                                                (try
-                                                 (aref el key)
-                                                 (:catch (error) error))
-                                                el)))))
-                      (cond
-                        ((ignore-errors (eql (@ el node-name) "STYLE"))
-                         (let ((pre
-                                 (dom :pre
-                                      (dom (:code "language-css") (@ el inner-text)))))
-                           ((@ *prism highlight-element) (@ pre first-child))
-                           pre))
-                        ((functionp el)
-                         (let ((pre
-                                 (dom :pre
-                                      (dom (:code "language-js") ((@ el to-string))))))
-                           ((@ *prism highlight-element) (@ pre first-child))
-                           (list pre
-                                 (dom (:div "fn-call" ((tab-index 1)
-                                                       ((on-tap on-keypress) "_fnCall")
-                                                       (_fn el)
-                                                       (_fn-this fn-this)))
-                                      "call"
-                                      (when (plusp (@ el length))
-                                        (dom (:span "fn-args" ((style "visibility:hidden;")))
-                                             (loop for x from 1 to (@ el length)
-                                                   collect (dom (:input "arg"
-                                                                  ((type "text")
-                                                                   (style "width:50px;margin-left:10px;"))))))))))))))))
+                (dom (:div "result description")
+                     (dom :h2 ((@ obj present) el))
+                     (when (and show-prototypes (objectp el))
+                       (dom :h3 (loop for pro in ((@ obj _prototypes-of) el)
+                                      collect ((@ obj present) pro)
+                                      collect (text " "))))
+                     (dom :table
+                          (loop for key of el
+                                collect
+                                (dom (:tr (when ((@ el has-own-property) key) "owned"))
+                                     (dom :th key)
+                                     (dom :td ((@ obj present)
+                                               (try
+                                                (aref el key)
+                                                (:catch (error) error))
+                                               el)))))
+                     (cond
+                       ((ignore-errors (eql (@ el node-name) "STYLE"))
+                        (let ((pre
+                                (dom :pre
+                                     (dom (:code "language-css") (@ el inner-text)))))
+                          ((@ *prism highlight-element) (@ pre first-child))
+                          pre))
+                       ((functionp el)
+                        (let ((pre
+                                (dom :pre
+                                     (dom (:code "language-js") ((@ el to-string))))))
+                          ((@ *prism highlight-element) (@ pre first-child))
+                          (list pre
+                                (dom (:div "fn-call" ((tab-index 1)
+                                                      ((on-tap on-keypress) "_fnCall")
+                                                      (_fn el)
+                                                      (_fn-this fn-this)))
+                                     "call"
+                                     (when (plusp (@ el length))
+                                       (dom (:span "fn-args" ((style "visibility:hidden;")))
+                                            (loop for x from 1 to (@ el length)
+                                                  collect (dom (:input "arg"
+                                                                 ((type "text")
+                                                                  (style "width:50px;margin-left:10px;")))))))))))))))
    (_fn-call-complete (fn fn-this args)
                       (let ((result (try ((@ fn apply) fn-this args) (:catch (e) e))))
                         (console :call fn-this fn args :result result)
@@ -265,13 +265,14 @@
                                                collect (eval (@ child value)))))
                     (_fn-call-complete fn fn-this)))))
    (describe (arg)
-             (_describe
-              (if (and (stringp arg) ((@ arg starts-with) "#"))
-                  (or (id ((@ arg substr) 1))
-                      (progn
-                        (insert-error (+ "ID \"" arg "\" does not exist."))
-                        nil))
-                  (try (eval arg) (:catch (e) e)))))
+             (insert
+              (_describe
+               (if (and (stringp arg) ((@ arg starts-with) "#"))
+                   (or (id ((@ arg substr) 1))
+                       (progn
+                         (insert-error (+ "ID \"" arg "\" does not exist."))
+                         nil))
+                   (try (eval arg) (:catch (e) e))))))
    (_handle-command (full-command)
                     ((@ this history push) full-command)
                     (with-content (repl)
@@ -312,8 +313,8 @@
                           (t (setf (@ this history-index) 0) nil)))))
    (_handle-present-event (event)
                           (when-enter-or-tap
-                           (_describe (@ el presenting)
-                                      (@ el _fn-this))))
+                           (insert (_describe (@ el presenting)
+                                              :fn-this (@ el _fn-this)))))
    (_handle-text-expansion (event)
                            (when-enter-or-tap
                             (let ((style (@ el style)))
@@ -390,3 +391,11 @@
     (loop for child in (child-nodes workspace)
           do (unless (eql (@ child id) "repl")
                (remove-child workspace child)))))
+
+(define-template-method debugger-interface describe-storage ()
+  (insert
+   (dom (:div "storage-information")
+        (dom :h3 "local")
+        (_describe (@ window local-storage) :show-prototypes nil)
+        (dom :h3 "session")
+        (_describe (@ window session-storage) :show-prototypes nil))))

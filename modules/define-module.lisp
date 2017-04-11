@@ -27,10 +27,10 @@
 (defmacro define-story-module (name &key init script-init stylesheets directories scripts
                                       imports production-import-fix depends-on
                                       extends dispatches suffixes prefixes files
-                                      sockets meta-tags)
+                                      sockets meta-tags root)
   (let* ((kname (ksymb (string-upcase name)))
          (mname (or extends name))
-         (base (f "~A~(~A~)/" (story-modules-file) mname)))
+         (base (or (and root (eval root)) (f "~A~(~A~)/" (story-modules-file) mname))))
     `(progn
        (setf (gethash ,kname *story-modules*)
              (make-instance 'module :name ,kname :stylesheets ',stylesheets

@@ -78,7 +78,7 @@
 
 (define-script files-js
   (defun fetch-json (url callback)
-    (request url (lambda (val) (funcall callback (eval (+ "(" (@ val response) ")"))))))
+    (request url (lambda (val) (funcall callback ((@ *j-s-o-n parse) (@ val response))))))
 
   (defun fetch-file-listing (url callback)
     (fetch-json (+ url ".file-listing") callback))

@@ -33,8 +33,8 @@
                          "DEPENDENCIES" (f "~{ ~S~}" dependencies))
        (copy-and-replace lisp-filename-template lisp-filename "FOO" (string-downcase name))
        (copy-and-replace demo-filename-template demo-filename "FOO" (string-downcase name))
-       (ql:register-local-projects)
-       (ql:quickload (f "story-module-~A" (string-downcase name)))
+       ;; (ql:register-local-projects)
+       ;; (ql:quickload (f "story-module-~A" (string-downcase name)))
        (format t "Module ~S created." name)))))
 
 (export 'create-story-module)

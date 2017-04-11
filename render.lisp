@@ -69,5 +69,3 @@
                (when-let ((init (script-init story)))
                  (htm (:script (str (apply #'ps* init))))))
         (when (footer story) (funcall (footer story) stream))))))
-
-

@@ -163,6 +163,7 @@ matches NAME."
 
 (defun prepare-css-for-production (prefix text)
   "Removes comments and fixes urls."
+  (when (symbolp text) (setf text (funcall text)))
   (with-output-to-string (stream)
     (let ((index 0))
       (do-scans (ms me rs re (create-scanner "\/\\*.*?\\*\/|url\\(['\"]?(.+?)['\"]?\\)" :single-line-mode t) text)

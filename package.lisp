@@ -5,6 +5,7 @@
   (:export js-file id set-html set-html* console dom create-el-html* remove-node get-prototype-of
            ;; text
            ;; aand
+           hide show
            try))
 
 (defpackage story-css

@@ -235,6 +235,12 @@
                 ((@ el append-child)
                  (if (and ch (@ ch node-type)) ch (text ch))))))
 
+        (defun hide (el)
+          (setf (@ el style display) "none"))
+
+        (defun show (el &key (val "block"))
+          (setf (@ el style display) val))
+
         )))))
 
 (defun js-file () *js-file*)

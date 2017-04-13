@@ -1,4 +1,4 @@
-
+(in-package :story)
 
 (define-story-module debugger
   :imports (("debugger" debugger-interface-template))

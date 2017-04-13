@@ -46,11 +46,12 @@
                             (appending
                              (list name
                                    `(lambda ,args
-                                      (macrolet ,(iter (for name in method-names)
-                                                   (collect `(,name (&rest args)
-                                                                    (cons (list '@ 'this ',name)
-                                                                          args))))
-                                        ,@body)))))))))))))))
+                                      (let ((that this))
+                                        (macrolet ,(iter (for name in method-names)
+                                                     (collect `(,name (&rest args)
+                                                                      (cons (list '@ 'that ',name)
+                                                                            args))))
+                                         ,@body))))))))))))))))
 
 
 

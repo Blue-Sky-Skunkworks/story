@@ -20,7 +20,7 @@
              (loop for (k v) in (resolve-multiple-props properties)
                    collect
                       (if (story:starts-with-p (string-downcase k) "on-")
-                          `((@ this listen) ,el ,(subseq (string-downcase k) 3) ,v)
+                          `((@ that listen) ,el ,(subseq (string-downcase k) 3) ,v)
                           `(setf (aref ,el ',k) ,v))))
          ,@(when children
              (loop for child in children

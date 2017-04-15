@@ -16,8 +16,7 @@
 
 (defmacro define-script (name &body body)
   `(progn
-     (defun ,(intern (symbol-name name) :story-js) () ,(ps* `(progn ,@body)))
-     (export ',name)))
+     (defun ,(intern (symbol-name name) :story-js) () ,(ps* `(progn ,@body)))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *slash-representative-character* #\UE000))

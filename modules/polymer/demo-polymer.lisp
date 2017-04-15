@@ -77,11 +77,23 @@
     (item "First Item")
     (item "Second Item")))
 
-(define-demo paper-dropdown-menu ((:paper-dropdown-menu :paper-listbox :paper-item))
+(define-demo paper-dropdown-menu ((:paper-dropdown-menu :paper-listbox))
   (dropdown-menu
     (listbox :class "dropdown-content"
-      (item "First Item")
-      (item "Second Item"))))
+      (:div "First Item")
+      (:div "Second Item"))))
+
+(define-demo paper-menu ((:paper-menu))
+  (menu
+    (:div "Item 1")
+    (:div "Item 2")))
+
+(define-demo paper-menu-button ((:paper-menu-button :paper-menu))
+  (menu-button
+    (:div :class "dropdown-trigger" "trigger")
+    (menu :class "dropdown-content"
+      (:div "Item 1")
+      (:div "Item 2"))))
 
 (define-demo paper-drawer-panel ((:paper-drawer-panel))
   (drawer-panel

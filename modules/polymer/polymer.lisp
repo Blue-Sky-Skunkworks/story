@@ -73,8 +73,14 @@
 (define-polymer-module paper-dropdown-menu)
 (define-polymer-module paper-drawer-panel)
 (define-polymer-module paper-input)
+(define-polymer-module paper-menu)
+(define-polymer-module paper-menu-button)
+
 (define-story-module paper-textarea :extends :polymer :imports ("paper-input/paper-textarea"))
 (define-polymer-macros paper textarea)
+
+
+
 
 (define-story-module neon-animated-pages :extends :polymer :imports ("neon-animation/neon-animated-pages"))
 (define-story-module neon-animatable :extends :polymer :imports ("neon-animation/neon-animatable")

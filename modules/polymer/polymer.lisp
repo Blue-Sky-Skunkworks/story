@@ -70,6 +70,7 @@
 (define-polymer-module paper-header-panel)
 (define-polymer-module paper-toolbar)
 (define-polymer-module paper-listbox)
+(define-polymer-module paper-dropdown-menu)
 (define-polymer-module paper-drawer-panel)
 (define-polymer-module paper-input)
 (define-story-module paper-textarea :extends :polymer :imports ("paper-input/paper-textarea"))

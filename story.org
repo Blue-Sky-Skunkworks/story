@@ -188,3 +188,19 @@ Exchanging and persisting data between devices and services
 ** js-quantites
 ** https://zeronet.io/en
 ** TODO compress with zopfli
+** TODO link varification
+   https://www.gwern.net/Archiving%20URLs
+** stock images
+   https://blog.snappa.com/free-stock-photos/
+   https://stocksnap.io/
+   https://unsplash.com/
+   https://burst.shopify.com/
+** TODO analytics
+   https://heapanalytics.com
+** keywords
+   https://keywordtool.io
+*** Google Keyword Planning Tool
+    https://adwords.google.com/KeywordPlanner
+** outreach
+   https://www.producthunt.com/
+** color harmonies

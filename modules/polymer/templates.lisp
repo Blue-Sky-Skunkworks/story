@@ -53,8 +53,4 @@
                                                                             args))))
                                          ,@body))))))))))))))))
 
-
-
-
-
-
+(export '(define-template define-template-method))

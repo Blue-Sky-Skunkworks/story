@@ -21,4 +21,4 @@
                             do (let ((el (funcall renderer data)))
                                  ((@ this append-child) el)))))))
 
-(export '(define-template dom-repeat template-grid template-grid-template))
+(export '(dom-repeat template-grid template-grid-template))

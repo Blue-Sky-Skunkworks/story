@@ -129,10 +129,14 @@
 (in-package :story-js)
 
 (define-script iron-request
-  (defun request (url response-handler &optional (error-handler default-request-error-handler))
+  (defun request (url response-handler &key (error-handler default-request-error-handler) json)
     (let* ((req (create-element "iron-request"))
            (promise ((@ req send) (create :url url))))
-      ((@ promise then) response-handler error-handler)))
+      ((@ promise then)
+       (if json
+           (lambda (result) (funcall response-handler ((@ *j-s-o-n parse) (@ result response))))
+           response-handler)
+       error-handler)))
 
   (defun default-request-error-handler (val)
     (console "error in request" val)))

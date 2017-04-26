@@ -106,7 +106,7 @@
                      (@ ws onmessage) (@ this _handle-message)
                      (@ this history) (make-array)
                      (@ this aliases) (create a "alias" c "clear" h "help" d "describe"
-                                              fs "fullscreen" e "evaluate" rv "toggle-reverse-video"
+                                              fs "fullscreen" e "evaluate" rv "reverse-video"
                                               f "find"))
                (add-command "clear" "clearRepl")
                (add-command "fullscreen" "toggleFullscreen")
@@ -115,10 +115,10 @@
                (add-command "alias" "alias")
                (add-command "find" "findDom")
                (add-command "evaluate" "evaluate")
-               (add-command "toggle-reverse-video" "toggleReverseVideo")
+               (add-command "reverse-video" "reverseVideo")
                (add-command "system" "describeSystem")
                (add-command "storage" "describeStorage")
-               (when (@ this reverse-video) (toggle-reverse-video))
+               (when (@ this reverse-video) (reverse-video))
                ((@ this $ repl focus))
                (console "debugger connected to" url)))
    (alias (&optional from to)
@@ -148,7 +148,7 @@
    (insert-error (text) (insert-text (+ "ERROR: " text) :class-name "error"))
    (_handle-message (event)
                     (let ((rtn ((@ *J-s-o-n parse) (@ event data)))
-                          (this (@ this root)))
+                          (that (@ this root)))
                       (with-slots (class message) rtn
                         (insert
                          (dom (:div class nil message))))))
@@ -377,7 +377,7 @@
                   s-border border border 0))))
     (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
 
-(define-template-method debugger-interface toggle-reverse-video ()
+(define-template-method debugger-interface reverse-video ()
   (let ((set (plusp (length (@ document body style filter)))))
     (setf (@ document body style filter) (if set "" "invert(100%)"))))
 

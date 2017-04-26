@@ -58,6 +58,7 @@
 
 (define-template debugger-interface
   :properties (("socket" string "/debugger")
+               ("reverse-video" boolean)
                ("port" number *websocket-port*))
   :style (("#workspace" :background white
                         :border "2px solid #007" :overflow-y auto :padding 10px :margin 10px)
@@ -105,7 +106,7 @@
                      (@ ws onmessage) (@ this _handle-message)
                      (@ this history) (make-array)
                      (@ this aliases) (create a "alias" c "clear" h "help" d "describe"
-                                              fs "fullscreen" e "evaluate" rv "reverse-video"
+                                              fs "fullscreen" e "evaluate" rv "toggle-reverse-video"
                                               f "find"))
                (add-command "clear" "clearRepl")
                (add-command "fullscreen" "toggleFullscreen")
@@ -114,9 +115,10 @@
                (add-command "alias" "alias")
                (add-command "find" "findDom")
                (add-command "evaluate" "evaluate")
-               (add-command "reverse-video" "reverseVideo")
+               (add-command "toggle-reverse-video" "toggleReverseVideo")
                (add-command "system" "describeSystem")
                (add-command "storage" "describeStorage")
+               (when (@ this reverse-video) (toggle-reverse-video))
                ((@ this $ repl focus))
                (console "debugger connected to" url)))
    (alias (&optional from to)
@@ -375,9 +377,9 @@
                   s-border border border 0))))
     (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
 
-(define-template-method debugger-interface reverse-video ()
-  (setf (@ document body style filter)
-        (if (plusp (length (@ document body style filter))) "" "invert(100%)")))
+(define-template-method debugger-interface toggle-reverse-video ()
+  (let ((set (plusp (length (@ document body style filter)))))
+    (setf (@ document body style filter) (if set "" "invert(100%)"))))
 
 (define-template-method debugger-interface find-dom (arg)
   (let ((els ((@ document query-selector-all) arg)))

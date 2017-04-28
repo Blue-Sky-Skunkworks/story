@@ -115,14 +115,24 @@
 (in-package :story-js)
 
 (define-script iron-request
-  (defun request (url response-handler &key (error-handler default-request-error-handler) json)
-    (let* ((req (create-element "iron-request"))
-           (promise ((@ req send) (create :url url))))
-      ((@ promise then)
-       (if json
-           (lambda (result) (funcall response-handler ((@ *j-s-o-n parse) (@ result response))))
-           response-handler)
-       error-handler)))
+  (defvar *request-cache* (create))
+  (defun request (url response-handler &key (error-handler default-request-error-handler)
+                                         json cache)
+    (let ((hit (and cache (getprop *request-cache* url))))
+      (if hit
+          (funcall response-handler hit)
+          (let* ((req (create-element "iron-request"))
+                 (promise ((@ req send) (create :url url))))
+            ((@ promise then)
+             (if json
+                 (lambda (result)
+                   (let ((json ((@ *j-s-o-n parse) (@ result response))))
+                     (when cache (setf (getprop *request-cache* url) json))
+                     (funcall response-handler json)))
+                 (lambda (result)
+                   (when cache (setf (getprop *request-cache* url) result))
+                   (funcall response-handler result)))
+             error-handler)))))
 
   (defun default-request-error-handler (val)
     (console "error in request" val)))

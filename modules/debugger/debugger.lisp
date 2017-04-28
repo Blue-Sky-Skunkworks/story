@@ -49,13 +49,6 @@
   (declare (ignore request))
   (or *debugger* (setf *debugger* (make-instance 'debugger))))
 
-(defpsmacro when-enter-or-tap (&body body)
-  `(when (or (and (eql (@ event type) "keypress")
-                  (eql (@ event key) "Enter"))
-             (eql (@ event type) "tap"))
-     (let ((el (@ event target)))
-       ,@body)))
-
 (define-template debugger-interface
   :properties (("socket" string "/debugger")
                ("reverse-video" boolean)

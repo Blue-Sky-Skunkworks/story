@@ -240,6 +240,11 @@
         (defun show (el &key (val "block"))
           (setf (@ el style display) val))
 
+        (defun event-el (event type)
+          (loop for el in (@ event path)
+                when (eql type (@ el local-name))
+                  do (return el)))
+
         )))))
 
 (defun js-file () *js-file*)

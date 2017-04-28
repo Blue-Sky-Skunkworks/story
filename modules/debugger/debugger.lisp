@@ -59,11 +59,12 @@
 (define-template debugger-interface
   :properties (("socket" string "/debugger")
                ("reverse-video" boolean)
+               ("onInit" string)
                ("port" number *websocket-port*))
   :style (("#workspace" :background white
                         :border "2px solid #007" :overflow-y auto :padding 10px :margin 10px)
-          (".entry" :padding 10px :background "#BBB" :font-family monospace)
-          (".result" :padding 10px :background "#DDD"
+          (".entry" :padding 10px :background "#111" :font-family monospace)
+          (".result" :padding 10px :background "#444"
                      :font-family monospace :white-space pre
                      :margin 0px)
           (".result h2" :margin-top 0px)
@@ -93,7 +94,8 @@
           (".system-information" :padding 10px :font-family monospace)
           (".system-information th" :padding-right 20px :text-align right)
           ("span.prestring" :display inline-block :overflow hidden :text-overflow ellipsis
-                            :white-space nowrap :max-width 300px))
+                            :white-space nowrap :max-width 300px)
+          ("#repl" :--paper-input-container-input "color:white;"))
   :content ((:div :id "workspace"
                   (input :id "repl" :on-keydown "_handleKeydown" :no-label-float t)))
   :methods
@@ -120,7 +122,9 @@
                (add-command "storage" "describeStorage")
                (when (@ this reverse-video) (reverse-video))
                ((@ this $ repl focus))
-               (console "debugger connected to" url)))
+               (console "debugger connected to" url)
+               (when (@ this on-init)
+                 (funcall (@ this (@ this on-init))))))
    (alias (&optional from to)
           (if from
               (if to
@@ -378,8 +382,19 @@
     (setf (@ workspace fullscreen) (not (@ workspace fullscreen)))))
 
 (define-template-method debugger-interface reverse-video ()
-  (let ((set (plusp (length (@ document body style filter)))))
-    (setf (@ document body style filter) (if set "" "invert(100%)"))))
+  (setf (@ this reverse-video-set) (not (@ this reverse-video-set)))
+  (with-content (workspace)
+    (cond
+      ((@ this reverse-video-set)
+       (setf (@ workspace style border-color) "black"
+             (@ workspace style background) "black"
+             (@ workspace style color) "white"))
+      (t
+       (setf (@ workspace style border-color) "#007"
+             (@ workspace style background) "white"
+             (@ workspace style color) "black")
+       )))
+)
 
 (define-template-method debugger-interface find-dom (arg)
   (let ((els ((@ document query-selector-all) arg)))
@@ -401,3 +416,5 @@
         (_describe (@ window local-storage) :show-prototypes nil)
         (dom :h3 "session")
         (_describe (@ window session-storage) :show-prototypes nil))))
+
+(export '(debugger-interface))

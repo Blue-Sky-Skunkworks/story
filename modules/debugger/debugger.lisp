@@ -57,7 +57,7 @@
   :style (("#workspace" :background white
                         :border "2px solid #007" :overflow-y auto :padding 10px :margin 10px)
           (".entry" :padding 10px :background "#111" :font-family monospace)
-          (".result" :padding 10px :background "#444"
+          (".result" :padding 10px :background "#222"
                      :font-family monospace :white-space pre
                      :margin 0px)
           (".result h2" :margin-top 0px)

@@ -237,6 +237,8 @@
         (defun hide (el)
           (setf (@ el style display) "none"))
 
+        (defun hidden (el) (eql (@ el style display) "none"))
+
         (defun show (el &key (val "block"))
           (setf (@ el style display) val))
 

@@ -70,7 +70,7 @@
 (defmacro define-story (name (&key title modules page-args package
                                 stylesheets directories scripts imports suffixes prefixes
                                 publish-directory cname header footer dispatches
-                                meta-tags) &body body)
+                                meta-tags templates) &body body)
   `(progn
      (let* ((page (make-instance 'page :path "index.html"
                                        :renderer 'render-complete-page
@@ -84,7 +84,10 @@
                                          :package ,(or package :story)
                                          :directories ',directories
                                          :stylesheets ',stylesheets
-                                         :imports ',imports
+                                         :imports ',(append imports
+                                                            (iter (for el in templates)
+                                                              (collect (list (string-downcase el)
+                                                                             (symb el '-template)))))
                                          :scripts ',scripts
                                          :suffixes ',suffixes
                                          :prefixes ',prefixes

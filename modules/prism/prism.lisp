@@ -2,5 +2,5 @@
 
 (define-story-module prism
   :directories ("components")
-  :scripts ("prism.js")
+  :scripts ("prism.js" "components/prism-bash.js")
   :stylesheets ("themes/prism.css"))

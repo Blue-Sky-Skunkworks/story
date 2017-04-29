@@ -238,6 +238,7 @@
           (setf (@ el style display) "none"))
 
         (defun hidden (el) (eql (@ el style display) "none"))
+        (defun visible (el) (not (eql (@ el style display) "none")))
 
         (defun show (el &key (val "block"))
           (setf (@ el style display) val))
@@ -246,6 +247,16 @@
           (loop for el in (@ event path)
                 when (eql type (@ el local-name))
                   do (return el)))
+
+        (defun previous-visible-sibling (el)
+          (loop for prev = (@ el previous-sibling) then (@ prev previous-sibling)
+                while prev
+                when (visible prev) do (return prev)))
+
+        (defun next-visible-sibling (el)
+          (loop for next = (@ el next-sibling) then (@ next next-sibling)
+                while next
+                when (visible next) do (return next)))
 
         )))))
 

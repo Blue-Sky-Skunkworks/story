@@ -2,10 +2,10 @@
 
 (defvar *templates* (make-hash-table))
 
-(defmacro define-template (name &key style properties content methods)
+(defmacro define-template (name &key style properties content methods listeners)
   `(progn
      (setf (gethash ',name *templates*) (list ',style ',properties ',content ',methods
-                                              (html-to-string ,@content)))
+                                              (html-to-string ,@content) ',listeners))
      (defun ,(symb name '-template) () (create-template ',name))))
 
 (defvar *template-methods* (make-hash-table))
@@ -22,7 +22,8 @@
 (defun template-methods (name) (gethash name *template-methods*))
 
 (defun create-template (name)
-  (destructuring-bind (style properties content methods content-html) (gethash name *templates*)
+  (destructuring-bind (style properties content methods content-html listeners)
+      (gethash name *templates*)
     (declare (ignore content))
     (let* ((methods (append methods (template-methods name)))
            (method-names (iter (for method in methods) (collect (car method)))))
@@ -42,6 +43,8 @@
              (ps*
               `(*polymer
                 (create is ,sname properties (create ,@props)
+                        listeners (create ,@(iter (for (name fn) in listeners)
+                                              (appending (list name fn))))
                         ,@(iter (for (name args . body) in methods)
                             (appending
                              (list name

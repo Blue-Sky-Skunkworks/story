@@ -30,7 +30,8 @@
    note use-naked-repl
    starts-with-char starts-with-p ends-with-p
    symb ksymb mkstr
-   publish create-story stories describe-story render-current-story slurp-file
+   publish create-story stories describe-story render-current-story
+   slurp-stream slurp-as-octets slurp-file
    to-json from-json
    bugout))
 

@@ -59,6 +59,18 @@
   (mapcar #L(split-sequence #\tab %)
           (split-sequence #\newline string :remove-empty-subseqs t)))
 
+(defun slurp-stream (stream)
+  "Slurp all octets from STREAM. Returns a vector of octets."
+  (let ((seq (make-array (file-length stream) :element-type '(unsigned-byte 8))))
+    (read-sequence seq stream)
+    seq))
+
+(defun slurp-as-octets (filename)
+    "Slurp the contents of the file designated by FILENAME, returning
+a vector of octets."
+  (with-input-from-file (f filename :element-type '(unsigned-byte 8))
+    (slurp-stream f)))
+
 (defun slurp-file (filename &optional external-format)
   (with-input-from-file (stream filename :external-format (or external-format :utf-8))
     (let* ((len (file-length stream))

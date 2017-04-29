@@ -1,6 +1,7 @@
 (in-package :story)
 
-(defvar *object-presentors* nil)
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (defvar *object-presentors* nil))
 
 (defmacro define-object-presentor (type &body body)
   `(progn

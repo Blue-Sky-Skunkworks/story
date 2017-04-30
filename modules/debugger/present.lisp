@@ -1,14 +1,13 @@
 (in-package :story)
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (defvar *object-presentors* nil))
+  (defvar *object-presentors* nil)
+  (defvar *object-name-aliases* nil))
 
 (defmacro define-object-presentor (type &body body)
   `(progn
      (setf *object-presentors* (remove ',type *object-presentors* :key #'car :test #'equal))
      (push (list ',type ',(if (second body) `(progn ,@body) (first body))) *object-presentors*)))
-
-(defvar *object-name-aliases* nil)
 
 (defmacro define-object-name-alias (from to)
   `(pushnew (list ',from ',to) *object-name-aliases* :key #'car :test #'equal))

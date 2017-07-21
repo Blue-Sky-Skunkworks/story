@@ -117,9 +117,8 @@ matches NAME."
 (defvar *css*)
 
 (defparameter *scss-script* (cond
-                              ((probe-file "/usr/bin/scss") "/usr/bin/scss")
-                              ((probe-file "/usr/local/bin/scss") "/usr/local/bin/scss")
-                              (t (error "Missing scss."))))
+                              ((probe-file "/usr/bin/sassc") "/usr/bin/sassc")
+                              (t (error "Missing sassc."))))
 
 (defun load-stylesheets (mapping)
   (iter (for (file path) in mapping)

@@ -12,7 +12,8 @@
   (let ((agent (user-agent)))
     (cond
       ((scan (ppcre:create-scanner "chrome" :case-insensitive-mode t) agent) "chrome")
-      (t  addr))))
+      ((scan (ppcre:create-scanner "Mozilla" :case-insensitive-mode t) agent) "firefox")
+      (t agent))))
 
 (defmethod hunchentoot:acceptor-log-access ((acceptor server) &key return-code)
   (note "~A ~:[ ~@[ (~A)~]~;~:*~A~@[ (~A)~]~]~:[~;~: *~A~] ~A ~A ~16A ~A  ~A  ~A"

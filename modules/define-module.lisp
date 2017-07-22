@@ -129,13 +129,13 @@
 
 (defun story-module-depends-on-modules (module-name)
   (iter (for name in (asdf:system-depends-on (asdf:find-system module-name)))
-        (when (string-starts-with name "story-module-")
+        (when (string-with-p name "story-module-")
           (appending (story-module-depends-on-modules name))
           (collect (ksymb (string-upcase (subseq name (length "story-module-"))))))))
 
 (defun all-story-modules (&key with-version)
   (iter (for system in (ql:list-local-systems))
-        (when (and (string-starts-with system "story-module-")
+        (when (and (starts-with-p system "story-module-")
                    (not (equal system "story-module-system")))
           (collect
               (if with-version

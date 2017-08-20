@@ -1,6 +1,7 @@
 (in-package :story)
 
-(define-foreign-library libmagic (t (:or "libmagic.so.1" "libmagic.so")))
+(define-foreign-library libmagic (t (:or "libmagic.so.1" "libmagic.so"
+                                         "libmagic.1.dylib" "libmagic.dylib")))
 
 (load-foreign-library 'libmagic)
 

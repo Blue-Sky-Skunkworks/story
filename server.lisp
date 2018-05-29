@@ -118,6 +118,7 @@ matches NAME."
 
 (defparameter *scss-script* (cond
                               ((probe-file "/usr/bin/sassc") "/usr/bin/sassc")
+                              ((probe-file "/usr/local/bin/sassc") "/usr/local/bin/sassc")
                               (t (error "Missing sassc."))))
 
 (defun load-stylesheets (mapping)
